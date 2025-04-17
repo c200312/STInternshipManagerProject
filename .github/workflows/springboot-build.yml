@@ -1,8 +1,12 @@
 name: Spring Boot Build Check
 
+
 on:
+  push:
+    branches: [master, dev]
   pull_request:
-    branches: [dev, master]
+    branches: [master, dev]
+
 
 jobs:
   build:
