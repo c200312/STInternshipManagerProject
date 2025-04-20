@@ -1,7 +1,7 @@
-package com.bcu.information.bean;
+package com.bcu.information.bean.Internship;
 
 /*
- * 周学生记实体类（结构化）
+ * 周学生记实体类
  * */
 public class DDiary {
     private Integer week;

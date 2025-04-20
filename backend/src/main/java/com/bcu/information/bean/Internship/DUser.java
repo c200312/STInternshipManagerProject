@@ -1,4 +1,4 @@
-package com.bcu.information.bean;
+package com.bcu.information.bean.Internship;
 import lombok.Data;
 
 import org.springframework.data.annotation.Id;

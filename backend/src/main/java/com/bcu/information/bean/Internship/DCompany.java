@@ -1,4 +1,4 @@
-package com.bcu.information.bean;
+package com.bcu.information.bean.Internship;
 
 /*
 * 实训公司实体类

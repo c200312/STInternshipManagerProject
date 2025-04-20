@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router' // 确保正确引入 router
+import router from './router'
 import store from './store'
 import axios from "axios";
 import ElementPlus from 'element-plus'
@@ -12,6 +12,24 @@ const app = createApp(App)
 app.config.globalProperties.$axios = axios
 
 app.use(store)
-    .use(router) // 确保正确使用 router
+    .use(router)
     .use(ElementPlus)
     .mount('#app')
+const debounce = (fn, delay) => {
+    let timer
+    return (...args) => {
+        if (timer) {
+            clearTimeout(timer)
+        }
+        timer = setTimeout(() => {
+            fn(...args)
+        }, delay)
+    }
+}
+const _ResizeObserver = window.ResizeObserver;
+window.ResizeObserver = class ResizeObserver extends _ResizeObserver{
+    constructor(callback) {
+        callback = debounce(callback, 200);
+        super(callback);
+    }
+}
