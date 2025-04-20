@@ -1,17 +1,14 @@
 package com.bcu.information.controller;
 
 import com.bcu.common.result.Result;
-import com.bcu.information.bean.*;
+import com.bcu.information.bean.Internship.DUser;
 import com.bcu.information.service.DUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/duser")
 public class DUserController {
-
     @Autowired
     private DUserService service;
 
@@ -53,4 +50,7 @@ public class DUserController {
             return Result.error(e.getMessage());
         }
     }
+
+
+
 }
