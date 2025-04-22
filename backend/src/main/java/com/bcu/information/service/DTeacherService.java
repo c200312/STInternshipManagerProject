@@ -3,19 +3,16 @@ package com.bcu.information.service;
 import com.bcu.information.bean.Internship.DUser;
 import com.bcu.information.dao.DUserRepository;
 import com.bcu.information.service.ai.AiServiceSelector;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DTeacherService {
-
-    @Autowired
-    private AiServiceSelector aiSelector;
-
-    @Autowired
-    private DUserRepository repository;
+    private final AiServiceSelector aiSelector;
+    private final DUserRepository repository;
 
     public DUser getById(String id) {
         return repository.findById(id).orElse(null);

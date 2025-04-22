@@ -5,16 +5,16 @@ import com.bcu.information.bean.Internship.DCompany;
 import com.bcu.information.bean.Internship.DDiary;
 import com.bcu.information.bean.Internship.DUser;
 import com.bcu.information.dao.DUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class DUserService {
-    @Autowired
-    private DUserRepository repository;
+    private final DUserRepository repository;
 
     // 初始化
     public DUser create(DUser user) {

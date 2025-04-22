@@ -3,7 +3,7 @@ package com.bcu.user.controller;
 import com.bcu.common.result.Result;
 import com.bcu.user.bean.TUser;
 import com.bcu.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public Result login(@RequestBody TUser user) {

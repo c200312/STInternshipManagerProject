@@ -3,14 +3,14 @@ package com.bcu.information.controller;
 import com.bcu.common.result.Result;
 import com.bcu.information.bean.Internship.DUser;
 import com.bcu.information.service.DUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/duser")
+@RequiredArgsConstructor
 public class DUserController {
-    @Autowired
-    private DUserService service;
+    private final DUserService service;
 
     //  初始化
     @PostMapping("/create")
