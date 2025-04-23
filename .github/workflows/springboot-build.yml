@@ -21,7 +21,7 @@ jobs:
         id: extract-java
         run: |
           cd backend
-          JAVA_VERSION=$(xmllint --xpath "string(//java.version)" pom.xml)
+          JAVA_VERSION=$(xmllint --xpath "string(//_:project/_:properties/_:java.version)" --xmlns:_="http://maven.apache.org/POM/4.0.0" pom.xml)
           if [ -z "$JAVA_VERSION" ]; then
             echo "❌ Error: <java.version> not found in pom.xml"
             exit 1
