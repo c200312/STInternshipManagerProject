@@ -1,12 +1,10 @@
 name: Spring Boot Build Check
 
-
 on:
   push:
     branches: [master, dev]
   pull_request:
     branches: [master, dev]
-
 
 jobs:
   build:
@@ -16,10 +14,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Extract Java version from pom.xml
+        id: extract-java
+        run: |
+          cd backend
+          JAVA_VERSION=$(xmllint --xpath "string(//java.version)" pom.xml)
+          if [ -z "$JAVA_VERSION" ]; then
+            echo "❌ Error: <java.version> not found in pom.xml"
+            exit 1
+          fi
+          echo "✅ Detected Java version: $JAVA_VERSION"
+          echo "java-version=$JAVA_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: ${{ steps.extract-java.outputs.java-version }}
           distribution: 'temurin'
 
       - name: Build with Maven
