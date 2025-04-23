@@ -33,10 +33,7 @@ public class Result {
 
     //失败的方法，返回自定义错误信息 和 错误代码“-1”
     public static Result error(String msg) {
-        Result result = new Result();
-        result.setCode(ERROR_CODE);
-        result.setMsg(msg);
-        return result;
+        return error(ERROR_CODE, msg);
     }
 
     //失败的方法，返回自定义错误信息 和 自定义错误代码

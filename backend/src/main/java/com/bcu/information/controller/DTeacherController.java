@@ -3,7 +3,7 @@ package com.bcu.information.controller;
 import com.bcu.common.result.Result;
 
 import com.bcu.information.service.DTeacherService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,9 +14,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/teacher")
+@RequiredArgsConstructor
 public class DTeacherController {
-    @Autowired
-    private DTeacherService service;
+    private final DTeacherService service;
     @PostMapping("/generate-comment")
     public Result generateComment(@RequestBody Map<String, Object> request) {
         String studentId = (String) request.get("studentId");
