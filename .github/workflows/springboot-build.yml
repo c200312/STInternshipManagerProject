@@ -14,14 +14,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install xmllint
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+      - name: Install xmlstarlet
+        run: sudo apt-get update && sudo apt-get install -y xmlstarlet
 
       - name: Extract Java version from pom.xml
         id: extract-java
         run: |
           cd backend
-          JAVA_VERSION=$(xmllint --xpath "string(//_:project/_:properties/_:java.version)" --xmlns:_="http://maven.apache.org/POM/4.0.0" pom.xml)
+          JAVA_VERSION=$(xmlstarlet sel -N x="http://maven.apache.org/POM/4.0.0" -t -v "//x:project/x:properties/x:java.version" pom.xml)
           if [ -z "$JAVA_VERSION" ]; then
             echo "❌ Error: <java.version> not found in pom.xml"
             exit 1
