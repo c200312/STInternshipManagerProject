@@ -1,6 +1,7 @@
 # 实习系统
 # 项目功能
 ![img.png](img.png)
+正在逐步完成各功能
 # 项目环境
 项目基于spring boot+vue开发
 使用mysql+mongodb数据库
