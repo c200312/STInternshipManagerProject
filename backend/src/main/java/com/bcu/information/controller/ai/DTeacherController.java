@@ -1,8 +1,8 @@
-package com.bcu.information.controller;
+package com.bcu.information.controller.ai;
 
 import com.bcu.common.result.Result;
 
-import com.bcu.information.service.DTeacherService;
+import com.bcu.information.service.ai.DTeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

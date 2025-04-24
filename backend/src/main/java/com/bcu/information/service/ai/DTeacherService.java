@@ -1,8 +1,7 @@
-package com.bcu.information.service;
+package com.bcu.information.service.ai;
 
 import com.bcu.information.bean.DUser;
 import com.bcu.information.dao.DUserRepository;
-import com.bcu.information.service.ai.AiServiceSelector;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

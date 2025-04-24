@@ -87,7 +87,6 @@ public class DUserService {
             for (DComment c : partial.getComment()) {
                 user.getComment().removeIf(existing ->
                         existing.getWeek().equals(c.getWeek()) &&
-                                existing.getType().equals(c.getType()) &&
                                 existing.getTeachername().equals(c.getTeachername())
                 );
                 user.getComment().add(c);
