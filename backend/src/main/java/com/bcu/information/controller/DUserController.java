@@ -1,7 +1,7 @@
 package com.bcu.information.controller;
 
 import com.bcu.common.result.Result;
-import com.bcu.information.bean.Internship.DUser;
+import com.bcu.information.bean.DUser;
 import com.bcu.information.service.DUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

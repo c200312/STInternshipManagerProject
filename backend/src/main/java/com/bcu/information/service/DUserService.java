@@ -1,9 +1,9 @@
 package com.bcu.information.service;
 
-import com.bcu.information.bean.Internship.DComment;
-import com.bcu.information.bean.Internship.DCompany;
-import com.bcu.information.bean.Internship.DDiary;
-import com.bcu.information.bean.Internship.DUser;
+import com.bcu.information.bean.DComment;
+import com.bcu.information.bean.DCompany;
+import com.bcu.information.bean.DDiary;
+import com.bcu.information.bean.DUser;
 import com.bcu.information.dao.DUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

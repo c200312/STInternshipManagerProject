@@ -1,4 +1,4 @@
-package com.bcu.information.bean.Internship;
+package com.bcu.information.bean;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,7 +18,7 @@ public class DUser {
     private String id;
     private String name;
 
-    private List<DCompany> company = new ArrayList<>();
-    private List<DDiary> diary = new ArrayList<>();
-    private List<DComment> comment = new ArrayList<>();
+    private List<DCompany> company = new ArrayList<>(); //实习公司
+    private List<DDiary> diary = new ArrayList<>(); //周记
+    private List<DComment> comment = new ArrayList<>(); //教师评语
 }

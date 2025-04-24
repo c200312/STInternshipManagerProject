@@ -1,6 +1,6 @@
 package com.bcu.information.service;
 
-import com.bcu.information.bean.Internship.DUser;
+import com.bcu.information.bean.DUser;
 import com.bcu.information.dao.DUserRepository;
 import com.bcu.information.service.ai.AiServiceSelector;
 import lombok.RequiredArgsConstructor;

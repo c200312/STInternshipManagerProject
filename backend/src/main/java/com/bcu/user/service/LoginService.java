@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class LoginService {
     private final TUserMapper mapper;
 
     public TUser findUserByUsernameAndPassword(TUser user) {

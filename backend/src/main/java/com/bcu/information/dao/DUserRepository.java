@@ -1,6 +1,6 @@
 package com.bcu.information.dao;
 
-import com.bcu.information.bean.Internship.DUser;
+import com.bcu.information.bean.DUser;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

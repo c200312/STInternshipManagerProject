@@ -2,7 +2,7 @@ package com.bcu.user.controller;
 
 import com.bcu.common.result.Result;
 import com.bcu.user.bean.TUser;
-import com.bcu.user.service.UserService;
+import com.bcu.user.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class LoginController {
-    private final UserService userService;
+    private final LoginService userService;
 
     @PostMapping("/login")
     public Result login(@RequestBody TUser user) {

@@ -1,8 +1,8 @@
 package com.bcu.information.util;
 
-import com.bcu.information.bean.Internship.DCompany;
-import com.bcu.information.bean.Internship.DDiary;
-import com.bcu.information.bean.Internship.DUser;
+import com.bcu.information.bean.DCompany;
+import com.bcu.information.bean.DDiary;
+import com.bcu.information.bean.DUser;
 
 import java.util.Comparator;
 import java.util.List;
