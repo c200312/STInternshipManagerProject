@@ -1,20 +1,20 @@
 package com.bcu.information.service;
 
-import com.bcu.information.bean.Internship.DComment;
-import com.bcu.information.bean.Internship.DCompany;
-import com.bcu.information.bean.Internship.DDiary;
-import com.bcu.information.bean.Internship.DUser;
+import com.bcu.information.bean.DComment;
+import com.bcu.information.bean.DCompany;
+import com.bcu.information.bean.DDiary;
+import com.bcu.information.bean.DUser;
 import com.bcu.information.dao.DUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class DUserService {
-    @Autowired
-    private DUserRepository repository;
+    private final DUserRepository repository;
 
     // 初始化
     public DUser create(DUser user) {
@@ -87,7 +87,6 @@ public class DUserService {
             for (DComment c : partial.getComment()) {
                 user.getComment().removeIf(existing ->
                         existing.getWeek().equals(c.getWeek()) &&
-                                existing.getType().equals(c.getType()) &&
                                 existing.getTeachername().equals(c.getTeachername())
                 );
                 user.getComment().add(c);

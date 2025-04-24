@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 @Configuration
-@PropertySource("classpath:mongo.properties") // 别忘了加 classpath:
+@PropertySource("classpath:mongo.properties")
 public class MongoConfig {
 
     @Value("${mongo.host}")

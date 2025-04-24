@@ -1,6 +1,6 @@
 package com.bcu.information.service.ai;
 
-import com.bcu.information.bean.Internship.DUser;
+import com.bcu.information.bean.DUser;
 
 import java.util.List;
 /*

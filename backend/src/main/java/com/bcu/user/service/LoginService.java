@@ -3,15 +3,15 @@ package com.bcu.user.service;
 import com.bcu.user.bean.TUser;
 import com.bcu.user.bean.TUserExample;
 import com.bcu.user.dao.TUserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserService {
-    @Autowired
-    private TUserMapper mapper;
+@RequiredArgsConstructor
+public class LoginService {
+    private final TUserMapper mapper;
 
     public TUser findUserByUsernameAndPassword(TUser user) {
         TUserExample example = new TUserExample();

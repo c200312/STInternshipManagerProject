@@ -3,7 +3,6 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
-import org.springframework.core.type.filter.TypeFilter;
 import java.util.Collections;
 
 @Configuration 
