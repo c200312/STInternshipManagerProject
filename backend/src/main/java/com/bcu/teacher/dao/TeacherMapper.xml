@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bcu.teacher.dao.TeacherMapper" >
+  <resultMap id="BaseResultMap" type="com.bcu.teacher.bean.Teacher" >
+    <id column="t_id" property="t_id" jdbcType="INTEGER" />
+    <result column="teacher_name" property="teacher_name" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <result column="advisor_type" property="advisor_type" jdbcType="CHAR" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="education" property="education" jdbcType="VARCHAR" />
+    <result column="position" property="position" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="signature_path" property="signature_path" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    t_id, teacher_name, gender, advisor_type, age, education, position, phone, email, 
+    signature_path
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.teacher.bean.TeacherExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sx..teacher
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sx..teacher
+    where t_id = #{t_id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sx..teacher
+    where t_id = #{t_id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.bcu.teacher.bean.TeacherExample" >
+    delete from sx..teacher
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.bcu.teacher.bean.Teacher" >
+    insert into sx..teacher (t_id, teacher_name, gender, 
+      advisor_type, age, education, 
+      position, phone, email, 
+      signature_path)
+    values (#{t_id,jdbcType=INTEGER}, #{teacher_name,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, 
+      #{advisor_type,jdbcType=CHAR}, #{age,jdbcType=INTEGER}, #{education,jdbcType=VARCHAR}, 
+      #{position,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{signature_path,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bcu.teacher.bean.Teacher" >
+    insert into sx..teacher
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="t_id != null" >
+        t_id,
+      </if>
+      <if test="teacher_name != null" >
+        teacher_name,
+      </if>
+      <if test="gender != null" >
+        gender,
+      </if>
+      <if test="advisor_type != null" >
+        advisor_type,
+      </if>
+      <if test="age != null" >
+        age,
+      </if>
+      <if test="education != null" >
+        education,
+      </if>
+      <if test="position != null" >
+        position,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="signature_path != null" >
+        signature_path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="t_id != null" >
+        #{t_id,jdbcType=INTEGER},
+      </if>
+      <if test="teacher_name != null" >
+        #{teacher_name,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        #{gender,jdbcType=CHAR},
+      </if>
+      <if test="advisor_type != null" >
+        #{advisor_type,jdbcType=CHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="education != null" >
+        #{education,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null" >
+        #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="signature_path != null" >
+        #{signature_path,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.bcu.teacher.bean.TeacherExample" resultType="java.lang.Integer" >
+    select count(*) from sx..teacher
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update sx..teacher
+    <set >
+      <if test="record.t_id != null" >
+        t_id = #{record.t_id,jdbcType=INTEGER},
+      </if>
+      <if test="record.teacher_name != null" >
+        teacher_name = #{record.teacher_name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gender != null" >
+        gender = #{record.gender,jdbcType=CHAR},
+      </if>
+      <if test="record.advisor_type != null" >
+        advisor_type = #{record.advisor_type,jdbcType=CHAR},
+      </if>
+      <if test="record.age != null" >
+        age = #{record.age,jdbcType=INTEGER},
+      </if>
+      <if test="record.education != null" >
+        education = #{record.education,jdbcType=VARCHAR},
+      </if>
+      <if test="record.position != null" >
+        position = #{record.position,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null" >
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null" >
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.signature_path != null" >
+        signature_path = #{record.signature_path,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update sx..teacher
+    set t_id = #{record.t_id,jdbcType=INTEGER},
+      teacher_name = #{record.teacher_name,jdbcType=VARCHAR},
+      gender = #{record.gender,jdbcType=CHAR},
+      advisor_type = #{record.advisor_type,jdbcType=CHAR},
+      age = #{record.age,jdbcType=INTEGER},
+      education = #{record.education,jdbcType=VARCHAR},
+      position = #{record.position,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR},
+      email = #{record.email,jdbcType=VARCHAR},
+      signature_path = #{record.signature_path,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bcu.teacher.bean.Teacher" >
+    update sx..teacher
+    <set >
+      <if test="teacher_name != null" >
+        teacher_name = #{teacher_name,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        gender = #{gender,jdbcType=CHAR},
+      </if>
+      <if test="advisor_type != null" >
+        advisor_type = #{advisor_type,jdbcType=CHAR},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="education != null" >
+        education = #{education,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null" >
+        position = #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="signature_path != null" >
+        signature_path = #{signature_path,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_id = #{t_id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bcu.teacher.bean.Teacher" >
+    update sx..teacher
+    set teacher_name = #{teacher_name,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=CHAR},
+      advisor_type = #{advisor_type,jdbcType=CHAR},
+      age = #{age,jdbcType=INTEGER},
+      education = #{education,jdbcType=VARCHAR},
+      position = #{position,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      signature_path = #{signature_path,jdbcType=VARCHAR}
+    where t_id = #{t_id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -24,17 +24,17 @@ public class DUserService {
         return repository.save(user);
     }
 
-    // 查询全部
+    // 查询全部信息
     public List<DUser> getAll() {
         return repository.findAll();
     }
 
-    // 按id查询
+    // 按id查询全部信息
     public DUser getById(String id) {
         return repository.findById(id).orElse(null);
     }
 
-    // 按id删除
+    // 按id删除全部信息
     public boolean deleteById(String id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -43,7 +43,7 @@ public class DUserService {
         return false;
     }
 
-    // 部分更新
+    // 按id部分更新(按输入的信息进行覆盖，仅覆盖输入的部分)
     public DUser patchUpdate(String id, DUser partial) {
         Optional<DUser> optionalUser = repository.findById(id);
         if (optionalUser.isEmpty()) {
@@ -82,7 +82,7 @@ public class DUserService {
             }
         }
 
-        // 评语：按 week + type + teacher 唯一 → 替换或添加
+        // 评语：按 week + teacher 唯一 → 替换或添加
         if (partial.getComment() != null) {
             for (DComment c : partial.getComment()) {
                 user.getComment().removeIf(existing ->

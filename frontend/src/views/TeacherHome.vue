@@ -8,7 +8,7 @@
               :size="32"
               src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
           />
-          <span>{{ teacherInfo.realname || teacherInfo.username }}</span>
+          <span>{{teacherInfo.username }}</span>
         </span>
         <template #dropdown>
           <el-dropdown-menu>

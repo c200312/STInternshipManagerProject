@@ -8,14 +8,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/*
+* mongodb整体结构类
+* */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "users")
 public class DUser {
     @Id
-    private String id;
+    private String id;  //学生学号
     private String name;
 
     private List<DCompany> company = new ArrayList<>(); //实习公司

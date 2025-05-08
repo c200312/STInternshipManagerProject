@@ -8,7 +8,7 @@
               :size="32"
               src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
           />
-          <span style="margin-left: 8px; font-weight: bold;">{{ userInfo.realname || userId }}</span>
+          <span style="margin-left: 8px; font-weight: bold;">{{ userInfo.realname || userName }}</span>
         </span>
         <template #dropdown>
           <el-dropdown-menu>
@@ -48,7 +48,7 @@
         <el-main>
           <DiaryForm
               v-if="currentTab === 'diary'"
-              :userId="userId"
+              :userName="userName"
               :week="selectedWeek"
               :initContent="diaryContent"
               @submit="saveDiary"
@@ -67,7 +67,8 @@ import DiaryForm from '../components/DiaryForm.vue'
 import { ElMessage } from 'element-plus'
 
 const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-const userId = userInfo.username
+const userName = userInfo.username
+const userId = userInfo.id
 const router = useRouter()
 
 const currentTab = ref('diary')
@@ -76,7 +77,7 @@ const diaryContent = ref('')
 
 const loadDiary = async () => {
   try {
-    const res = await axios.get(`/duser/${userId}`)
+    const res = await axios.get(`/duser/${userName}`)
     const diaries = res.data.data.diary || []
     const found = diaries.find(d => d.week === selectedWeek.value)
     diaryContent.value = found ? found.content : ''
@@ -88,7 +89,7 @@ const loadDiary = async () => {
 
 const saveDiary = async (content) => {
   try {
-    await axios.patch(`/duser/patch/${userId}`, {
+    await axios.patch(`/duser/patch/${userName}`, {
       diary: [{ week: selectedWeek.value, content }]
     })
     ElMessage.success('周记保存成功')
