@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class LoginService {
+public class UserService {
     private final UserMapper mapper;
     //根据用户名密码查找数据库
     public User findUserByUsernameAndPassword(User user) {
@@ -20,7 +20,7 @@ public class LoginService {
         criteria.andPasswordEqualTo(user.getPassword());
         List<User> tUsers = mapper.selectByExample(example);
         if (tUsers.size() == 1) {
-            return tUsers.get(0);
+            return tUsers.getFirst();
         } else {
             return null;
         }

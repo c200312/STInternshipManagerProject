@@ -83,7 +83,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from sx..assessment
+    from sx.assessment
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -94,25 +94,25 @@
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.bcu.assessment.bean.AssessmentKey" >
     select 
     <include refid="Base_Column_List" />
-    from sx..assessment
+    from sx.assessment
     where s_id = #{s_id,jdbcType=INTEGER}
       and c_id = #{c_id,jdbcType=INTEGER}
       and t_id = #{t_id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="com.bcu.assessment.bean.AssessmentKey" >
-    delete from sx..assessment
+    delete from sx.assessment
     where s_id = #{s_id,jdbcType=INTEGER}
       and c_id = #{c_id,jdbcType=INTEGER}
       and t_id = #{t_id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.bcu.assessment.bean.AssessmentExample" >
-    delete from sx..assessment
+    delete from sx.assessment
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="com.bcu.assessment.bean.Assessment" >
-    insert into sx..assessment (s_id, c_id, t_id, 
+    insert into sx.assessment (s_id, c_id, t_id, 
       attendance_score, task_score, professionalism_score, 
       performance_score, summary_score, practice_result_score, 
       company_score, school_score, total_score
@@ -124,7 +124,7 @@
       )
   </insert>
   <insert id="insertSelective" parameterType="com.bcu.assessment.bean.Assessment" >
-    insert into sx..assessment
+    insert into sx.assessment
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="s_id != null" >
         s_id,
@@ -203,13 +203,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.bcu.assessment.bean.AssessmentExample" resultType="java.lang.Integer" >
-    select count(*) from sx..assessment
+    select count(*) from sx.assessment
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update sx..assessment
+    update sx.assessment
     <set >
       <if test="record.s_id != null" >
         s_id = #{record.s_id,jdbcType=INTEGER},
@@ -253,7 +253,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update sx..assessment
+    update sx.assessment
     set s_id = #{record.s_id,jdbcType=INTEGER},
       c_id = #{record.c_id,jdbcType=INTEGER},
       t_id = #{record.t_id,jdbcType=INTEGER},
@@ -271,7 +271,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.bcu.assessment.bean.Assessment" >
-    update sx..assessment
+    update sx.assessment
     <set >
       <if test="attendance_score != null" >
         attendance_score = #{attendance_score,jdbcType=INTEGER},
@@ -306,7 +306,7 @@
       and t_id = #{t_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.bcu.assessment.bean.Assessment" >
-    update sx..assessment
+    update sx.assessment
     set attendance_score = #{attendance_score,jdbcType=INTEGER},
       task_score = #{task_score,jdbcType=INTEGER},
       professionalism_score = #{professionalism_score,jdbcType=INTEGER},

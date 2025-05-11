@@ -87,7 +87,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from sx..internship
+    from sx.internship
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -98,23 +98,23 @@
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.bcu.internship.bean.InternshipKey" >
     select 
     <include refid="Base_Column_List" />
-    from sx..internship
+    from sx.internship
     where s_id = #{s_id,jdbcType=INTEGER}
       and c_id = #{c_id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="com.bcu.internship.bean.InternshipKey" >
-    delete from sx..internship
+    delete from sx.internship
     where s_id = #{s_id,jdbcType=INTEGER}
       and c_id = #{c_id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.bcu.internship.bean.InternshipExample" >
-    delete from sx..internship
+    delete from sx.internship
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="com.bcu.internship.bean.Internship" >
-    insert into sx..internship (s_id, c_id, start_date, 
+    insert into sx.internship (s_id, c_id, start_date, 
       end_date, actual_days, company_count, 
       position, salary, internship_mode, 
       internship_type, company_advisor_name, 
@@ -128,7 +128,7 @@
       #{company_phone,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bcu.internship.bean.Internship" >
-    insert into sx..internship
+    insert into sx.internship
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="s_id != null" >
         s_id,
@@ -225,13 +225,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.bcu.internship.bean.InternshipExample" resultType="java.lang.Integer" >
-    select count(*) from sx..internship
+    select count(*) from sx.internship
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update sx..internship
+    update sx.internship
     <set >
       <if test="record.s_id != null" >
         s_id = #{record.s_id,jdbcType=INTEGER},
@@ -284,7 +284,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update sx..internship
+    update sx.internship
     set s_id = #{record.s_id,jdbcType=INTEGER},
       c_id = #{record.c_id,jdbcType=INTEGER},
       start_date = #{record.start_date,jdbcType=DATE},
@@ -305,7 +305,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.bcu.internship.bean.Internship" >
-    update sx..internship
+    update sx.internship
     <set >
       <if test="start_date != null" >
         start_date = #{start_date,jdbcType=DATE},
@@ -351,7 +351,7 @@
       and c_id = #{c_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.bcu.internship.bean.Internship" >
-    update sx..internship
+    update sx.internship
     set start_date = #{start_date,jdbcType=DATE},
       end_date = #{end_date,jdbcType=DATE},
       actual_days = #{actual_days,jdbcType=INTEGER},

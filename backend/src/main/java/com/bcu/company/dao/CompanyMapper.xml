@@ -86,7 +86,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from sx..company
+    from sx.company
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -100,7 +100,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from sx..company
+    from sx.company
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -113,21 +113,21 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from sx..company
+    from sx.company
     where c_id = #{c_id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from sx..company
+    delete from sx.company
     where c_id = #{c_id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.bcu.company.bean.CompanyExample" >
-    delete from sx..company
+    delete from sx.company
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="com.bcu.company.bean.Company" >
-    insert into sx..company (c_id, company_name, practice_base_name, 
+    insert into sx.company (c_id, company_name, practice_base_name, 
       is_practice_base, credit_code, practice_region, 
       approval_status, base_notes)
     values (#{c_id,jdbcType=INTEGER}, #{company_name,jdbcType=VARCHAR}, #{practice_base_name,jdbcType=VARCHAR}, 
@@ -135,7 +135,7 @@
       #{approval_status,jdbcType=TINYINT}, #{base_notes,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bcu.company.bean.Company" >
-    insert into sx..company
+    insert into sx.company
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="c_id != null" >
         c_id,
@@ -190,13 +190,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.bcu.company.bean.CompanyExample" resultType="java.lang.Integer" >
-    select count(*) from sx..company
+    select count(*) from sx.company
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update sx..company
+    update sx.company
     <set >
       <if test="record.c_id != null" >
         c_id = #{record.c_id,jdbcType=INTEGER},
@@ -228,7 +228,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map" >
-    update sx..company
+    update sx.company
     set c_id = #{record.c_id,jdbcType=INTEGER},
       company_name = #{record.company_name,jdbcType=VARCHAR},
       practice_base_name = #{record.practice_base_name,jdbcType=VARCHAR},
@@ -242,7 +242,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update sx..company
+    update sx.company
     set c_id = #{record.c_id,jdbcType=INTEGER},
       company_name = #{record.company_name,jdbcType=VARCHAR},
       practice_base_name = #{record.practice_base_name,jdbcType=VARCHAR},
@@ -255,7 +255,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.bcu.company.bean.Company" >
-    update sx..company
+    update sx.company
     <set >
       <if test="company_name != null" >
         company_name = #{company_name,jdbcType=VARCHAR},
@@ -282,7 +282,7 @@
     where c_id = #{c_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.bcu.company.bean.Company" >
-    update sx..company
+    update sx.company
     set company_name = #{company_name,jdbcType=VARCHAR},
       practice_base_name = #{practice_base_name,jdbcType=VARCHAR},
       is_practice_base = #{is_practice_base,jdbcType=BIT},
@@ -293,7 +293,7 @@
     where c_id = #{c_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.bcu.company.bean.Company" >
-    update sx..company
+    update sx.company
     set company_name = #{company_name,jdbcType=VARCHAR},
       practice_base_name = #{practice_base_name,jdbcType=VARCHAR},
       is_practice_base = #{is_practice_base,jdbcType=BIT},

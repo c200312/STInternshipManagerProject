@@ -1,22 +1,9 @@
 <template>
   <div>
     <!-- 顶部：头像 + 姓名模块 -->
-    <div class="fixed-header">
-      <el-dropdown @command="handleUserCommand">
-        <span class="el-dropdown-link user-info">
-          <el-avatar
-              :size="32"
-              src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
-          />
-          <span>{{teacherInfo.username }}</span>
-        </span>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </div>
+    <UserHeader
+        :username="userName"
+    />
 
     <!-- 主体区域：左侧学生列表 + 右侧内容 -->
     <el-container class="main-container">
@@ -97,19 +84,13 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '../../utils/request'
+import UserHeader from '../../components/UserHeader.vue'
 import { ElMessage } from 'element-plus'
 
 // 教师信息
 const teacherInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+const userName = teacherInfo.username
 const router = useRouter()
-
-const handleUserCommand = (command) => {
-  if (command === 'logout') {
-    localStorage.removeItem('userInfo')
-    ElMessage.success('已退出登录')
-    router.push('/login')
-  }
-}
 
 const studentList = ref([])
 const selectedStudent = ref(null)
@@ -176,33 +157,9 @@ onMounted(() => fetchStudents())
 </script>
 
 <style scoped>
-/* 顶部头像+姓名模块 */
-.fixed-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0 20px;
-  z-index: 1000;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
 /* 主体容器整体布局 */
 .main-container {
-  margin-top: 50px; /* 留出顶部空间 */
+  margin-top: 50px; /* 留出顶部用户头像栏的空间 */
   height: calc(100vh - 50px);
   overflow: hidden;
 }
