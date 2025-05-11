@@ -3,9 +3,10 @@ package com.bcu.student.dao;
 import com.bcu.student.bean.Student;
 import com.bcu.student.bean.StudentExample;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface StudentMapper {
     int countByExample(StudentExample example);
 

@@ -62,8 +62,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from '../utils/request'
-import DiaryForm from '../components/DiaryForm.vue'
+import axios from '../../utils/request'
+import DiaryForm from '../../components/DiaryForm.vue'
 import { ElMessage } from 'element-plus'
 
 const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')

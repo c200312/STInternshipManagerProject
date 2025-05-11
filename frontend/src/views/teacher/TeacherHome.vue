@@ -96,7 +96,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from '../utils/request'
+import axios from '../../utils/request'
 import { ElMessage } from 'element-plus'
 
 // 教师信息

@@ -14,15 +14,21 @@ const routes = [
   {
     path: '/studenthome',
     name: 'StudentHome',
-    component: () => import('../views/StudentHome.vue'),
+    component: () => import('../views/student/StudentHome.vue'),
     meta: { requiresAuth: true }
   },
     {
       path: '/teacherhome',
       name: 'TeacherHome',
-      component: () => import('../views/TeacherHome.vue'),
+      component: () => import('../views/teacher/TeacherHome.vue'),
       meta: { requiresAuth: true }
     },
+  {
+    path: '/adminhome',
+    name: 'AdminHome',
+    component: () => import('../views/admin/AdminHome.vue'),
+    meta: { requiresAuth: true }
+  }
 
 ]
 

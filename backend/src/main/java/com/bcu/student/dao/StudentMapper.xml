@@ -85,7 +85,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from sx..student
+    from sx.student
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -96,21 +96,21 @@
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
-    from sx..student
+    from sx.student
     where s_id = #{s_id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from sx..student
+    delete from sx.student
     where s_id = #{s_id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.bcu.student.bean.StudentExample" >
-    delete from sx..student
+    delete from sx.student
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="com.bcu.student.bean.Student" >
-    insert into sx..student (s_id, student_number, student_name, 
+    insert into sx.student (s_id, student_number, student_name, 
       gender, phone, parent_phone, 
       enrollment_year, department, major, 
       club, counselor, counselor_phone, 
@@ -124,7 +124,7 @@
       )
   </insert>
   <insert id="insertSelective" parameterType="com.bcu.student.bean.Student" >
-    insert into sx..student
+    insert into sx.student
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="s_id != null" >
         s_id,
@@ -215,13 +215,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.bcu.student.bean.StudentExample" resultType="java.lang.Integer" >
-    select count(*) from sx..student
+    select count(*) from sx.student
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update sx..student
+    update sx.student
     <set >
       <if test="record.s_id != null" >
         s_id = #{record.s_id,jdbcType=INTEGER},
@@ -271,7 +271,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update sx..student
+    update sx.student
     set s_id = #{record.s_id,jdbcType=INTEGER},
       student_number = #{record.student_number,jdbcType=VARCHAR},
       student_name = #{record.student_name,jdbcType=VARCHAR},
@@ -291,7 +291,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.bcu.student.bean.Student" >
-    update sx..student
+    update sx.student
     <set >
       <if test="student_number != null" >
         student_number = #{student_number,jdbcType=VARCHAR},
@@ -336,7 +336,7 @@
     where s_id = #{s_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.bcu.student.bean.Student" >
-    update sx..student
+    update sx.student
     set student_number = #{student_number,jdbcType=VARCHAR},
       student_name = #{student_name,jdbcType=VARCHAR},
       gender = #{gender,jdbcType=CHAR},
