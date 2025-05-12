@@ -41,7 +41,7 @@
 <script setup>
 import {  ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import axios from '../utils/request';
+import axios from '../../utils/request';
 
 // 定义组件属性
 const props = defineProps(['userId', 'userName'])

@@ -11,7 +11,7 @@
         <el-menu @select="currentTab = $event" :default-active="currentTab">
           <el-menu-item index="diary">填写周记</el-menu-item>
           <el-menu-item index="info">填写基本信息</el-menu-item>
-          <el-menu-item index="company">填写企业信息</el-menu-item>
+          <el-menu-item index="internship">填写实习信息</el-menu-item>
         </el-menu>
       </el-aside>
 
@@ -24,7 +24,10 @@
           <BasicInfoForm
               v-else-if="currentTab === 'info'"
               :userName="userName"
-
+          />
+          <InternshipInfoForm
+              v-else-if="currentTab === 'internship'"
+              :userName="userId"
           />
 
         </el-main>
@@ -35,23 +38,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from '../../utils/request'
-import DiaryForm from '../../components/DiaryForm.vue'
-import BasicInfoForm from '../../components/BasicInfoForm.vue'
-import CompanyInfoForm from '../../components/CompanyInfoForm.vue'
-import UserHeader from '../../components/UserHeader.vue'
-import { ElMessage } from 'element-plus'
+import DiaryForm from '../../components/student/DiaryForm.vue'
+import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
+import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
+import UserHeader from '../../components/common/UserHeader.vue'
 
 // 用户信息
 const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 const userName = userInfo.username
 const userId = userInfo.user_id
 
-// Vue实例相关
-const router = useRouter()
 
-// 数据定义
 const currentTab = ref('diary') // 当前标签页
 
 onMounted(() => {

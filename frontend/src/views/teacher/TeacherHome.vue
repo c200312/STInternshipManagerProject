@@ -84,7 +84,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '../../utils/request'
-import UserHeader from '../../components/UserHeader.vue'
+import UserHeader from '../../components/common/UserHeader.vue'
 import { ElMessage } from 'element-plus'
 
 // 教师信息

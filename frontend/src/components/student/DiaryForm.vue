@@ -31,7 +31,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from '../utils/request'
+import axios from '../../utils/request'
 import { ElMessage } from 'element-plus'
 
 // 定义组件属性
