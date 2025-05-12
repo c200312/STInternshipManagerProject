@@ -4,9 +4,10 @@ import com.bcu.assessment.bean.Assessment;
 import com.bcu.assessment.bean.AssessmentExample;
 import com.bcu.assessment.bean.AssessmentKey;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface AssessmentMapper {
     int countByExample(AssessmentExample example);
 

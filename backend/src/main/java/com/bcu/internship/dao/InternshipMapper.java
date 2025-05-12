@@ -4,9 +4,11 @@ import com.bcu.internship.bean.Internship;
 import com.bcu.internship.bean.InternshipExample;
 import com.bcu.internship.bean.InternshipKey;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface InternshipMapper {
     int countByExample(InternshipExample example);
 

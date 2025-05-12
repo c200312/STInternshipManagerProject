@@ -17,52 +17,31 @@ public class StudentController {
 
     @GetMapping("/{id}")
     public Result getStudentById(@PathVariable Integer id) {
+        return studentService.getStudentById(id);
+    }
 
-        Student student = studentService.getStudentById(id);
-        if (student == null) {
-            return Result.error("未找到对应的学生信息");
-        } else {
-            return Result.success(student, "成功获取学生信息");
-        }
+    @GetMapping("/getbyusernumber/{userNumber}")
+    public Result getByUsername(@PathVariable Integer userNumber) {
+        return studentService.getStudentByUserNumber(userNumber);
     }
 
     @GetMapping
     public Result getAllStudents() {
-
-        List<Student> students = studentService.getAllStudents();
-        if (students.isEmpty()) {
-            return Result.error("未找到任何学生信息");
-        } else return Result.success(students, "成功获取所有学生信息");
+        return studentService.getAllStudents();
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public Result addStudent(@RequestBody Student student) {
-
-        if (student == null || student.getStudent_name() == null || student.getStudent_number() == null) {
-            return Result.error("学生信息不完整，无法添加");
-        } else {
-            studentService.addStudent(student);
-            return Result.success(null, "学生信息添加成功");
-        }
+        return studentService.addStudent(student);
     }
 
-    @PostMapping("/update")
+    @PutMapping
     public Result updateStudent(@RequestBody Student student) {
-        if (student == null || student.getS_id() == null) {
-            return Result.error("学生ID缺失，无法更新");
-        } else {
-            studentService.updateStudent(student);
-            return Result.success(null, "学生信息更新成功");
-        }
+        return studentService.updateStudent(student);
     }
 
     @DeleteMapping("/{id}")
     public Result deleteStudent(@PathVariable Integer id) {
-        if (id == null) {
-            return Result.error("学生ID缺失，无法删除");
-        } else {
-            studentService.deleteStudent(id);
-            return Result.success(null, "学生信息删除成功");
-        }
+        return studentService.deleteStudent(id);
     }
 }

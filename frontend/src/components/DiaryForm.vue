@@ -75,9 +75,7 @@ const handleSubmit = () => {
 
 // 页面加载时获取周记数据
 onMounted(() => {
-  console.log('DiaryForm mounted with userId:', props.userId, 'typeof:', typeof props.userId)
-  if (props.userId) {
     loadDiary()
-  }
+
 })
 </script>

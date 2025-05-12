@@ -110,12 +110,9 @@ const weekPeriodOptions = ref([
 ])
 
 const fetchStudents = async () => {
-  try {
     const res = await axios.get('/duser/all')
     studentList.value = res.data.data
-  } catch {
-    ElMessage.error('获取学生列表失败')
-  }
+
 }
 
 const selectStudent = (student) => {
@@ -174,6 +171,7 @@ onMounted(() => fetchStudents())
 
 /* 右侧内容区 */
 .right-main {
+  top: auto;
   padding: 20px;
   overflow-y: auto;
   position: relative;
