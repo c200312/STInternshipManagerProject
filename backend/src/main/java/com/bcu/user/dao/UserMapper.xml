@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.bcu.user.dao.TUserMapper" >
-  <resultMap id="BaseResultMap" type="com.bcu.user.bean.TUser" >
-    <id column="username" property="username" jdbcType="VARCHAR" />
-    <result column="userpassword" property="userpassword" jdbcType="VARCHAR" />
-    <result column="usertype" property="usertype" jdbcType="VARCHAR" />
+<mapper namespace="com.bcu.user.dao.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.bcu.user.bean.User" >
+    <id column="user_id" property="user_id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="role" property="role" jdbcType="CHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -65,15 +66,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    username, userpassword, usertype
+    user_id, username, password, role
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.user.bean.TUserExample" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.user.bean.UserExample" >
     select
     <if test="distinct" >
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from t_user
+    from sx.user
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -81,70 +82,79 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
-    from t_user
-    where username = #{username,jdbcType=VARCHAR}
+    from sx.user
+    where user_id = #{user_id,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from t_user
-    where username = #{username,jdbcType=VARCHAR}
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sx.user
+    where user_id = #{user_id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.bcu.user.bean.TUserExample" >
-    delete from t_user
+  <delete id="deleteByExample" parameterType="com.bcu.user.bean.UserExample" >
+    delete from sx.user
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.bcu.user.bean.TUser" >
-    insert into t_user (username, userpassword, usertype
-      )
-    values (#{username,jdbcType=VARCHAR}, #{userpassword,jdbcType=VARCHAR}, #{usertype,jdbcType=VARCHAR}
-      )
+  <insert id="insert" parameterType="com.bcu.user.bean.User" >
+    insert into sx.user (user_id, username, password,
+      role)
+    values (#{user_id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{role,jdbcType=CHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.bcu.user.bean.TUser" >
-    insert into t_user
+  <insert id="insertSelective" parameterType="com.bcu.user.bean.User" >
+    insert into sx.user
     <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="user_id != null" >
+        user_id,
+      </if>
       <if test="username != null" >
         username,
       </if>
-      <if test="userpassword != null" >
-        userpassword,
+      <if test="password != null" >
+        password,
       </if>
-      <if test="usertype != null" >
-        usertype,
+      <if test="role != null" >
+        role,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="user_id != null" >
+        #{user_id,jdbcType=INTEGER},
+      </if>
       <if test="username != null" >
         #{username,jdbcType=VARCHAR},
       </if>
-      <if test="userpassword != null" >
-        #{userpassword,jdbcType=VARCHAR},
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
       </if>
-      <if test="usertype != null" >
-        #{usertype,jdbcType=VARCHAR},
+      <if test="role != null" >
+        #{role,jdbcType=CHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.bcu.user.bean.TUserExample" resultType="java.lang.Integer" >
-    select count(*) from t_user
+  <select id="countByExample" parameterType="com.bcu.user.bean.UserExample" resultType="java.lang.Integer" >
+    select count(*) from sx.user
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update t_user
+    update sx.user
     <set >
+      <if test="record.user_id != null" >
+        user_id = #{record.user_id,jdbcType=INTEGER},
+      </if>
       <if test="record.username != null" >
         username = #{record.username,jdbcType=VARCHAR},
       </if>
-      <if test="record.userpassword != null" >
-        userpassword = #{record.userpassword,jdbcType=VARCHAR},
+      <if test="record.password != null" >
+        password = #{record.password,jdbcType=VARCHAR},
       </if>
-      <if test="record.usertype != null" >
-        usertype = #{record.usertype,jdbcType=VARCHAR},
+      <if test="record.role != null" >
+        role = #{record.role,jdbcType=CHAR},
       </if>
     </set>
     <if test="_parameter != null" >
@@ -152,30 +162,35 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update t_user
-    set username = #{record.username,jdbcType=VARCHAR},
-      userpassword = #{record.userpassword,jdbcType=VARCHAR},
-      usertype = #{record.usertype,jdbcType=VARCHAR}
+    update sx.user
+    set user_id = #{record.user_id,jdbcType=INTEGER},
+      username = #{record.username,jdbcType=VARCHAR},
+      password = #{record.password,jdbcType=VARCHAR},
+      role = #{record.role,jdbcType=CHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.bcu.user.bean.TUser" >
-    update t_user
+  <update id="updateByPrimaryKeySelective" parameterType="com.bcu.user.bean.User" >
+    update sx.user
     <set >
-      <if test="userpassword != null" >
-        userpassword = #{userpassword,jdbcType=VARCHAR},
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
       </if>
-      <if test="usertype != null" >
-        usertype = #{usertype,jdbcType=VARCHAR},
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="role != null" >
+        role = #{role,jdbcType=CHAR},
       </if>
     </set>
-    where username = #{username,jdbcType=VARCHAR}
+    where user_id = #{user_id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.bcu.user.bean.TUser" >
-    update t_user
-    set userpassword = #{userpassword,jdbcType=VARCHAR},
-      usertype = #{usertype,jdbcType=VARCHAR}
-    where username = #{username,jdbcType=VARCHAR}
+  <update id="updateByPrimaryKey" parameterType="com.bcu.user.bean.User" >
+    update sx.user
+    set username = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      role = #{role,jdbcType=CHAR}
+    where user_id = #{user_id,jdbcType=INTEGER}
   </update>
 </mapper>

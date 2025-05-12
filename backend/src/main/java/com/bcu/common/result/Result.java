@@ -15,14 +15,30 @@ public class Result {
     private Object data;//data：数据
     private String msg;//msg：存放错误信息
 
-    //无参数的成功方法，只返回成功代码“200”
+    // 无参数的成功方法，只返回成功代码“200”
     public static Result success() {
         Result result = new Result();
         result.setCode(SUCCESS_CODE);
         return result;
     }
 
-    //有参数的成功方法，返回成功代码“200” 和 数据data
+    // 有参数的成功方法，返回成功代码“200” 和 数据data
+    public static Result success(Object data) {
+        Result result = new Result();
+        result.setCode(SUCCESS_CODE);
+        result.setData(data);
+        return result;
+    }
+
+    // 有参数的成功方法，返回成功代码“200” 和 消息msg
+    public static Result success(String msg) {
+        Result result = new Result();
+        result.setCode(SUCCESS_CODE);
+        result.setMsg(msg);
+        return result;
+    }
+
+    // 有参数的成功方法，返回成功代码“200”、数据data和消息msg
     public static Result success(Object data, String msg) {
         Result result = new Result();
         result.setCode(SUCCESS_CODE);

@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bcu.internship.dao.InternshipMapper" >
+  <resultMap id="BaseResultMap" type="com.bcu.internship.bean.Internship" >
+    <id column="s_id" property="s_id" jdbcType="INTEGER" />
+    <id column="c_id" property="c_id" jdbcType="INTEGER" />
+    <result column="start_date" property="start_date" jdbcType="DATE" />
+    <result column="end_date" property="end_date" jdbcType="DATE" />
+    <result column="actual_days" property="actual_days" jdbcType="INTEGER" />
+    <result column="company_count" property="company_count" jdbcType="INTEGER" />
+    <result column="position" property="position" jdbcType="VARCHAR" />
+    <result column="salary" property="salary" jdbcType="INTEGER" />
+    <result column="internship_mode" property="internship_mode" jdbcType="VARCHAR" />
+    <result column="internship_type" property="internship_type" jdbcType="VARCHAR" />
+    <result column="company_advisor_name" property="company_advisor_name" jdbcType="VARCHAR" />
+    <result column="company_advisor_position" property="company_advisor_position" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="contact_person" property="contact_person" jdbcType="VARCHAR" />
+    <result column="company_phone" property="company_phone" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    s_id, c_id, start_date, end_date, actual_days, company_count, position, salary, internship_mode, 
+    internship_type, company_advisor_name, company_advisor_position, address, contact_person, 
+    company_phone
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.internship.bean.InternshipExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sx.internship
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.bcu.internship.bean.InternshipKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from sx.internship
+    where s_id = #{s_id,jdbcType=INTEGER}
+      and c_id = #{c_id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.bcu.internship.bean.InternshipKey" >
+    delete from sx.internship
+    where s_id = #{s_id,jdbcType=INTEGER}
+      and c_id = #{c_id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.bcu.internship.bean.InternshipExample" >
+    delete from sx.internship
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.bcu.internship.bean.Internship" >
+    insert into sx.internship (s_id, c_id, start_date, 
+      end_date, actual_days, company_count, 
+      position, salary, internship_mode, 
+      internship_type, company_advisor_name, 
+      company_advisor_position, address, contact_person, 
+      company_phone)
+    values (#{s_id,jdbcType=INTEGER}, #{c_id,jdbcType=INTEGER}, #{start_date,jdbcType=DATE}, 
+      #{end_date,jdbcType=DATE}, #{actual_days,jdbcType=INTEGER}, #{company_count,jdbcType=INTEGER}, 
+      #{position,jdbcType=VARCHAR}, #{salary,jdbcType=INTEGER}, #{internship_mode,jdbcType=VARCHAR}, 
+      #{internship_type,jdbcType=VARCHAR}, #{company_advisor_name,jdbcType=VARCHAR}, 
+      #{company_advisor_position,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{contact_person,jdbcType=VARCHAR}, 
+      #{company_phone,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bcu.internship.bean.Internship" >
+    insert into sx.internship
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="s_id != null" >
+        s_id,
+      </if>
+      <if test="c_id != null" >
+        c_id,
+      </if>
+      <if test="start_date != null" >
+        start_date,
+      </if>
+      <if test="end_date != null" >
+        end_date,
+      </if>
+      <if test="actual_days != null" >
+        actual_days,
+      </if>
+      <if test="company_count != null" >
+        company_count,
+      </if>
+      <if test="position != null" >
+        position,
+      </if>
+      <if test="salary != null" >
+        salary,
+      </if>
+      <if test="internship_mode != null" >
+        internship_mode,
+      </if>
+      <if test="internship_type != null" >
+        internship_type,
+      </if>
+      <if test="company_advisor_name != null" >
+        company_advisor_name,
+      </if>
+      <if test="company_advisor_position != null" >
+        company_advisor_position,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="contact_person != null" >
+        contact_person,
+      </if>
+      <if test="company_phone != null" >
+        company_phone,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="s_id != null" >
+        #{s_id,jdbcType=INTEGER},
+      </if>
+      <if test="c_id != null" >
+        #{c_id,jdbcType=INTEGER},
+      </if>
+      <if test="start_date != null" >
+        #{start_date,jdbcType=DATE},
+      </if>
+      <if test="end_date != null" >
+        #{end_date,jdbcType=DATE},
+      </if>
+      <if test="actual_days != null" >
+        #{actual_days,jdbcType=INTEGER},
+      </if>
+      <if test="company_count != null" >
+        #{company_count,jdbcType=INTEGER},
+      </if>
+      <if test="position != null" >
+        #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="salary != null" >
+        #{salary,jdbcType=INTEGER},
+      </if>
+      <if test="internship_mode != null" >
+        #{internship_mode,jdbcType=VARCHAR},
+      </if>
+      <if test="internship_type != null" >
+        #{internship_type,jdbcType=VARCHAR},
+      </if>
+      <if test="company_advisor_name != null" >
+        #{company_advisor_name,jdbcType=VARCHAR},
+      </if>
+      <if test="company_advisor_position != null" >
+        #{company_advisor_position,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contact_person != null" >
+        #{contact_person,jdbcType=VARCHAR},
+      </if>
+      <if test="company_phone != null" >
+        #{company_phone,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.bcu.internship.bean.InternshipExample" resultType="java.lang.Integer" >
+    select count(*) from sx.internship
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update sx.internship
+    <set >
+      <if test="record.s_id != null" >
+        s_id = #{record.s_id,jdbcType=INTEGER},
+      </if>
+      <if test="record.c_id != null" >
+        c_id = #{record.c_id,jdbcType=INTEGER},
+      </if>
+      <if test="record.start_date != null" >
+        start_date = #{record.start_date,jdbcType=DATE},
+      </if>
+      <if test="record.end_date != null" >
+        end_date = #{record.end_date,jdbcType=DATE},
+      </if>
+      <if test="record.actual_days != null" >
+        actual_days = #{record.actual_days,jdbcType=INTEGER},
+      </if>
+      <if test="record.company_count != null" >
+        company_count = #{record.company_count,jdbcType=INTEGER},
+      </if>
+      <if test="record.position != null" >
+        position = #{record.position,jdbcType=VARCHAR},
+      </if>
+      <if test="record.salary != null" >
+        salary = #{record.salary,jdbcType=INTEGER},
+      </if>
+      <if test="record.internship_mode != null" >
+        internship_mode = #{record.internship_mode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.internship_type != null" >
+        internship_type = #{record.internship_type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.company_advisor_name != null" >
+        company_advisor_name = #{record.company_advisor_name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.company_advisor_position != null" >
+        company_advisor_position = #{record.company_advisor_position,jdbcType=VARCHAR},
+      </if>
+      <if test="record.address != null" >
+        address = #{record.address,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contact_person != null" >
+        contact_person = #{record.contact_person,jdbcType=VARCHAR},
+      </if>
+      <if test="record.company_phone != null" >
+        company_phone = #{record.company_phone,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update sx.internship
+    set s_id = #{record.s_id,jdbcType=INTEGER},
+      c_id = #{record.c_id,jdbcType=INTEGER},
+      start_date = #{record.start_date,jdbcType=DATE},
+      end_date = #{record.end_date,jdbcType=DATE},
+      actual_days = #{record.actual_days,jdbcType=INTEGER},
+      company_count = #{record.company_count,jdbcType=INTEGER},
+      position = #{record.position,jdbcType=VARCHAR},
+      salary = #{record.salary,jdbcType=INTEGER},
+      internship_mode = #{record.internship_mode,jdbcType=VARCHAR},
+      internship_type = #{record.internship_type,jdbcType=VARCHAR},
+      company_advisor_name = #{record.company_advisor_name,jdbcType=VARCHAR},
+      company_advisor_position = #{record.company_advisor_position,jdbcType=VARCHAR},
+      address = #{record.address,jdbcType=VARCHAR},
+      contact_person = #{record.contact_person,jdbcType=VARCHAR},
+      company_phone = #{record.company_phone,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bcu.internship.bean.Internship" >
+    update sx.internship
+    <set >
+      <if test="start_date != null" >
+        start_date = #{start_date,jdbcType=DATE},
+      </if>
+      <if test="end_date != null" >
+        end_date = #{end_date,jdbcType=DATE},
+      </if>
+      <if test="actual_days != null" >
+        actual_days = #{actual_days,jdbcType=INTEGER},
+      </if>
+      <if test="company_count != null" >
+        company_count = #{company_count,jdbcType=INTEGER},
+      </if>
+      <if test="position != null" >
+        position = #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="salary != null" >
+        salary = #{salary,jdbcType=INTEGER},
+      </if>
+      <if test="internship_mode != null" >
+        internship_mode = #{internship_mode,jdbcType=VARCHAR},
+      </if>
+      <if test="internship_type != null" >
+        internship_type = #{internship_type,jdbcType=VARCHAR},
+      </if>
+      <if test="company_advisor_name != null" >
+        company_advisor_name = #{company_advisor_name,jdbcType=VARCHAR},
+      </if>
+      <if test="company_advisor_position != null" >
+        company_advisor_position = #{company_advisor_position,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contact_person != null" >
+        contact_person = #{contact_person,jdbcType=VARCHAR},
+      </if>
+      <if test="company_phone != null" >
+        company_phone = #{company_phone,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where s_id = #{s_id,jdbcType=INTEGER}
+      and c_id = #{c_id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bcu.internship.bean.Internship" >
+    update sx.internship
+    set start_date = #{start_date,jdbcType=DATE},
+      end_date = #{end_date,jdbcType=DATE},
+      actual_days = #{actual_days,jdbcType=INTEGER},
+      company_count = #{company_count,jdbcType=INTEGER},
+      position = #{position,jdbcType=VARCHAR},
+      salary = #{salary,jdbcType=INTEGER},
+      internship_mode = #{internship_mode,jdbcType=VARCHAR},
+      internship_type = #{internship_type,jdbcType=VARCHAR},
+      company_advisor_name = #{company_advisor_name,jdbcType=VARCHAR},
+      company_advisor_position = #{company_advisor_position,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      contact_person = #{contact_person,jdbcType=VARCHAR},
+      company_phone = #{company_phone,jdbcType=VARCHAR}
+    where s_id = #{s_id,jdbcType=INTEGER}
+      and c_id = #{c_id,jdbcType=INTEGER}
+  </update>
+</mapper>

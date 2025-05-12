@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /*
-* 工具类
+* 工具类 ai使用
 * 后续如需添加模型时使用这个类可减少代码冗余
 * */
 

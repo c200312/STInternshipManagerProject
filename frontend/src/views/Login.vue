@@ -16,9 +16,9 @@
           />
         </el-form-item>
 
-        <el-form-item prop="userpassword">
+        <el-form-item prop="password">
           <el-input
-              v-model="loginForm.userpassword"
+              v-model="loginForm.password"
               type="password"
               placeholder="请输入密码"
               prefix-icon="Lock"
@@ -59,7 +59,7 @@ const loading = ref(false)
 // 表单数据
 const loginForm = reactive({
   username: '',
-  userpassword: ''
+  password: ''
 })
 
 // 表单验证规则
@@ -67,7 +67,7 @@ const rules = reactive({
   username: [
     { required: true, message: '用户名不能为空', trigger: 'blur' }
   ],
-  userpassword: [
+  password: [
     { required: true, message: '密码不能为空', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
   ]
@@ -83,7 +83,7 @@ const submitForm = async () => {
       localStorage.setItem('userInfo', JSON.stringify(data.data));
 
       // 根据用户类型跳转不同页面
-      const routePath = data.data.usertype === 'student'
+      const routePath = data.data.role === 'student'
           ? '/studenthome'
           : '/teacherhome';
 

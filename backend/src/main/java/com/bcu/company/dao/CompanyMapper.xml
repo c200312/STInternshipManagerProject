@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bcu.company.dao.CompanyMapper" >
+  <resultMap id="BaseResultMap" type="com.bcu.company.bean.Company" >
+    <id column="c_id" property="c_id" jdbcType="INTEGER" />
+    <result column="company_name" property="company_name" jdbcType="VARCHAR" />
+    <result column="practice_base_name" property="practice_base_name" jdbcType="VARCHAR" />
+    <result column="is_practice_base" property="is_practice_base" jdbcType="BIT" />
+    <result column="credit_code" property="credit_code" jdbcType="VARCHAR" />
+    <result column="practice_region" property="practice_region" jdbcType="VARCHAR" />
+    <result column="approval_status" property="approval_status" jdbcType="TINYINT" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.bcu.company.bean.Company" extends="BaseResultMap" >
+    <result column="base_notes" property="base_notes" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    c_id, company_name, practice_base_name, is_practice_base, credit_code, practice_region, 
+    approval_status
+  </sql>
+  <sql id="Blob_Column_List" >
+    base_notes
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.bcu.company.bean.CompanyExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sx.company
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.company.bean.CompanyExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sx.company
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sx.company
+    where c_id = #{c_id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sx.company
+    where c_id = #{c_id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.bcu.company.bean.CompanyExample" >
+    delete from sx.company
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.bcu.company.bean.Company" >
+    insert into sx.company (c_id, company_name, practice_base_name, 
+      is_practice_base, credit_code, practice_region, 
+      approval_status, base_notes)
+    values (#{c_id,jdbcType=INTEGER}, #{company_name,jdbcType=VARCHAR}, #{practice_base_name,jdbcType=VARCHAR}, 
+      #{is_practice_base,jdbcType=BIT}, #{credit_code,jdbcType=VARCHAR}, #{practice_region,jdbcType=VARCHAR}, 
+      #{approval_status,jdbcType=TINYINT}, #{base_notes,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bcu.company.bean.Company" >
+    insert into sx.company
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="c_id != null" >
+        c_id,
+      </if>
+      <if test="company_name != null" >
+        company_name,
+      </if>
+      <if test="practice_base_name != null" >
+        practice_base_name,
+      </if>
+      <if test="is_practice_base != null" >
+        is_practice_base,
+      </if>
+      <if test="credit_code != null" >
+        credit_code,
+      </if>
+      <if test="practice_region != null" >
+        practice_region,
+      </if>
+      <if test="approval_status != null" >
+        approval_status,
+      </if>
+      <if test="base_notes != null" >
+        base_notes,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="c_id != null" >
+        #{c_id,jdbcType=INTEGER},
+      </if>
+      <if test="company_name != null" >
+        #{company_name,jdbcType=VARCHAR},
+      </if>
+      <if test="practice_base_name != null" >
+        #{practice_base_name,jdbcType=VARCHAR},
+      </if>
+      <if test="is_practice_base != null" >
+        #{is_practice_base,jdbcType=BIT},
+      </if>
+      <if test="credit_code != null" >
+        #{credit_code,jdbcType=VARCHAR},
+      </if>
+      <if test="practice_region != null" >
+        #{practice_region,jdbcType=VARCHAR},
+      </if>
+      <if test="approval_status != null" >
+        #{approval_status,jdbcType=TINYINT},
+      </if>
+      <if test="base_notes != null" >
+        #{base_notes,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.bcu.company.bean.CompanyExample" resultType="java.lang.Integer" >
+    select count(*) from sx.company
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update sx.company
+    <set >
+      <if test="record.c_id != null" >
+        c_id = #{record.c_id,jdbcType=INTEGER},
+      </if>
+      <if test="record.company_name != null" >
+        company_name = #{record.company_name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.practice_base_name != null" >
+        practice_base_name = #{record.practice_base_name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.is_practice_base != null" >
+        is_practice_base = #{record.is_practice_base,jdbcType=BIT},
+      </if>
+      <if test="record.credit_code != null" >
+        credit_code = #{record.credit_code,jdbcType=VARCHAR},
+      </if>
+      <if test="record.practice_region != null" >
+        practice_region = #{record.practice_region,jdbcType=VARCHAR},
+      </if>
+      <if test="record.approval_status != null" >
+        approval_status = #{record.approval_status,jdbcType=TINYINT},
+      </if>
+      <if test="record.base_notes != null" >
+        base_notes = #{record.base_notes,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update sx.company
+    set c_id = #{record.c_id,jdbcType=INTEGER},
+      company_name = #{record.company_name,jdbcType=VARCHAR},
+      practice_base_name = #{record.practice_base_name,jdbcType=VARCHAR},
+      is_practice_base = #{record.is_practice_base,jdbcType=BIT},
+      credit_code = #{record.credit_code,jdbcType=VARCHAR},
+      practice_region = #{record.practice_region,jdbcType=VARCHAR},
+      approval_status = #{record.approval_status,jdbcType=TINYINT},
+      base_notes = #{record.base_notes,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update sx.company
+    set c_id = #{record.c_id,jdbcType=INTEGER},
+      company_name = #{record.company_name,jdbcType=VARCHAR},
+      practice_base_name = #{record.practice_base_name,jdbcType=VARCHAR},
+      is_practice_base = #{record.is_practice_base,jdbcType=BIT},
+      credit_code = #{record.credit_code,jdbcType=VARCHAR},
+      practice_region = #{record.practice_region,jdbcType=VARCHAR},
+      approval_status = #{record.approval_status,jdbcType=TINYINT}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bcu.company.bean.Company" >
+    update sx.company
+    <set >
+      <if test="company_name != null" >
+        company_name = #{company_name,jdbcType=VARCHAR},
+      </if>
+      <if test="practice_base_name != null" >
+        practice_base_name = #{practice_base_name,jdbcType=VARCHAR},
+      </if>
+      <if test="is_practice_base != null" >
+        is_practice_base = #{is_practice_base,jdbcType=BIT},
+      </if>
+      <if test="credit_code != null" >
+        credit_code = #{credit_code,jdbcType=VARCHAR},
+      </if>
+      <if test="practice_region != null" >
+        practice_region = #{practice_region,jdbcType=VARCHAR},
+      </if>
+      <if test="approval_status != null" >
+        approval_status = #{approval_status,jdbcType=TINYINT},
+      </if>
+      <if test="base_notes != null" >
+        base_notes = #{base_notes,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where c_id = #{c_id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.bcu.company.bean.Company" >
+    update sx.company
+    set company_name = #{company_name,jdbcType=VARCHAR},
+      practice_base_name = #{practice_base_name,jdbcType=VARCHAR},
+      is_practice_base = #{is_practice_base,jdbcType=BIT},
+      credit_code = #{credit_code,jdbcType=VARCHAR},
+      practice_region = #{practice_region,jdbcType=VARCHAR},
+      approval_status = #{approval_status,jdbcType=TINYINT},
+      base_notes = #{base_notes,jdbcType=LONGVARCHAR}
+    where c_id = #{c_id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bcu.company.bean.Company" >
+    update sx.company
+    set company_name = #{company_name,jdbcType=VARCHAR},
+      practice_base_name = #{practice_base_name,jdbcType=VARCHAR},
+      is_practice_base = #{is_practice_base,jdbcType=BIT},
+      credit_code = #{credit_code,jdbcType=VARCHAR},
+      practice_region = #{practice_region,jdbcType=VARCHAR},
+      approval_status = #{approval_status,jdbcType=TINYINT}
+    where c_id = #{c_id,jdbcType=INTEGER}
+  </update>
+</mapper>
