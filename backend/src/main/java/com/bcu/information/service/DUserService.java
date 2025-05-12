@@ -1,5 +1,6 @@
 package com.bcu.information.service;
 
+import com.bcu.common.result.Result;
 import com.bcu.information.bean.DComment;
 import com.bcu.information.bean.DCompany;
 import com.bcu.information.bean.DDiary;
@@ -17,37 +18,46 @@ public class DUserService {
     private final DUserRepository repository;
 
     // 初始化
-    public DUser create(DUser user) {
+    public Result create(DUser user) {
         if (repository.existsById(user.getId())) {
-            throw new RuntimeException("该学生 ID 已存在！");
+            return Result.error("该学生 ID 已存在！");
         }
-        return repository.save(user);
+        return Result.success(repository.save(user), "初始化成功");
     }
 
     // 查询全部信息
-    public List<DUser> getAll() {
-        return repository.findAll();
+    public Result getAll() {
+        List<DUser> users = repository.findAll();
+        return !users.isEmpty() ? Result.success(users, "查询所有成功") : Result.error("未找到任何学生信息");
     }
 
-    // 按id查询全部信息
-    public DUser getById(String id) {
-        return repository.findById(id).orElse(null);
+    // 按id查询全部信息，若不存在则初始化
+    public Result getById(String id) {
+        DUser user = repository.findById(id).orElse(null);
+        if (user != null) {
+            return Result.success(user, "按id查询成功");
+        } else {
+            // 创建新用户
+            DUser newUser = new DUser();
+            newUser.setId(id);
+            return Result.success(repository.save(newUser), "未找到该学生，已初始化新记录");
+        }
     }
 
     // 按id删除全部信息
-    public boolean deleteById(String id) {
+    public Result deleteById(String id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
-            return true;
+            return Result.success(null, "删除成功");
         }
-        return false;
+        return Result.error("学生不存在");
     }
 
     // 按id部分更新(按输入的信息进行覆盖，仅覆盖输入的部分)
-    public DUser patchUpdate(String id, DUser partial) {
+    public Result patchUpdate(String id, DUser partial) {
         Optional<DUser> optionalUser = repository.findById(id);
         if (optionalUser.isEmpty()) {
-            throw new RuntimeException("学生不存在");
+            return Result.error("学生不存在");
         }
 
         DUser user = optionalUser.get();
@@ -93,10 +103,6 @@ public class DUserService {
             }
         }
 
-        return repository.save(user);
+        return Result.success(repository.save(user), "任意部分更新");
     }
-
-
-
-
 }

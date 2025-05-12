@@ -19,9 +19,14 @@
         <el-main>
           <DiaryForm
               v-if="currentTab === 'diary'"
-              :userId="userId"
               :userName="userName"
           />
+          <BasicInfoForm
+              v-else-if="currentTab === 'info'"
+              :userName="userName"
+
+          />
+
         </el-main>
       </el-container>
     </el-container>
@@ -33,6 +38,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '../../utils/request'
 import DiaryForm from '../../components/DiaryForm.vue'
+import BasicInfoForm from '../../components/BasicInfoForm.vue'
+import CompanyInfoForm from '../../components/CompanyInfoForm.vue'
 import UserHeader from '../../components/UserHeader.vue'
 import { ElMessage } from 'element-plus'
 
@@ -47,11 +54,10 @@ const router = useRouter()
 // 数据定义
 const currentTab = ref('diary') // 当前标签页
 
-// 页面加载时设置默认周数
 onMounted(() => {
-
-  // 可以在这里添加其他初始化逻辑
 })
+
+
 </script>
 
 <style scoped>

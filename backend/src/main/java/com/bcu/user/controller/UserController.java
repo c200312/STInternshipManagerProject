@@ -21,10 +21,6 @@ public class UserController {
     * */
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
-        User dbuser = userService.findUserByUsernameAndPassword(user);
-        if (dbuser != null) {
-            return Result.success(dbuser, "登陆成功！");
-        }
-        return Result.error("用户名密码错误");
+        return userService.findUserByUsernameAndPassword(user);
     }
 }

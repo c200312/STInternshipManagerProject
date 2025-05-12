@@ -30,13 +30,13 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import axios from '../utils/request'
 import { ElMessage } from 'element-plus'
 
 // 定义组件属性
-const props = defineProps(['userId', 'userName'])
+const props = defineProps(['userName'])
+// 定义组件事件
 const emit = defineEmits(['submit'])
 
 // 周数选择
