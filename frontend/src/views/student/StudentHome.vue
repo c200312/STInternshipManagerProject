@@ -27,7 +27,8 @@
           />
           <InternshipInfoForm
               v-else-if="currentTab === 'internship'"
-              :userName="userId"
+              :userName="userName"
+              :userId="userId"
           />
 
         </el-main>

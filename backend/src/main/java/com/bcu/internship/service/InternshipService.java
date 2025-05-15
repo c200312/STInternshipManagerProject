@@ -52,9 +52,12 @@ public class InternshipService {
         return Result.success(internships, "查询成功");
     }
 
-    // 根据主键查询实习信息
-    public Result getInternshipById(InternshipKey key) {
-        Internship internship = internshipMapper.selectByPrimaryKey(key);
+    // 根据S_id查询实习信息
+    public Result getInternshipById(Integer id) {
+        InternshipExample example = new InternshipExample();
+        example.createCriteria().andS_idEqualTo(id);
+
+        List<Internship> internship = internshipMapper.selectByExample(example);
         if (internship != null) {
             return Result.success(internship, "查询成功");
         } else {
