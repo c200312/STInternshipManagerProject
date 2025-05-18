@@ -3,7 +3,7 @@
     <el-form @submit.prevent="handleSubmit">
       <!-- 学号 -->
       <el-form-item label="学号">
-        <el-input v-model="studentData.student_number" disabled />
+        <el-input v-model="studentData.student_number" readonly />
       </el-form-item>
       <!-- 姓名 -->
       <el-form-item label="姓名">
@@ -44,17 +44,16 @@ import { ElMessage } from 'element-plus';
 import axios from '../../utils/request';
 
 // 定义组件属性
-const props = defineProps(['userId', 'userName'])
+const props = defineProps(['userName'])
 // 定义组件事件
 const emit = defineEmits(['submit']);
 
 // 学生信息响应式变量
 const studentData = ref({});
 
-const loadDiary = async () =>{
+const loadStudentData = async () =>{
   const res=await axios.get(`/student/getbyusernumber/${props.userName}`);
   studentData.value = res.data.data
-
 }
 
 
@@ -67,7 +66,7 @@ const handleSubmit = async () => {
 }
 
 onMounted(() => {
-    loadDiary()
+    loadStudentData()
 
   })
 

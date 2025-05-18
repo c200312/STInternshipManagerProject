@@ -20,11 +20,10 @@ public class InternshipController {
     }
 
     // 删除实习信息
-    @DeleteMapping("/{sId}/{cId}")
-    public Result deleteInternship(@PathVariable Integer sId, @PathVariable Integer cId) {
+    @DeleteMapping("/{sId}")
+    public Result deleteInternship(@PathVariable Integer sId) {
         InternshipKey key = new InternshipKey();
         key.setS_id(sId);
-        key.setC_id(cId);
         return internshipService.deleteInternship(key);
     }
 
@@ -41,11 +40,8 @@ public class InternshipController {
     }
 
     // 根据主键查询实习信息
-    @GetMapping("/{sId}/{cId}")
-    public Result getInternshipById(@PathVariable Integer sId, @PathVariable Integer cId) {
-        InternshipKey key = new InternshipKey();
-        key.setS_id(sId);
-        key.setC_id(cId);
-        return internshipService.getInternshipById(key);
+    @GetMapping("/{sId}")
+    public Result getInternshipById(@PathVariable Integer sId) {
+        return internshipService.getInternshipById(sId);
     }
 }

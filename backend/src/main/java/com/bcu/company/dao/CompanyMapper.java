@@ -3,9 +3,10 @@ package com.bcu.company.dao;
 import com.bcu.company.bean.Company;
 import com.bcu.company.bean.CompanyExample;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface CompanyMapper {
     int countByExample(CompanyExample example);
 
