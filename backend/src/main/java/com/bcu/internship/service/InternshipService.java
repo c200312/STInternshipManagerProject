@@ -3,17 +3,16 @@ package com.bcu.internship.service;
 import com.bcu.common.result.Result;
 import com.bcu.internship.bean.Internship;
 import com.bcu.internship.bean.InternshipExample;
-import com.bcu.internship.bean.InternshipKey;
 import com.bcu.internship.dao.InternshipMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class InternshipService {
-    @Autowired
-    private InternshipMapper internshipMapper;
+    private final InternshipMapper internshipMapper;
 
     // 添加实习信息
     public Result addInternship(Internship internship) {
@@ -26,8 +25,10 @@ public class InternshipService {
     }
 
     // 删除实习信息
-    public Result deleteInternship(InternshipKey key) {
-        int result = internshipMapper.deleteByPrimaryKey(key);
+    public Result deleteInternship(Integer sid) {
+        InternshipExample example = new InternshipExample();
+        example.createCriteria().andS_idEqualTo(sid);
+        int result = internshipMapper.deleteByExample(example);
         if (result > 0) {
             return Result.success("删除成功");
         } else {
@@ -53,7 +54,7 @@ public class InternshipService {
     }
 
     // 根据S_id查询实习信息
-    public Result getInternshipById(Integer id) {
+    public Result getInternshipBySId(Integer id) {
         InternshipExample example = new InternshipExample();
         example.createCriteria().andS_idEqualTo(id);
 
@@ -64,4 +65,5 @@ public class InternshipService {
             return Result.error("未找到相关记录");
         }
     }
+
 }

@@ -16,44 +16,26 @@ public class TeacherController {
 
     @GetMapping
     public Result getAllTeachers() {
-        List<Teacher> teachers = service.getAllTeachers();
-        if (teachers != null){
-            return Result.success(teachers,  "查询成功");
-        }else return Result.error("未找到该教师");
+        return service.getAllTeachers();
     }
 
-    @GetMapping("{id}")
-    public Result getTeacherById(@PathVariable Integer id) {
-        Teacher  teacher = service.selectByPrimaryKey(id);
-        if (teacher != null){
-            return Result.success(teacher, "查询成功");
-        }else return Result.error("未找到该教师");
+    @GetMapping("{t_number}")
+    public Result getTeacherByNumber(@PathVariable String t_number) {
+        return service.getTeacherByNumber(t_number);
     }
 
-    @PostMapping("add")
+    @PostMapping
     public Result addTeacher(@RequestBody Teacher teacher) {
-        int result =service.insert(teacher);
-        if (result != 0){
-        return Result.success(teacher, "添加成功");
-        }else return Result.error("添加失败");
-
+        return service.addTeacher(teacher);
     }
 
-    @PostMapping("update")
+    @PutMapping
     public Result updateTeacher(@RequestBody Teacher teacher) {
-        if (teacher.getT_id() != null){
-            int result = service.updateByPrimaryKey(teacher);
-            if (result != 0){
-                return Result.success(teacher, "更新成功");
-            }else return Result.error("更新失败");
-        }else return Result.error("缺失教师id");
+        return service.updateTeacher(teacher);
     }
 
     @DeleteMapping("{id}")
     public Result deleteTeacher(@PathVariable Integer id) {
-        int result =service.deleteByPrimaryKey(id);
-        if (result != 0){
-            return Result.success(id,  "删除成功");
-        }else return Result.error("删除失败");
+        return service.deleteTeacher(id);
     }
 }

@@ -110,7 +110,7 @@ const weekPeriodOptions = ref([
 ])
 
 const fetchStudents = async () => {
-    const res = await axios.get('/duser/all')
+    const res = await axios.get('/duser')
     studentList.value = res.data.data
 
 }

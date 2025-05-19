@@ -783,6 +783,76 @@ public class TeacherExample {
             addCriterion("signature_path not between", value1, value2, "signature_path");
             return (Criteria) this;
         }
+
+        public Criteria andT_numberIsNull() {
+            addCriterion("t_number is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberIsNotNull() {
+            addCriterion("t_number is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberEqualTo(String value) {
+            addCriterion("t_number =", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberNotEqualTo(String value) {
+            addCriterion("t_number <>", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberGreaterThan(String value) {
+            addCriterion("t_number >", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberGreaterThanOrEqualTo(String value) {
+            addCriterion("t_number >=", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberLessThan(String value) {
+            addCriterion("t_number <", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberLessThanOrEqualTo(String value) {
+            addCriterion("t_number <=", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberLike(String value) {
+            addCriterion("t_number like", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberNotLike(String value) {
+            addCriterion("t_number not like", value, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberIn(List<String> values) {
+            addCriterion("t_number in", values, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberNotIn(List<String> values) {
+            addCriterion("t_number not in", values, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberBetween(String value1, String value2) {
+            addCriterion("t_number between", value1, value2, "t_number");
+            return (Criteria) this;
+        }
+
+        public Criteria andT_numberNotBetween(String value1, String value2) {
+            addCriterion("t_number not between", value1, value2, "t_number");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

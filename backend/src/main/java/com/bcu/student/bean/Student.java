@@ -19,7 +19,7 @@ public class Student {
 
     private String major;
 
-    private String club;
+    private String stu_class;
 
     private String counselor;
 
@@ -102,11 +102,11 @@ public class Student {
     }
 
     public String getClub() {
-        return club;
+        return stu_class;
     }
 
-    public void setClub(String club) {
-        this.club = club == null ? null : club.trim();
+    public void setClub(String stu_class) {
+        this.stu_class = stu_class == null ? null : stu_class.trim();
     }
 
     public String getCounselor() {

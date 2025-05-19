@@ -43,13 +43,23 @@ public class StudentService {
 
 
     public Result updateStudent(Student student) {
-        if (student == null || student.getS_id() == null) {
-            return Result.error("学生ID缺失，无法更新");
-        } else {
+        if (student.getS_id() != null) {
             studentMapper.updateByPrimaryKeySelective(student);
             return Result.success(student, "学生信息更新成功");
+        }else return Result.error("信息缺失，无法更新");
         }
+    public Result updateStudentAcademicAndIndustryTeacher(Integer sid, Integer academicid, Integer industryid) {
+        if(sid != null || academicid != null || industryid != null) {
+            Student student = new Student();
+            student.setS_id(sid);
+            student.setAcademic_advisor_id(academicid);
+            student.setIndustry_advisor_id(industryid);
+            studentMapper.updateByPrimaryKeySelective(student);
+            return Result.success(student, "学生信息更新成功");
+        }else return Result.error("信息缺失，无法更新");
+
     }
+
 
 
     public Result deleteStudent(Integer id) {
@@ -69,4 +79,5 @@ public class StudentService {
             return Result.success(students.getFirst(), "成功获取学生信息");
         }else return Result.error("未找到对应的学生信息");
     }
+
 }
