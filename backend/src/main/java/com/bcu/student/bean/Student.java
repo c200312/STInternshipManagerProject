@@ -101,11 +101,11 @@ public class Student {
         this.major = major == null ? null : major.trim();
     }
 
-    public String getClub() {
+    public String getStu_class() {
         return stu_class;
     }
 
-    public void setClub(String stu_class) {
+    public void setStu_class(String stu_class) {
         this.stu_class = stu_class == null ? null : stu_class.trim();
     }
 

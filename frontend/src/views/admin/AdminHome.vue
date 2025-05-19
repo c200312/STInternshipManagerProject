@@ -9,6 +9,7 @@
       <el-aside width="200px">
         <el-menu @select="currentTab = $event" :default-active="currentTab">
           <el-menu-item index="relation">选择教师所管理的学生</el-menu-item>
+          <el-menu-item index="import">导入学生及教师信息</el-menu-item>
         </el-menu>
       </el-aside>
 
@@ -19,8 +20,11 @@
               :studentData="studentData"
               :teacherData="teacherData"
           />
-
-
+        </el-main>
+        <el-main>
+          <ImportExcelForm
+              v-if="currentTab === 'import'"
+          />
         </el-main>
       </el-container>
     </el-container>
@@ -31,6 +35,7 @@ import { ref, onMounted } from 'vue'
 import UserHeader from '@/components/common/UserHeader.vue'
 import SelectRelationshipForm from "@/components/admain/SelectRelationshipForm.vue";
 import axios from "@/utils/request";
+import ImportExcelForm from "@/components/admain/ImportExcelForm.vue";
 const currentTab = ref('relation') // 当前标签页
 //  数据
 const studentData = ref([]);

@@ -1,6 +1,9 @@
 package com.bcu.common.result;
 
+import com.bcu.student.bean.Student;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 封装通用返回类
@@ -32,17 +35,14 @@ public class Result {
 
     // 有参数的成功方法，返回成功代码“200” 和 消息msg
     public static Result success(String msg) {
-        Result result = new Result();
-        result.setCode(SUCCESS_CODE);
+        Result result = success();
         result.setMsg(msg);
         return result;
     }
 
     // 有参数的成功方法，返回成功代码“200”、数据data和消息msg
     public static Result success(Object data, String msg) {
-        Result result = new Result();
-        result.setCode(SUCCESS_CODE);
-        result.setData(data);
+        Result result = success(data);
         result.setMsg(msg);
         return result;
     }
@@ -60,4 +60,10 @@ public class Result {
         return result;
     }
 
+    public static Result error(Object data, String msg) {
+        Result result = new Result();
+        result.setData(data);
+        result.setMsg(msg);
+        return result;
+    }
 }
