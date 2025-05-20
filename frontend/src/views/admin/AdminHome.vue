@@ -25,6 +25,11 @@
           <ImportExcelForm
               v-if="currentTab === 'import'"
           />
+          <el-main>
+            <ViewStudentInfo
+              v-if="currentTab === 'view'"
+          />
+          </el-main>
         </el-main>
       </el-container>
     </el-container>
@@ -36,6 +41,7 @@ import UserHeader from '@/components/common/UserHeader.vue'
 import SelectRelationshipForm from "@/components/admain/SelectRelationshipForm.vue";
 import axios from "@/utils/request";
 import ImportExcelForm from "@/components/admain/ImportExcelForm.vue";
+import ViewStudentInfo from "@/components/admain/ViewStudentInfo.vue";
 const currentTab = ref('relation') // 当前标签页
 //  数据
 const studentData = ref([]);

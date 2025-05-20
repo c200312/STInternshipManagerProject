@@ -1,10 +1,13 @@
 package com.bcu.admin.service;
 
 import com.bcu.common.result.Result;
+import com.bcu.common.util.ExcelCellUtil;
 import com.bcu.student.bean.Student;
 import com.bcu.student.dao.StudentMapper;
 import com.bcu.teacher.bean.Teacher;
 import com.bcu.teacher.dao.TeacherMapper;
+import com.bcu.user.bean.User;
+import com.bcu.user.dao.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,95 +25,108 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+
     private final StudentMapper studentMapper;
     private final TeacherMapper teacherMapper;
+    private final UserMapper userMapper;
+
     public Result importExcel(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
-        if (fileName == null || !fileName.endsWith(".xlsx")) {
+        if (fileName == null || (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls"))) {
             return Result.error("请上传正确格式的文件");
         }
-        InputStream inputStream = file.getInputStream();
-        Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0); // 只处理第一个sheet
-        Row header = sheet.getRow(0);
-        if (header == null){
-            return Result.error("文件表头为空请重新上传");
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+            Row header = sheet.getRow(0);
+            if (header == null) {
+                return Result.error("文件表头为空请重新上传");
+            }
+
+            String type = detectType(header);
+            return switch (type) {
+                case "student" -> importData(sheet, this::mapStudentRow, studentMapper::insert);
+                case "teacher" -> importData(sheet, this::mapTeacherRow, teacherMapper::insert);
+                case "user" -> importData(sheet, this::mapUserRow, userMapper::insert);
+                default -> Result.error("请使用系统模板");
+            };
         }
-        String type = detectType(header);
-        if ("student".equals(type)) {
-            return importStudent(sheet);
-        } else if ("teacher".equals(type)) {
-            return importTeacher(sheet);
-        } else return Result.error("请使用系统模板");
-
-
-
     }
 
-    private Result importTeacher(Sheet sheet) {
-        List<Teacher> eList = new ArrayList<>();
-        List<Teacher> teachers = new ArrayList<>();
+    private <T> Result importData(Sheet sheet, RowMapper<T> mapper, DataInserter<T> inserter) {
+        List<T> successList = new ArrayList<>();
+        List<T> errorList = new ArrayList<>();
+
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row == null) continue;
-            Teacher teacher = new Teacher();
-            teacher.setT_number(String.valueOf(row.getCell(0)));
-            teacher.setTeacher_name(String.valueOf(row.getCell(1)));
-            teacher.setGender(String.valueOf(row.getCell(2)));
-            teacher.setAdvisor_type(String.valueOf(row.getCell(3)));
-            teacher.setAge(Integer.parseInt(String.valueOf(row.getCell(4))));
-            teacher.setEducation(String.valueOf(row.getCell(5)));
-            teacher.setPosition(String.valueOf(row.getCell(6)));
-            teacher.setPhone(String.valueOf(row.getCell(7)));
-            teacher.setEmail(String.valueOf(row.getCell(8)));
-            teachers.add(teacher);
+            try {
+                T item = mapper.map(row);
+                if (inserter.insert(item) == 1) successList.add(item);
+                else errorList.add(item);
+            } catch (Exception e) {
+                errorList.add(null); // 可选：记录失败
+            }
         }
-        for (Teacher teacher : teachers) {
-            int result = teacherMapper.insert(teacher);
-            if (result != 1) eList.add(teacher);
-        }
-        if (eList.isEmpty())
-            return Result.success(teachers,"导入成功");
-        else return Result.error(eList,"该部分导入失败，其余成功导入");
 
+        if (errorList.isEmpty()) return Result.success(successList, "导入成功");
+        else return Result.error(errorList, "该部分导入失败请检查后重新导入");
     }
 
-    private Result importStudent(Sheet sheet) {
-        List<Student> eList = new ArrayList<>();
-        List<Student> students = new ArrayList<>();
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row == null) continue;
-            Student student = new Student();
-            student.setStudent_number(String.valueOf(row.getCell(0)));
-            student.setStudent_name(String.valueOf(row.getCell(1)));
-            student.setGender(String.valueOf(row.getCell(2)));
-            student.setPhone(String.valueOf(row.getCell(3)));
-            student.setParent_phone(String.valueOf(row.getCell(4)));
-            student.setEnrollment_year(Integer.parseInt(String.valueOf(row.getCell(5))));
-            student.setDepartment(String.valueOf(row.getCell(6)));
-            student.setMajor(String.valueOf(row.getCell(7)));
-            student.setStu_class(String.valueOf(row.getCell(8)));
-            student.setCounselor(String.valueOf(row.getCell(9)));
-            student.setCounselor_phone(String.valueOf(row.getCell(10)));
-            students.add(student);
+    private User mapUserRow(Row row) {
+        User user = new User();
+        user.setUsername(ExcelCellUtil.getString(row, 0));
+        user.setPassword(ExcelCellUtil.getString(row, 1));
+        user.setRole(ExcelCellUtil.getString(row, 2));
+        return user;
+    }
 
-        }
-        for (Student student : students) {
-            int result = studentMapper.insert(student);
-            if (result != 1) eList.add(student);
-        }
-        if (eList.isEmpty())
-            return Result.success(students,"导入成功");
-        else return Result.error(eList,"该部分导入失败，其余成功导入");
+    private Teacher mapTeacherRow(Row row) {
+        Teacher teacher = new Teacher();
+        teacher.setT_number(ExcelCellUtil.getString(row, 0));
+        teacher.setTeacher_name(ExcelCellUtil.getString(row, 1));
+        teacher.setGender(ExcelCellUtil.getString(row, 2));
+        teacher.setAdvisor_type(ExcelCellUtil.getString(row, 3));
+        teacher.setAge(ExcelCellUtil.getInt(row, 4));
+        teacher.setEducation(ExcelCellUtil.getString(row, 5));
+        teacher.setPosition(ExcelCellUtil.getString(row, 6));
+        teacher.setPhone(ExcelCellUtil.getString(row, 7));
+        teacher.setEmail(ExcelCellUtil.getString(row, 8));
+        return teacher;
+    }
 
+    private Student mapStudentRow(Row row) {
+        Student student = new Student();
+        student.setStudent_number(ExcelCellUtil.getString(row, 0));
+        student.setStudent_name(ExcelCellUtil.getString(row, 1));
+        student.setGender(ExcelCellUtil.getString(row, 2));
+        student.setPhone(ExcelCellUtil.getString(row, 3));
+        student.setParent_phone(ExcelCellUtil.getString(row, 4));
+        student.setEnrollment_year(ExcelCellUtil.getInt(row, 5));
+        student.setDepartment(ExcelCellUtil.getString(row, 6));
+        student.setMajor(ExcelCellUtil.getString(row, 7));
+        student.setStu_class(ExcelCellUtil.getString(row, 8));
+        student.setCounselor(ExcelCellUtil.getString(row, 9));
+        student.setCounselor_phone(ExcelCellUtil.getString(row, 10));
+        return student;
     }
 
     private String detectType(Row header) {
         String firstCell = header.getCell(0).getStringCellValue();
         if (firstCell.contains("学号")) return "student";
         if (firstCell.contains("工号")) return "teacher";
+        if (firstCell.contains("用户名")) return "user";
         return "unknown";
     }
 
+    @FunctionalInterface
+    interface RowMapper<T> {
+        T map(Row row) throws Exception;
+    }
+
+    @FunctionalInterface
+    interface DataInserter<T> {
+        int insert(T t);
+    }
 }

@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 public class AdminController implements ResourceLoaderAware {
 
     private final AdminService adminService;
+
     private ResourceLoader resourceLoader;
 
     @Override
@@ -40,6 +41,8 @@ public class AdminController implements ResourceLoaderAware {
             fileName = "student.xlsx";
         } else if ("teacher".equalsIgnoreCase(type)) {
             fileName = "teacher.xlsx";
+        } else if ("user".equalsIgnoreCase(type)) {
+            fileName = "user.xlsx";
         } else {
             return ResponseEntity.badRequest()
                     .body("无效的模板类型".getBytes(StandardCharsets.UTF_8));

@@ -61,7 +61,7 @@ const loadDiary = async () =>
 // 保存周记
 const saveDiary = async () => {
 
-    await axios.patch(`/duser/patch/${props.userName}`, {
+    await axios.patch(`/duser/${props.userName}`, {
       diary: [{ week: selectedWeek.value, content: content.value }]
     })
     ElMessage.success('周记保存成功')
