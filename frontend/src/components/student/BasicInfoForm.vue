@@ -67,9 +67,7 @@ import { ref, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import axios from '../../utils/request';
 
-// 定义组件属性
-const props = defineProps(['userName'])
-// 定义组件事件
+const props = defineProps(['userId', 'userName']);
 const emit = defineEmits(['submit']);
 
 const studentData = ref({
