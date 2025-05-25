@@ -164,63 +164,63 @@ public class AssessmentExample {
             return (Criteria) this;
         }
 
-        public Criteria andC_idIsNull() {
-            addCriterion("c_id is null");
+        public Criteria andInternship_idIsNull() {
+            addCriterion("internship_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andC_idIsNotNull() {
-            addCriterion("c_id is not null");
+        public Criteria andInternship_idIsNotNull() {
+            addCriterion("internship_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andC_idEqualTo(Integer value) {
-            addCriterion("c_id =", value, "c_id");
+        public Criteria andInternship_idEqualTo(Integer value) {
+            addCriterion("internship_id =", value, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idNotEqualTo(Integer value) {
-            addCriterion("c_id <>", value, "c_id");
+        public Criteria andInternship_idNotEqualTo(Integer value) {
+            addCriterion("internship_id <>", value, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idGreaterThan(Integer value) {
-            addCriterion("c_id >", value, "c_id");
+        public Criteria andInternship_idGreaterThan(Integer value) {
+            addCriterion("internship_id >", value, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idGreaterThanOrEqualTo(Integer value) {
-            addCriterion("c_id >=", value, "c_id");
+        public Criteria andInternship_idGreaterThanOrEqualTo(Integer value) {
+            addCriterion("internship_id >=", value, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idLessThan(Integer value) {
-            addCriterion("c_id <", value, "c_id");
+        public Criteria andInternship_idLessThan(Integer value) {
+            addCriterion("internship_id <", value, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idLessThanOrEqualTo(Integer value) {
-            addCriterion("c_id <=", value, "c_id");
+        public Criteria andInternship_idLessThanOrEqualTo(Integer value) {
+            addCriterion("internship_id <=", value, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idIn(List<Integer> values) {
-            addCriterion("c_id in", values, "c_id");
+        public Criteria andInternship_idIn(List<Integer> values) {
+            addCriterion("internship_id in", values, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idNotIn(List<Integer> values) {
-            addCriterion("c_id not in", values, "c_id");
+        public Criteria andInternship_idNotIn(List<Integer> values) {
+            addCriterion("internship_id not in", values, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idBetween(Integer value1, Integer value2) {
-            addCriterion("c_id between", value1, value2, "c_id");
+        public Criteria andInternship_idBetween(Integer value1, Integer value2) {
+            addCriterion("internship_id between", value1, value2, "internship_id");
             return (Criteria) this;
         }
 
-        public Criteria andC_idNotBetween(Integer value1, Integer value2) {
-            addCriterion("c_id not between", value1, value2, "c_id");
+        public Criteria andInternship_idNotBetween(Integer value1, Integer value2) {
+            addCriterion("internship_id not between", value1, value2, "internship_id");
             return (Criteria) this;
         }
 

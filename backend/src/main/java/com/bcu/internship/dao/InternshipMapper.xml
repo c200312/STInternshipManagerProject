@@ -102,7 +102,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from sx..internship
+    from sx.internship
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -116,7 +116,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from sx..internship
+    from sx.internship
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -129,21 +129,21 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from sx..internship
+    from sx.internship
     where internship_id = #{internship_id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from sx..internship
+    delete from sx.internship
     where internship_id = #{internship_id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.bcu.internship.bean.InternshipExample" >
-    delete from sx..internship
+    delete from sx.internship
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="com.bcu.internship.bean.Internship" >
-    insert into sx..internship (internship_id, s_id, company_name, 
+    insert into sx.internship (internship_id, s_id, company_name, 
       practice_base_name, is_practice_base, credit_code, 
       practice_region, approval_status, start_date, 
       end_date, actual_days, company_count, 
@@ -161,7 +161,7 @@
       #{company_phone,jdbcType=VARCHAR}, #{base_notes,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bcu.internship.bean.Internship" >
-    insert into sx..internship
+    insert into sx.internship
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="internship_id != null" >
         internship_id,
@@ -300,13 +300,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.bcu.internship.bean.InternshipExample" resultType="java.lang.Integer" >
-    select count(*) from sx..internship
+    select count(*) from sx.internship
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update sx..internship
+    update sx.internship
     <set >
       <if test="record.internship_id != null" >
         internship_id = #{record.internship_id,jdbcType=INTEGER},
@@ -380,7 +380,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map" >
-    update sx..internship
+    update sx.internship
     set internship_id = #{record.internship_id,jdbcType=INTEGER},
       s_id = #{record.s_id,jdbcType=INTEGER},
       company_name = #{record.company_name,jdbcType=VARCHAR},
@@ -408,7 +408,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update sx..internship
+    update sx.internship
     set internship_id = #{record.internship_id,jdbcType=INTEGER},
       s_id = #{record.s_id,jdbcType=INTEGER},
       company_name = #{record.company_name,jdbcType=VARCHAR},
@@ -435,7 +435,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.bcu.internship.bean.Internship" >
-    update sx..internship
+    update sx.internship
     <set >
       <if test="s_id != null" >
         s_id = #{s_id,jdbcType=INTEGER},
@@ -504,7 +504,7 @@
     where internship_id = #{internship_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.bcu.internship.bean.Internship" >
-    update sx..internship
+    update sx.internship
     set s_id = #{s_id,jdbcType=INTEGER},
       company_name = #{company_name,jdbcType=VARCHAR},
       practice_base_name = #{practice_base_name,jdbcType=VARCHAR},
@@ -529,7 +529,7 @@
     where internship_id = #{internship_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.bcu.internship.bean.Internship" >
-    update sx..internship
+    update sx.internship
     set s_id = #{s_id,jdbcType=INTEGER},
       company_name = #{company_name,jdbcType=VARCHAR},
       practice_base_name = #{practice_base_name,jdbcType=VARCHAR},

@@ -1,9 +1,7 @@
 package com.bcu.common.result;
 
-import com.bcu.student.bean.Student;
 import lombok.Data;
 
-import java.util.List;
 
 /**
  * 封装通用返回类

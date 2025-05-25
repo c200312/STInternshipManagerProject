@@ -3,8 +3,8 @@
 <mapper namespace="com.bcu.assessment.dao.AssessmentMapper" >
   <resultMap id="BaseResultMap" type="com.bcu.assessment.bean.Assessment" >
     <id column="s_id" property="s_id" jdbcType="INTEGER" />
-    <id column="c_id" property="c_id" jdbcType="INTEGER" />
-    <id column="t_id" property="t_id" jdbcType="INTEGER" />
+    <result column="internship_id" property="internship_id" jdbcType="INTEGER" />
+    <result column="t_id" property="t_id" jdbcType="INTEGER" />
     <result column="attendance_score" property="attendance_score" jdbcType="INTEGER" />
     <result column="task_score" property="task_score" jdbcType="INTEGER" />
     <result column="professionalism_score" property="professionalism_score" jdbcType="INTEGER" />
@@ -74,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    s_id, c_id, t_id, attendance_score, task_score, professionalism_score, performance_score, 
+    s_id, internship_id, t_id, attendance_score, task_score, professionalism_score, performance_score, 
     summary_score, practice_result_score, company_score, school_score, total_score
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.assessment.bean.AssessmentExample" >
@@ -91,19 +91,15 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.bcu.assessment.bean.AssessmentKey" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
     from sx.assessment
     where s_id = #{s_id,jdbcType=INTEGER}
-      and c_id = #{c_id,jdbcType=INTEGER}
-      and t_id = #{t_id,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="com.bcu.assessment.bean.AssessmentKey" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from sx.assessment
     where s_id = #{s_id,jdbcType=INTEGER}
-      and c_id = #{c_id,jdbcType=INTEGER}
-      and t_id = #{t_id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.bcu.assessment.bean.AssessmentExample" >
     delete from sx.assessment
@@ -112,12 +108,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.bcu.assessment.bean.Assessment" >
-    insert into sx.assessment (s_id, c_id, t_id, 
+    insert into sx.assessment (s_id, internship_id, t_id, 
       attendance_score, task_score, professionalism_score, 
       performance_score, summary_score, practice_result_score, 
       company_score, school_score, total_score
       )
-    values (#{s_id,jdbcType=INTEGER}, #{c_id,jdbcType=INTEGER}, #{t_id,jdbcType=INTEGER}, 
+    values (#{s_id,jdbcType=INTEGER}, #{internship_id,jdbcType=INTEGER}, #{t_id,jdbcType=INTEGER}, 
       #{attendance_score,jdbcType=INTEGER}, #{task_score,jdbcType=INTEGER}, #{professionalism_score,jdbcType=INTEGER}, 
       #{performance_score,jdbcType=INTEGER}, #{summary_score,jdbcType=INTEGER}, #{practice_result_score,jdbcType=INTEGER}, 
       #{company_score,jdbcType=INTEGER}, #{school_score,jdbcType=INTEGER}, #{total_score,jdbcType=INTEGER}
@@ -129,8 +125,8 @@
       <if test="s_id != null" >
         s_id,
       </if>
-      <if test="c_id != null" >
-        c_id,
+      <if test="internship_id != null" >
+        internship_id,
       </if>
       <if test="t_id != null" >
         t_id,
@@ -167,8 +163,8 @@
       <if test="s_id != null" >
         #{s_id,jdbcType=INTEGER},
       </if>
-      <if test="c_id != null" >
-        #{c_id,jdbcType=INTEGER},
+      <if test="internship_id != null" >
+        #{internship_id,jdbcType=INTEGER},
       </if>
       <if test="t_id != null" >
         #{t_id,jdbcType=INTEGER},
@@ -214,8 +210,8 @@
       <if test="record.s_id != null" >
         s_id = #{record.s_id,jdbcType=INTEGER},
       </if>
-      <if test="record.c_id != null" >
-        c_id = #{record.c_id,jdbcType=INTEGER},
+      <if test="record.internship_id != null" >
+        internship_id = #{record.internship_id,jdbcType=INTEGER},
       </if>
       <if test="record.t_id != null" >
         t_id = #{record.t_id,jdbcType=INTEGER},
@@ -255,7 +251,7 @@
   <update id="updateByExample" parameterType="map" >
     update sx.assessment
     set s_id = #{record.s_id,jdbcType=INTEGER},
-      c_id = #{record.c_id,jdbcType=INTEGER},
+      internship_id = #{record.internship_id,jdbcType=INTEGER},
       t_id = #{record.t_id,jdbcType=INTEGER},
       attendance_score = #{record.attendance_score,jdbcType=INTEGER},
       task_score = #{record.task_score,jdbcType=INTEGER},
@@ -273,6 +269,12 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.bcu.assessment.bean.Assessment" >
     update sx.assessment
     <set >
+      <if test="internship_id != null" >
+        internship_id = #{internship_id,jdbcType=INTEGER},
+      </if>
+      <if test="t_id != null" >
+        t_id = #{t_id,jdbcType=INTEGER},
+      </if>
       <if test="attendance_score != null" >
         attendance_score = #{attendance_score,jdbcType=INTEGER},
       </if>
@@ -302,12 +304,12 @@
       </if>
     </set>
     where s_id = #{s_id,jdbcType=INTEGER}
-      and c_id = #{c_id,jdbcType=INTEGER}
-      and t_id = #{t_id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.bcu.assessment.bean.Assessment" >
     update sx.assessment
-    set attendance_score = #{attendance_score,jdbcType=INTEGER},
+    set internship_id = #{internship_id,jdbcType=INTEGER},
+      t_id = #{t_id,jdbcType=INTEGER},
+      attendance_score = #{attendance_score,jdbcType=INTEGER},
       task_score = #{task_score,jdbcType=INTEGER},
       professionalism_score = #{professionalism_score,jdbcType=INTEGER},
       performance_score = #{performance_score,jdbcType=INTEGER},
@@ -317,7 +319,5 @@
       school_score = #{school_score,jdbcType=INTEGER},
       total_score = #{total_score,jdbcType=INTEGER}
     where s_id = #{s_id,jdbcType=INTEGER}
-      and c_id = #{c_id,jdbcType=INTEGER}
-      and t_id = #{t_id,jdbcType=INTEGER}
   </update>
 </mapper>

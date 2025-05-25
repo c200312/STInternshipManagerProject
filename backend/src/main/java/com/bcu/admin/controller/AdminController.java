@@ -66,4 +66,8 @@ public class AdminController implements ResourceLoaderAware {
 
         return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
     }
+    @GetMapping("/stinfo")
+    public Result getStInfo() throws IOException {
+        return adminService.getStInfo();
+    }
 }

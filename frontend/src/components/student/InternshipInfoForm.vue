@@ -12,7 +12,7 @@
       <el-input v-model="internshipData.actual_days"/>
     </el-form-item>
     <el-form-item label="实习公司">
-      <el-input v-model="companyData.company_name"/>
+      <el-input v-model="internshipData.company_name"/>
     </el-form-item>
     <el-form-item label="实习地点">
       <el-input v-model="internshipData.address"/>
@@ -36,29 +36,29 @@ const props = defineProps(['userId', 'userName'])
 const emit = defineEmits(['submit']);
 
 // 公司信息响应式变量
-const internshipData = ref({});
-const companyData = ref({});
+const internshipData = ref({
+  start_date: '',
+  end_date: '',
+  actual_days: '',
+  company_name: '',
+  address: '',
+  position: '',
+  s_id: props.userId,
+
+});
 
 const loadInternshipData = async () => {
   const res = await axios.get(`/internship/${props.userId}`);
+  console.log(res.data.data[0]);
+  if (res.data.data[0]===undefined) return;
   internshipData.value = res.data.data[0];
-  await loadCompanyData();
 };
 
-const loadCompanyData = async () => {
-  if (!internshipData.value || !internshipData.value.c_id) {
-    return;
-  }
-
-  const res = await axios.get(`/company/${internshipData.value.c_id}`);
-  companyData.value = res.data.data;
-};
 
 const handleSubmit = async () => {
   await axios.put(`/internship`, internshipData.value);
-  await axios.put(`/company`, companyData.value);
     ElMessage.success('保存成功');
-    emit('submit', internshipData.value, companyData.value);
+    emit('submit', internshipData.value);
 
 }
 onMounted(() => {

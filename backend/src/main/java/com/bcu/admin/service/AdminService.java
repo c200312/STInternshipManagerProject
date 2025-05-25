@@ -1,7 +1,14 @@
 package com.bcu.admin.service;
 
+import com.bcu.admin.bean.StudentDetailDTO;
+import com.bcu.assessment.bean.Assessment;
+import com.bcu.assessment.dao.AssessmentMapper;
 import com.bcu.common.result.Result;
 import com.bcu.common.util.ExcelCellUtil;
+import com.bcu.information.bean.DUser;
+import com.bcu.information.dao.DUserRepository;
+import com.bcu.internship.bean.Internship;
+import com.bcu.internship.dao.InternshipMapper;
 import com.bcu.student.bean.Student;
 import com.bcu.student.dao.StudentMapper;
 import com.bcu.teacher.bean.Teacher;
@@ -21,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +38,9 @@ public class AdminService {
     private final StudentMapper studentMapper;
     private final TeacherMapper teacherMapper;
     private final UserMapper userMapper;
+    private final InternshipMapper internshipMapper;
+    private final AssessmentMapper assessmentMapper;
+    private final DUserRepository  dUserRepository;
 
     public Result importExcel(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
@@ -118,6 +130,55 @@ public class AdminService {
         if (firstCell.contains("工号")) return "teacher";
         if (firstCell.contains("用户名")) return "user";
         return "unknown";
+    }
+
+    public Result getStInfo() throws IOException{
+        List<Student> students = studentMapper.selectByExample(null);
+        List<Teacher> teachers = teacherMapper.selectByExample(null);
+        List<Internship> internships = internshipMapper.selectByExample(null);
+        List<Assessment> assessments = assessmentMapper.selectByExample(null);
+        List<DUser> dUsers = dUserRepository.findAll();
+
+        // 构造：导师ID => 姓名 映射
+        Map<Integer, String> teacherNameMap = teachers.stream()
+                .collect(Collectors.toMap(Teacher::getT_id, Teacher::getTeacher_name));
+
+        // 构造：学生ID => 实习记录列表 映射
+        Map<Integer, List<Internship>> internshipMap = internships.stream()
+                .collect(Collectors.groupingBy(Internship::getS_id));
+        Map<Integer, List<Assessment>> assessmentMap = assessments.stream()
+                .collect(Collectors.groupingBy(Assessment::getS_id));
+        Map<String, List<DUser>> dUserMap = dUsers.stream()
+                .collect(Collectors.groupingBy(DUser::getId));
+
+        List<StudentDetailDTO> result = new ArrayList<>();
+
+        for (Student student : students) {
+            StudentDetailDTO dto = new StudentDetailDTO();
+            dto.setStudent(student);
+
+            // 导师名设置
+            dto.setAcademicAdvisorName(teacherNameMap.get(student.getAcademic_advisor_id()));
+            dto.setIndustryAdvisorName(teacherNameMap.get(student.getIndustry_advisor_id()));
+
+            // 设置一个实习信息（如有）
+            List<Internship> studentInternships = internshipMap.get(student.getS_id());
+            if (studentInternships != null && !studentInternships.isEmpty()) {
+                dto.setInternship(studentInternships.getFirst());
+            }
+            List<Assessment> studentAssessments = assessmentMap.get(student.getS_id());
+            if (studentAssessments != null && !studentAssessments.isEmpty()) {
+                dto.setAssessment(studentAssessments.getFirst());
+            }
+            List<DUser> studentDUsers = dUserMap.get(student.getStudent_number());
+            if (studentDUsers != null && !studentDUsers.isEmpty()) {
+                dto.setDuser(studentDUsers.getFirst());
+            }
+
+            result.add(dto);
+        }
+
+        return Result.success(result);
     }
 
     @FunctionalInterface

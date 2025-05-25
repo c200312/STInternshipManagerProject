@@ -1,6 +1,7 @@
 <template>
   <el-card shadow="never">
     <h2>导入学生/教师信息</h2>
+    <h4 style="color: #f00">注意：用户名和学号/工号对应！！！</h4>
 
     <!-- 下载模板按钮 -->
     <div style="margin-bottom: 20px;">

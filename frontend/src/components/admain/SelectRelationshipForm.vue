@@ -1,163 +1,170 @@
 <template>
   <div>
     <el-card shadow="never">
-      <h2>为学生选择导师</h2>
+      <h2>学生导师分配管理</h2>
 
-      <div style="margin-bottom: 16px; display: flex; gap: 12px;">
-        <el-button type="primary" @click="assignAdvisorsEvenly">平均分配未绑定学生</el-button>
-        <el-button type="success" @click="submitAllAssignments">一键保存所有绑定</el-button>
+      <!-- 选择班级 -->
+      <div style="margin-bottom: 16px;">
+        <el-select
+            v-model="selectedClasses"
+            multiple
+            placeholder="请选择班级"
+            clearable
+            style="width: 300px"
+        >
+          <el-option
+              v-for="cls in classList"
+              :key="cls"
+              :label="cls"
+              :value="cls"
+          />
+        </el-select>
       </div>
 
-      <el-table :data="students" border stripe style="width: 100%;">
-        <el-table-column prop="student_number" label="学号" width="100" />
-        <el-table-column prop="student_name" label="姓名" width="100" />
+      <!-- 学生表格 -->
+      <el-table :data="filteredStudents" border style="width: 100%;">
+        <el-table-column prop="student_number" label="学号" width="120" />
+        <el-table-column prop="student_name" label="姓名" width="120" />
+        <el-table-column prop="stu_class" label="班级" width="120" />
         <el-table-column prop="major" label="专业" />
-        <el-table-column prop="stu_class" label="班级" />
+
         <el-table-column label="学业导师">
           <template #default="scope">
-            <el-select
-                :model-value="advisorSelections[scope.row.s_id]?.academic"
-                @update:model-value="value => handleAdvisorChange(scope.row.s_id, 'academic', value)"
-                placeholder="选择学业导师"
-                style="width: 150px"
-            >
-              <el-option
-                  v-for="teacher in academicAdvisors"
-                  :key="teacher.t_id"
-                  :label="teacher.teacher_name"
-                  :value="teacher.t_id"
-              />
-            </el-select>
+            <span>
+              {{ getTeacherName(scope.row.academic_advisor_id) || '未分配' }}
+            </span>
           </template>
         </el-table-column>
+
         <el-table-column label="行业导师">
           <template #default="scope">
-            <el-select
-                :model-value="advisorSelections[scope.row.s_id]?.industry"
-                @update:model-value="value => handleAdvisorChange(scope.row.s_id, 'industry', value)"
-                placeholder="选择行业导师"
-                style="width: 150px"
-            >
-              <el-option
-                  v-for="teacher in industryAdvisors"
-                  :key="teacher.t_id"
-                  :label="teacher.teacher_name"
-                  :value="teacher.t_id"
-              />
-            </el-select>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="120">
-          <template #default="scope">
-            <el-button type="primary" size="small" @click="submitAssignment(scope.row.s_id)">
-              保存
-            </el-button>
+            <span>
+              {{ getTeacherName(scope.row.industry_advisor_id) || '未分配' }}
+            </span>
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 分配区域 -->
+      <div style="margin-top: 20px; display: flex; gap: 12px; align-items: center;">
+        <span>将选中班级学生分配给：</span>
+
+        <el-select
+            v-model="selectedAcademicAdvisor"
+            placeholder="学业导师"
+            style="width: 200px"
+        >
+          <el-option
+              v-for="teacher in academicAdvisors"
+              :key="teacher.t_id"
+              :label="teacher.teacher_name"
+              :value="teacher.t_id"
+          />
+        </el-select>
+
+        <el-select
+            v-model="selectedIndustryAdvisor"
+            placeholder="行业导师"
+            style="width: 200px"
+        >
+          <el-option
+              v-for="teacher in industryAdvisors"
+              :key="teacher.t_id"
+              :label="teacher.teacher_name"
+              :value="teacher.t_id"
+          />
+        </el-select>
+
+        <el-button type="primary" @click="assignToSelectedClasses">
+          确定分配
+        </el-button>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { computed, reactive, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import axios from '@/utils/request'
 
-const props = defineProps({
-  studentData: Array,
-  teacherData: Array
+// 学生和导师数据
+const studentData = ref([])
+const teacherData = ref([])
+
+// 获取数据方法
+async function loadStudentData() {
+  const res = await axios.get(`/student`)
+  studentData.value = res.data.data || []
+}
+
+async function loadTeacherData() {
+  const res = await axios.get(`/teacher`)
+  teacherData.value = res.data.data || []
+}
+
+// 初始化加载
+onMounted(() => {
+  loadStudentData()
+  loadTeacherData()
 })
 
-const students = computed(() => props.studentData || [])
-const teachers = computed(() => props.teacherData || [])
-
+// 导师筛选
 const academicAdvisors = computed(() =>
-    teachers.value.filter(t => t.advisor_type === '专业')
+    teacherData.value.filter(t => t.advisor_type === '专业')
 )
 const industryAdvisors = computed(() =>
-    teachers.value.filter(t => t.advisor_type === '行业')
+    teacherData.value.filter(t => t.advisor_type === '行业')
 )
 
-const advisorSelections = reactive({})
+// 班级筛选
+const classList = computed(() => {
+  const set = new Set()
+  studentData.value.forEach(s => set.add(s.stu_class))
+  return Array.from(set)
+})
 
-// 初始化学生绑定信息
-watch(
-    () => props.studentData,
-    (newVal) => {
-      if (newVal && newVal.length) {
-        newVal.forEach(student => {
-          advisorSelections[student.s_id] = {
-            academic: student.academic_advisor_id || null,
-            industry: student.industry_advisor_id || null
-          }
-        })
-      }
-    },
-    { immediate: true }
-)
+// 选中项
+const selectedClasses = ref([])
+const selectedAcademicAdvisor = ref(null)
+const selectedIndustryAdvisor = ref(null)
 
-// 平均分配导师，仅限未绑定学生
-const assignAdvisorsEvenly = () => {
-  const academicList = academicAdvisors.value
-  const industryList = industryAdvisors.value
+// 筛选学生
+const filteredStudents = computed(() => {
+  if (!selectedClasses.value.length) return studentData.value
+  return studentData.value.filter(s => selectedClasses.value.includes(s.stu_class))
+})
 
-  if (!academicList.length || !industryList.length) {
-    ElMessage.warning('导师人数不足，无法分配')
+// 获取导师名
+const getTeacherName = (id) => {
+  const t = teacherData.value.find(t => t.t_id === id)
+  return t?.teacher_name || ''
+}
+
+// 分配
+const assignToSelectedClasses = async () => {
+  if (!selectedClasses.value.length) {
+    ElMessage.warning('请选择班级')
+    return
+  }
+  if (!selectedAcademicAdvisor.value || !selectedIndustryAdvisor.value) {
+    ElMessage.warning('请选择两个导师')
     return
   }
 
-  let academicIndex = 0
-  let industryIndex = 0
+  const targets = studentData.value.filter(s =>
+      selectedClasses.value.includes(s.stu_class)
+  )
 
-  students.value.forEach(student => {
-    const current = advisorSelections[student.s_id]
-    if (!current || (!current.academic && !current.industry)) {
-      advisorSelections[student.s_id] = {
-        academic: academicList[academicIndex % academicList.length].t_id,
-        industry: industryList[industryIndex % industryList.length].t_id
-      }
-      academicIndex++
-      industryIndex++
-    }
-  })
-
-  ElMessage.success('未绑定学生已平均分配导师')
-}
-
-// 手动更改绑定
-const handleAdvisorChange = (studentId, type, value) => {
-  if (!advisorSelections[studentId]) {
-    advisorSelections[studentId] = { academic: null, industry: null }
-  }
-  advisorSelections[studentId][type] = value
-}
-
-// 提交单个学生绑定
-const submitAssignment = async (studentId) => {
-  const selection = advisorSelections[studentId]
   try {
-    await axios.put(`/student/${studentId}/${selection.academic}/${selection.industry}`)
-    ElMessage.success('导师分配成功')
+    const requests = targets.map(s =>
+        axios.put(`/student/${s.s_id}/${selectedAcademicAdvisor.value}/${selectedIndustryAdvisor.value}`)
+    )
+    await Promise.all(requests)
+    ElMessage.success('分配成功')
+    await loadStudentData() // ✅ 分配完成后刷新
   } catch (err) {
-    ElMessage.error('导师分配失败')
-    console.error(err)
-  }
-}
-
-// 批量提交所有学生绑定
-const submitAllAssignments = async () => {
-  try {
-    const promises = students.value.map(student => {
-      const selection = advisorSelections[student.s_id]
-      if (!selection || !selection.academic || !selection.industry) return null
-      return axios.put(`/student/${student.s_id}/${selection.academic}/${selection.industry}`)
-    }).filter(Boolean)
-
-    await Promise.all(promises)
-    ElMessage.success('所有导师绑定已保存')
-  } catch (err) {
-    ElMessage.error('批量保存失败')
+    ElMessage.error('分配失败')
     console.error(err)
   }
 }

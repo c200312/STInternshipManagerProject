@@ -38,12 +38,17 @@ public class InternshipService {
 
     // 更新实习信息
     public Result updateInternship(Internship internship) {
-        int result = internshipMapper.updateByPrimaryKeySelective(internship);
-        if (result > 0) {
-            return Result.success("更新成功");
-        } else {
-            return Result.error("更新失败");
+        Result result = getInternshipBySId(internship.getS_id());
+        Object data = result.getData();
+
+        // 判断是否为空集合
+        if (data instanceof List<?> list && list.isEmpty()) {
+            return addInternship(internship);
         }
+
+        // 否则更新
+        int updateResult = internshipMapper.updateByPrimaryKeySelective(internship);
+        return updateResult > 0 ? Result.success("更新成功") : Result.error("更新失败");
     }
 
     // 查询所有实习信息
