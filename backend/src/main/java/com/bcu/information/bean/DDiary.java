@@ -7,6 +7,6 @@ import lombok.Data;
  * */
 @Data
 public class DDiary {
-    private Integer week;   //周1-16为周记 17为总结
+    private String week;   //周1-16为周记 17为总结
     private String content; // 周学生记内容
 }

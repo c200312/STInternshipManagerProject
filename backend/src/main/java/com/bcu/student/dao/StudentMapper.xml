@@ -11,7 +11,7 @@
     <result column="enrollment_year" property="enrollment_year" jdbcType="INTEGER" />
     <result column="department" property="department" jdbcType="VARCHAR" />
     <result column="major" property="major" jdbcType="VARCHAR" />
-    <result column="club" property="club" jdbcType="VARCHAR" />
+    <result column="stu_class" property="stu_class" jdbcType="VARCHAR" />
     <result column="counselor" property="counselor" jdbcType="VARCHAR" />
     <result column="counselor_phone" property="counselor_phone" jdbcType="VARCHAR" />
     <result column="academic_advisor_id" property="academic_advisor_id" jdbcType="INTEGER" />
@@ -77,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List" >
     s_id, student_number, student_name, gender, phone, parent_phone, enrollment_year, 
-    department, major, club, counselor, counselor_phone, academic_advisor_id, industry_advisor_id
+    department, major, stu_class, counselor, counselor_phone, academic_advisor_id, industry_advisor_id
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.student.bean.StudentExample" >
     select
@@ -113,13 +113,13 @@
     insert into sx.student (s_id, student_number, student_name, 
       gender, phone, parent_phone, 
       enrollment_year, department, major, 
-      club, counselor, counselor_phone, 
+      stu_class, counselor, counselor_phone, 
       academic_advisor_id, industry_advisor_id
       )
     values (#{s_id,jdbcType=INTEGER}, #{student_number,jdbcType=VARCHAR}, #{student_name,jdbcType=VARCHAR}, 
       #{gender,jdbcType=CHAR}, #{phone,jdbcType=VARCHAR}, #{parent_phone,jdbcType=VARCHAR}, 
       #{enrollment_year,jdbcType=INTEGER}, #{department,jdbcType=VARCHAR}, #{major,jdbcType=VARCHAR}, 
-      #{club,jdbcType=VARCHAR}, #{counselor,jdbcType=VARCHAR}, #{counselor_phone,jdbcType=VARCHAR}, 
+      #{stu_class,jdbcType=VARCHAR}, #{counselor,jdbcType=VARCHAR}, #{counselor_phone,jdbcType=VARCHAR}, 
       #{academic_advisor_id,jdbcType=INTEGER}, #{industry_advisor_id,jdbcType=INTEGER}
       )
   </insert>
@@ -153,8 +153,8 @@
       <if test="major != null" >
         major,
       </if>
-      <if test="club != null" >
-        club,
+      <if test="stu_class != null" >
+        stu_class,
       </if>
       <if test="counselor != null" >
         counselor,
@@ -197,8 +197,8 @@
       <if test="major != null" >
         #{major,jdbcType=VARCHAR},
       </if>
-      <if test="club != null" >
-        #{club,jdbcType=VARCHAR},
+      <if test="stu_class != null" >
+        #{stu_class,jdbcType=VARCHAR},
       </if>
       <if test="counselor != null" >
         #{counselor,jdbcType=VARCHAR},
@@ -250,8 +250,8 @@
       <if test="record.major != null" >
         major = #{record.major,jdbcType=VARCHAR},
       </if>
-      <if test="record.club != null" >
-        club = #{record.club,jdbcType=VARCHAR},
+      <if test="record.stu_class != null" >
+        stu_class = #{record.stu_class,jdbcType=VARCHAR},
       </if>
       <if test="record.counselor != null" >
         counselor = #{record.counselor,jdbcType=VARCHAR},
@@ -281,7 +281,7 @@
       enrollment_year = #{record.enrollment_year,jdbcType=INTEGER},
       department = #{record.department,jdbcType=VARCHAR},
       major = #{record.major,jdbcType=VARCHAR},
-      club = #{record.club,jdbcType=VARCHAR},
+      stu_class = #{record.stu_class,jdbcType=VARCHAR},
       counselor = #{record.counselor,jdbcType=VARCHAR},
       counselor_phone = #{record.counselor_phone,jdbcType=VARCHAR},
       academic_advisor_id = #{record.academic_advisor_id,jdbcType=INTEGER},
@@ -317,8 +317,8 @@
       <if test="major != null" >
         major = #{major,jdbcType=VARCHAR},
       </if>
-      <if test="club != null" >
-        club = #{club,jdbcType=VARCHAR},
+      <if test="stu_class != null" >
+        stu_class = #{stu_class,jdbcType=VARCHAR},
       </if>
       <if test="counselor != null" >
         counselor = #{counselor,jdbcType=VARCHAR},
@@ -345,7 +345,7 @@
       enrollment_year = #{enrollment_year,jdbcType=INTEGER},
       department = #{department,jdbcType=VARCHAR},
       major = #{major,jdbcType=VARCHAR},
-      club = #{club,jdbcType=VARCHAR},
+      stu_class = #{stu_class,jdbcType=VARCHAR},
       counselor = #{counselor,jdbcType=VARCHAR},
       counselor_phone = #{counselor_phone,jdbcType=VARCHAR},
       academic_advisor_id = #{academic_advisor_id,jdbcType=INTEGER},

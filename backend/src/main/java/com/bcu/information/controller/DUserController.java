@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.*;
 public class DUserController {
     private final DUserService service;
 
+    @GetMapping("/selectbytnumber/{t_number}")
+    public Result selectByTNumber(@PathVariable String t_number) {
+
+        return service.selectByTNumber(t_number);
+    }
     // 用户初始化
     @PostMapping
     public Result create(@RequestBody DUser user) {

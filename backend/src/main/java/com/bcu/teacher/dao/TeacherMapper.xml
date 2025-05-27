@@ -12,6 +12,7 @@
     <result column="phone" property="phone" jdbcType="VARCHAR" />
     <result column="email" property="email" jdbcType="VARCHAR" />
     <result column="signature_path" property="signature_path" jdbcType="VARCHAR" />
+    <result column="t_number" property="t_number" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -73,7 +74,7 @@
   </sql>
   <sql id="Base_Column_List" >
     t_id, teacher_name, gender, advisor_type, age, education, position, phone, email, 
-    signature_path
+    signature_path, t_number
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.bcu.teacher.bean.TeacherExample" >
     select
@@ -109,11 +110,11 @@
     insert into sx.teacher (t_id, teacher_name, gender, 
       advisor_type, age, education, 
       position, phone, email, 
-      signature_path)
+      signature_path, t_number)
     values (#{t_id,jdbcType=INTEGER}, #{teacher_name,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, 
       #{advisor_type,jdbcType=CHAR}, #{age,jdbcType=INTEGER}, #{education,jdbcType=VARCHAR}, 
       #{position,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
-      #{signature_path,jdbcType=VARCHAR})
+      #{signature_path,jdbcType=VARCHAR}, #{t_number,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bcu.teacher.bean.Teacher" >
     insert into sx.teacher
@@ -148,6 +149,9 @@
       <if test="signature_path != null" >
         signature_path,
       </if>
+      <if test="t_number != null" >
+        t_number,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="t_id != null" >
@@ -179,6 +183,9 @@
       </if>
       <if test="signature_path != null" >
         #{signature_path,jdbcType=VARCHAR},
+      </if>
+      <if test="t_number != null" >
+        #{t_number,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -221,6 +228,9 @@
       <if test="record.signature_path != null" >
         signature_path = #{record.signature_path,jdbcType=VARCHAR},
       </if>
+      <if test="record.t_number != null" >
+        t_number = #{record.t_number,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +247,8 @@
       position = #{record.position,jdbcType=VARCHAR},
       phone = #{record.phone,jdbcType=VARCHAR},
       email = #{record.email,jdbcType=VARCHAR},
-      signature_path = #{record.signature_path,jdbcType=VARCHAR}
+      signature_path = #{record.signature_path,jdbcType=VARCHAR},
+      t_number = #{record.t_number,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +283,9 @@
       <if test="signature_path != null" >
         signature_path = #{signature_path,jdbcType=VARCHAR},
       </if>
+      <if test="t_number != null" >
+        t_number = #{t_number,jdbcType=VARCHAR},
+      </if>
     </set>
     where t_id = #{t_id,jdbcType=INTEGER}
   </update>
@@ -285,7 +299,8 @@
       position = #{position,jdbcType=VARCHAR},
       phone = #{phone,jdbcType=VARCHAR},
       email = #{email,jdbcType=VARCHAR},
-      signature_path = #{signature_path,jdbcType=VARCHAR}
+      signature_path = #{signature_path,jdbcType=VARCHAR},
+      t_number = #{t_number,jdbcType=VARCHAR}
     where t_id = #{t_id,jdbcType=INTEGER}
   </update>
 </mapper>

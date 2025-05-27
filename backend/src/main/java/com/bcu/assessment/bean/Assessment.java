@@ -1,6 +1,12 @@
 package com.bcu.assessment.bean;
 
-public class Assessment extends AssessmentKey {
+public class Assessment {
+    private Integer s_id;
+
+    private Integer internship_id;
+
+    private Integer t_id;
+
     private Integer attendance_score;
 
     private Integer task_score;
@@ -18,6 +24,30 @@ public class Assessment extends AssessmentKey {
     private Integer school_score;
 
     private Integer total_score;
+
+    public Integer getS_id() {
+        return s_id;
+    }
+
+    public void setS_id(Integer s_id) {
+        this.s_id = s_id;
+    }
+
+    public Integer getInternship_id() {
+        return internship_id;
+    }
+
+    public void setInternship_id(Integer internship_id) {
+        this.internship_id = internship_id;
+    }
+
+    public Integer getT_id() {
+        return t_id;
+    }
+
+    public void setT_id(Integer t_id) {
+        this.t_id = t_id;
+    }
 
     public Integer getAttendance_score() {
         return attendance_score;

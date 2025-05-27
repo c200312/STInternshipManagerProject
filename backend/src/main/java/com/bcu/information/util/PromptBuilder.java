@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 public class PromptBuilder {
 
     public static String buildPrompt(DUser user, List<Integer> weeks) {
-        String studentName = user.getName();
         String companyName = user.getCompany().stream()
                 .findFirst()
                 .map(DCompany::getName)
@@ -29,8 +28,8 @@ public class PromptBuilder {
                 .collect(Collectors.toList());
 
         return String.format(
-                "请以教师的身份根据以下内容生成一段300字评语：\n学生姓名：%s\n实习公司：%s\n以下是学生的实习周记：\n%s",
-                studentName, companyName, String.join("\n", selectedDiaries)
+                "请以教师的身份根据以下内容生成一段300字评语：\n实习公司：%s\n以下是学生的实习周记：\n%s",
+                 companyName, String.join("\n", selectedDiaries)
         );
     }
 }

@@ -21,6 +21,8 @@ public class Teacher {
 
     private String signature_path;
 
+    private String t_number;
+
     public Integer getT_id() {
         return t_id;
     }
@@ -99,5 +101,13 @@ public class Teacher {
 
     public void setSignature_path(String signature_path) {
         this.signature_path = signature_path == null ? null : signature_path.trim();
+    }
+
+    public String getT_number() {
+        return t_number;
+    }
+
+    public void setT_number(String t_number) {
+        this.t_number = t_number == null ? null : t_number.trim();
     }
 }

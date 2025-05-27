@@ -25,9 +25,9 @@ public class AssessmentController {
     }
 
     // 根据主键获取评估
-    @GetMapping("/{sId}/{cId}/{tId}")
-    public Result getAssessmentById(@PathVariable Integer sId, @PathVariable Integer cId, @PathVariable Integer tId) {
-        return assessmentService.getAssessmentById(sId, cId, tId);
+    @GetMapping("/{sId}")
+    public Result getAssessmentById(@PathVariable Integer sId) {
+        return assessmentService.getAssessmentById(sId);
     }
 
     // 更新评估
@@ -37,8 +37,8 @@ public class AssessmentController {
     }
 
     // 删除评估
-    @DeleteMapping("/{sId}/{cId}/{tId}")
-    public Result deleteAssessment(@PathVariable Integer sId, @PathVariable Integer cId, @PathVariable Integer tId) {
-        return assessmentService.deleteAssessment(sId, cId, tId);
+    @DeleteMapping("/{sId}")
+    public Result deleteAssessment(@PathVariable Integer sId) {
+        return assessmentService.deleteAssessment(sId);
     }
 }

@@ -27,9 +27,8 @@
           />
           <InternshipInfoForm
               v-else-if="currentTab === 'internship'"
-              :userName="userId"
+              :userId="userId"
           />
-
         </el-main>
       </el-container>
     </el-container>
@@ -37,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import {ref, onMounted} from 'vue'
 import DiaryForm from '../../components/student/DiaryForm.vue'
 import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
 import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
@@ -48,13 +47,10 @@ const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 const userName = userInfo.username
 const userId = userInfo.user_id
 
-
 const currentTab = ref('diary') // 当前标签页
 
 onMounted(() => {
 })
-
-
 </script>
 
 <style scoped>

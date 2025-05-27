@@ -39,6 +39,10 @@ public class StudentController {
     public Result updateStudent(@RequestBody Student student) {
         return studentService.updateStudent(student);
     }
+    @PutMapping("{sid}/{academicid}/{industryid}")
+    public Result updateStudentAcademicAndIndustryTeacher(@PathVariable Integer sid,@PathVariable Integer academicid,@PathVariable Integer industryid){
+        return studentService.updateStudentAcademicAndIndustryTeacher(sid,academicid,industryid);
+    }
 
     @DeleteMapping("/{id}")
     public Result deleteStudent(@PathVariable Integer id) {

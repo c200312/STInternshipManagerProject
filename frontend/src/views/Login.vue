@@ -69,7 +69,6 @@ const rules = reactive({
   ],
   password: [
     { required: true, message: '密码不能为空', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
   ]
 })
 
@@ -83,9 +82,7 @@ const submitForm = async () => {
       localStorage.setItem('userInfo', JSON.stringify(data.data));
 
       // 根据用户类型跳转不同页面
-      const routePath = data.data.role === 'student'
-          ? '/studenthome'
-          : '/teacherhome';
+      const routePath = `/${data.data.role}home`;
 
       await router.push(routePath);
     } else {

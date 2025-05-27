@@ -2,7 +2,6 @@ package com.bcu.assessment.dao;
 
 import com.bcu.assessment.bean.Assessment;
 import com.bcu.assessment.bean.AssessmentExample;
-import com.bcu.assessment.bean.AssessmentKey;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +12,7 @@ public interface AssessmentMapper {
 
     int deleteByExample(AssessmentExample example);
 
-    int deleteByPrimaryKey(AssessmentKey key);
+    int deleteByPrimaryKey(Integer s_id);
 
     int insert(Assessment record);
 
@@ -21,7 +20,7 @@ public interface AssessmentMapper {
 
     List<Assessment> selectByExample(AssessmentExample example);
 
-    Assessment selectByPrimaryKey(AssessmentKey key);
+    Assessment selectByPrimaryKey(Integer s_id);
 
     int updateByExampleSelective(@Param("record") Assessment record, @Param("example") AssessmentExample example);
 

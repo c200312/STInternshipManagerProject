@@ -715,72 +715,72 @@ public class StudentExample {
         }
 
         public Criteria andClubIsNull() {
-            addCriterion("club is null");
+            addCriterion("stu_class is null");
             return (Criteria) this;
         }
 
         public Criteria andClubIsNotNull() {
-            addCriterion("club is not null");
+            addCriterion("stu_class is not null");
             return (Criteria) this;
         }
 
         public Criteria andClubEqualTo(String value) {
-            addCriterion("club =", value, "club");
+            addCriterion("stu_class =", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubNotEqualTo(String value) {
-            addCriterion("club <>", value, "club");
+            addCriterion("stu_class <>", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubGreaterThan(String value) {
-            addCriterion("club >", value, "club");
+            addCriterion("stu_class >", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubGreaterThanOrEqualTo(String value) {
-            addCriterion("club >=", value, "club");
+            addCriterion("stu_class >=", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubLessThan(String value) {
-            addCriterion("club <", value, "club");
+            addCriterion("stu_class <", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubLessThanOrEqualTo(String value) {
-            addCriterion("club <=", value, "club");
+            addCriterion("stu_class <=", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubLike(String value) {
-            addCriterion("club like", value, "club");
+            addCriterion("stu_class like", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubNotLike(String value) {
-            addCriterion("club not like", value, "club");
+            addCriterion("stu_class not like", value, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubIn(List<String> values) {
-            addCriterion("club in", values, "club");
+            addCriterion("stu_class in", values, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubNotIn(List<String> values) {
-            addCriterion("club not in", values, "club");
+            addCriterion("stu_class not in", values, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubBetween(String value1, String value2) {
-            addCriterion("club between", value1, value2, "club");
+            addCriterion("stu_class between", value1, value2, "stu_class");
             return (Criteria) this;
         }
 
         public Criteria andClubNotBetween(String value1, String value2) {
-            addCriterion("club not between", value1, value2, "club");
+            addCriterion("stu_class not between", value1, value2, "stu_class");
             return (Criteria) this;
         }
 
