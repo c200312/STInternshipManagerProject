@@ -24,11 +24,10 @@
           <BasicInfoForm
               v-else-if="currentTab === 'info'"
               :userName="userName"
-              :userId="userId"
           />
           <InternshipInfoForm
               v-else-if="currentTab === 'internship'"
-              :editId="null"
+              :userId="userId"
           />
         </el-main>
       </el-container>

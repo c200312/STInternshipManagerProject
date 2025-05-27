@@ -67,7 +67,7 @@ import { ref, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import axios from '../../utils/request';
 
-const props = defineProps(['userId', 'userName']);
+const props = defineProps(['userName']);
 const emit = defineEmits(['submit']);
 
 const studentData = ref({

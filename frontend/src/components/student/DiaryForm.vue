@@ -135,12 +135,7 @@ import { ElMessage } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
 
 // 定义组件属性
-const props = defineProps({
-  userName: {
-    type: String,
-    required: true
-  }
-})
+const props = defineProps(['userName'])
 
 // 定义组件事件
 const emit = defineEmits(['submit'])
@@ -159,9 +154,9 @@ const loadDiary = async () => {
   try {
     const res = await axios.get(`/duser/${props.userName}`)
     const diaries = res.data?.data?.diary || []
-
+console.log(selectedWeek.value)
     if (selectedWeek.value !== 17) {
-      const found = diaries.find(d => d.week === selectedWeek.value)
+      const found = diaries.find(d => d.week === `${selectedWeek.value}`)
       content.value = found ? found.content : ''
     } else {
       // 总结周，需要同时处理成果和实践内容
@@ -180,12 +175,12 @@ const loadDiary = async () => {
 const saveDiary = async () => {
   try {
     if (selectedWeek.value !== 17) {
-      await axios.patch(`/duser/patch/${props.userName}`, {
+      await axios.patch(`/duser/${props.userName}`, {
         diary: [{ week: selectedWeek.value, content: content.value }]
       })
     } else {
       // 总结周，保存成果和实践内容
-      await axios.patch(`/duser/patch/${props.userName}`, {
+      await axios.patch(`/duser/${props.userName}`, {
         diary: [
           { week: 'achievement', content: achievementContent.value },
           { week: 'practice', content: practiceContent.value }
