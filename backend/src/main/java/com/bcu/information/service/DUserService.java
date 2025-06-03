@@ -68,13 +68,16 @@ public class DUserService {
 
         DUser user = optionalUser.get();
 
+        user.setPracticeComment(partial.getPracticeComment());
+        user.setTeachingUnitComment(partial.getTeachingUnitComment());
+        user.setPracticeContent(partial.getPracticeContent());
+
         if (partial.getCompany() != null) {
             for (DCompany c : partial.getCompany()) {
                 boolean updated = false;
                 for (DCompany existing : user.getCompany()) {
                     if (existing.getName().equals(c.getName())) {
                         existing.setIntroduction(c.getIntroduction());
-                        existing.setComments(c.getComments());
                         updated = true;
                         break;
                     }
