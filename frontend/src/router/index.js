@@ -17,19 +17,24 @@ const routes = [
     component: () => import('../views/student/StudentHome.vue'),
     meta: { requiresAuth: true }
   },
-    {
-      path: '/teacherhome',
-      name: 'TeacherHome',
-      component: () => import('../views/teacher/TeacherHome.vue'),
-      meta: { requiresAuth: true }
-    },
+  {
+    path: '/teacherhome',
+    name: 'TeacherHome',
+    component: () => import('../views/teacher/TeacherHome.vue'),
+    meta: { requiresAuth: true }
+  },
   {
     path: '/adminhome',
     name: 'AdminHome',
     component: () => import('../views/admin/AdminHome.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/assessment',
+    name: 'Assessment',
+    component: () => import('../views/assessment/Assessment.vue'),
+    meta: { requiresAuth: true }
   }
-
 ]
 
 const router = createRouter({

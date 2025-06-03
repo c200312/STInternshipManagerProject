@@ -1,7 +1,7 @@
 package com.bcu.information.service.ai;
 
 import com.bcu.information.bean.DUser;
-import com.bcu.information.util.PromptBuilder;
+import com.bcu.common.util.PromptBuilder;
 import org.springframework.ai.zhipuai.ZhiPuAiChatModel;
 import org.springframework.stereotype.Service;
 

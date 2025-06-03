@@ -74,6 +74,7 @@ public class DUserService {
                 for (DCompany existing : user.getCompany()) {
                     if (existing.getName().equals(c.getName())) {
                         existing.setIntroduction(c.getIntroduction());
+                        existing.setComments(c.getComments());
                         updated = true;
                         break;
                     }
