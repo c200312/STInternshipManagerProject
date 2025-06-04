@@ -1,5 +1,5 @@
 <template>
- <h3>填写周记</h3>
+  <h3>填写周记</h3>
   <el-form @submit.prevent="handleSubmit">
     <el-form-item label="选择周数">
       <el-select
@@ -20,7 +20,7 @@
       <el-form-item :label="`第 ${selectedWeek} 周周记`">
         <el-input
             type="textarea"
-            rows="10"
+            :rows="10"
             v-model="content"
             placeholder="实习实践工作内容、任务与完成情况：
 
@@ -37,7 +37,7 @@
         <div class="flex gap-3">
           <el-input
               type="textarea"
-              rows="10"
+              rows=10
               v-model="achievementContent"
               placeholder="不少于5条，对成果进行总结"
               style="flex: 1; min-height: 200px; resize: none; width: 1000px"
@@ -68,7 +68,7 @@
         <div class="flex gap-3">
           <el-input
               type="textarea"
-              rows="10"
+              rows=10
               v-model="practiceContent"
               placeholder="实习实践的整体总结与感悟"
               style="flex: 1; min-height: 200px; resize: none; width: 1000px"
