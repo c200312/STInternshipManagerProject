@@ -41,12 +41,16 @@ public class AssessmentService {
 
     // 更新评估
     public Result updateAssessment(Assessment assessment) {
-        int result = assessmentMapper.updateByPrimaryKey(assessment);
-        if (result > 0) {
-            return Result.success(assessment,"评估更新成功");
-        } else {
-            return Result.error("评估更新失败");
+        Result result = getAssessmentById(assessment.getS_id());
+        Object data = result.getData();
+        // 判断是否为空集合
+        if (data instanceof List<?> list && list.isEmpty()) {
+            return createAssessment(assessment);
         }
+        // 否则更新
+        int updateResult = assessmentMapper.updateByPrimaryKeySelective(assessment);
+        return updateResult > 0 ? Result.success("更新成功") : Result.error("更新失败");
+
     }
 
     // 删除评估
