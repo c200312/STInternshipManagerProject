@@ -98,7 +98,7 @@
       <el-input
           v-model="internshipData.address"
           type="textarea"
-          rows="2"
+          rows=2
           placeholder="请输入详细地址"
       />
     </el-form-item>
