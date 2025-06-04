@@ -15,7 +15,7 @@ public class AssessmentService {
 
     // 创建评估
     public Result createAssessment(Assessment assessment) {
-        int result = assessmentMapper.insert(assessment);
+        int result = assessmentMapper.insertSelective(assessment);
         if (result > 0) {
             return Result.success(assessment,"评估创建成功");
         } else {
@@ -43,12 +43,16 @@ public class AssessmentService {
     public Result updateAssessment(Assessment assessment) {
         Result result = getAssessmentById(assessment.getS_id());
         Object data = result.getData();
-        // 判断是否为空集合
-        if (data instanceof List<?> list && list.isEmpty()) {
+        // 判断是否为空
+        if (data == null ) {
+            System.out.println("创建评估");
+            System.out.println(data);
             return createAssessment(assessment);
         }
         // 否则更新
         int updateResult = assessmentMapper.updateByPrimaryKeySelective(assessment);
+        System.out.println("更新评估");
+        System.out.println(updateResult);
         return updateResult > 0 ? Result.success("更新成功") : Result.error("更新失败");
 
     }
