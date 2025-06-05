@@ -155,7 +155,6 @@ const loadDiary = async () => {
   try {
     const res = await axios.get(`/duser/${props.userName}`)
     const diaries = res.data?.data?.diary || []
-console.log(selectedWeek.value)
     if (selectedWeek.value !== 17) {
       const found = diaries.find(d => d.week === `${selectedWeek.value}`)
       content.value = found ? found.content : ''

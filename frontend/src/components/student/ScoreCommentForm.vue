@@ -119,7 +119,7 @@ import {ref, onMounted, watch, computed} from 'vue';
 import {ElMessage} from 'element-plus';
 import axios from '@/utils/request';
 
-const props = defineProps(['userName'])
+const props = defineProps(['s_id'])
 const emit = defineEmits(['save-success']);
 
 // 数据模型
@@ -130,7 +130,7 @@ const assessmentData = ref({
   professionalism_score: 0,
   practiceComment: '',
   practiceContent: '',
-  user_id: props.userId
+  s_id:props.s_id
 });
 
 // 表单验证状态
@@ -160,17 +160,9 @@ const isTotalValid = computed(() => {
 // 加载数据
 const loadData = async () => {
   try {
-    if (!props.userName) {
-      console.warn("userName is not provided");
-      return;
-    }
-
-    const studentRes = await axios.get(`/student/getbyusernumber/${props.userName}`);
-    if (studentRes.data.code === '200' && studentRes.data.data) {
-      const studentData = studentRes.data.data;
       const [assessmentRes, dUserRes] = await Promise.all([
-        axios.get(`/assessments/${studentData.s_id}`),
-        axios.get(`/duser/${studentData.s_id}`)
+        axios.get(`/assessments/${props.s_id}`),
+        axios.get(`/duser/${props.s_id}`)
       ]);
 
       assessmentData.value = {
@@ -180,10 +172,8 @@ const loadData = async () => {
         professionalism_score: Number(assessmentRes.data.data?.professionalism_score || 0),
         practiceComment: dUserRes.data.data?.practiceComment || '',
         practiceContent: dUserRes.data.data?.practiceContent || '',
-        user_id: studentData.id,
-        s_id: studentData.s_id
+        s_id: props.s_id
       };
-    }
   } catch (error) {
     console.error('加载数据失败:', error);
     ElMessage.error('数据加载失败: ' + (error.response?.data?.message || error.message));

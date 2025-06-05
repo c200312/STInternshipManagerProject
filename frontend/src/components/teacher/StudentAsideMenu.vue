@@ -9,27 +9,35 @@
         {{ studentView.student.student_name }}
       </el-menu-item>
     </el-menu>
-    <!-- 添加评分页面跳转链接 -->
-    <div class="assessment-link">
+    
+    <!-- 切换按钮 -->
+    <div class="toggle-link">
       <el-button
           type="text"
-          @click="router.push('/assessment')"
+          @click="toggleView"
           style="width: 100%; text-align: left;"
       >
-        <i class="el-icon-star-on"></i>
-        <span>评分管理</span>
+        <i :class="currentView === 'diary' ? 'el-icon-star-on' : 'el-icon-document'"></i>
+        <span>{{ currentView === 'diary' ? '评分管理' : '周记管理' }}</span>
       </el-button>
     </div>
   </el-aside>
 </template>
 <script setup>
-import {useRouter} from 'vue-router'
-const router = useRouter()
+import { ref } from 'vue'
 
 defineProps({
   students: Array  // 类型为 StudentView[]
 })
-defineEmits(['select'])
+
+const emit = defineEmits(['select', 'view-change'])
+
+const currentView = ref('diary') // 'diary' 或 'assessment'
+
+const toggleView = () => {
+  currentView.value = currentView.value === 'diary' ? 'assessment' : 'diary'
+  emit('view-change', currentView.value)
+}
 </script>
 
 <style scoped>
@@ -42,7 +50,7 @@ defineEmits(['select'])
   flex-direction: column;
 }
 
-.assessment-link {
+.toggle-link {
   padding: 10px;
   border-top: 1px solid #eee;
   margin-top: auto;

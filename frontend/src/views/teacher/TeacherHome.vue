@@ -3,8 +3,20 @@
     <UserHeader :username="teacherInfo.username" />
 
     <el-container class="main-container">
-      <StudentAsideMenu :students="studentList" @select="selectStudentView" />
-      <StudentDetailPanel :studentView="selectedStudentView" />
+      <StudentAsideMenu 
+        :students="studentList" 
+        @select="selectStudentView" 
+        @view-change="handleViewChange"
+      />
+      <StudentDetailPanel 
+        v-if="currentView === 'diary'"
+        :studentView="selectedStudentView" 
+      />
+      <StudentAssessmentPanel 
+        v-else-if="currentView === 'assessment'"
+        :students="studentList"
+        :selectedStudent="selectedStudentView"
+      />
     </el-container>
   </div>
 </template>
@@ -15,11 +27,13 @@ import axios from '@/utils/request'
 import UserHeader from '@/components/common/UserHeader.vue'
 import StudentAsideMenu from '@/components/teacher/StudentAsideMenu.vue'
 import StudentDetailPanel from '@/components/teacher/StudentDetailPanel.vue'
+import StudentAssessmentPanel from '@/components/teacher/StudentAssessmentPanel.vue'
 
 const teacherInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 
 const studentList = ref([])
 const selectedStudentView = ref(null)
+const currentView = ref('diary') // 'diary' 或 'assessment'
 
 const fetchStudents = async () => {
   const res = await axios.get(`/duser/selectbytnumber/${teacherInfo.username}`)
@@ -28,6 +42,11 @@ const fetchStudents = async () => {
 
 const selectStudentView = (studentView) => {
   selectedStudentView.value = studentView
+}
+
+const handleViewChange = (view) => {
+  currentView.value = view
+  // 评分模式下保持学生选择状态
 }
 
 onMounted(fetchStudents)

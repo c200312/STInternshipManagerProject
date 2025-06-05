@@ -4,9 +4,6 @@
     <el-table :data="studentData" style="width: 100%" v-if="studentData.length">
       <el-table-column prop="student.student_number" label="学号" />
       <el-table-column prop="student.student_name" label="姓名" />
-      <el-table-column prop="student.gender" label="性别" />
-      <el-table-column prop="student.department" label="学院" />
-      <el-table-column prop="student.major" label="专业" />
       <el-table-column prop="student.stu_class" label="班级" />
       <el-table-column prop="academicAdvisorName" label="校内导师" />
       <el-table-column prop="industryAdvisorName" label="行业导师" />

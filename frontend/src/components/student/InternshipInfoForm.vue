@@ -127,7 +127,7 @@ import { ElMessage } from 'element-plus';
 import axios from '@/utils/request';
 
 // 定义组件属性
-const props = defineProps(['userId'])
+const props = defineProps(['s_id'])
 // 定义组件事件
 const emit = defineEmits(['submit']);
 
@@ -159,9 +159,9 @@ const internshipData = ref({
   s_id: props.userId
 
 });
-
+console.log(props.userId)
 const loadInternshipData = async () => {
-  const res = await axios.get(`/internship/${props.userId}`);
+  const res = await axios.get(`/internship/${props.s_id}`);
   await calculateActualDays();
 
   console.log(res.data.data[0]);

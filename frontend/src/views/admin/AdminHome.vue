@@ -11,25 +11,15 @@
           <el-menu-item index="relation">选择教师所管理的学生</el-menu-item>
           <el-menu-item index="import">导入学生及教师信息</el-menu-item>
           <el-menu-item index="student">学生信息</el-menu-item>
+          <el-menu-item index="diary">学生周记</el-menu-item>
         </el-menu>
       </el-aside>
 
       <el-container>
-        <el-main>
-          <ViewStudentInfo
-            v-if="currentTab === 'student'"
-            />
-        </el-main>
-        <el-main>
-          <SelectRelationshipForm
-              v-if="currentTab === 'relation'"
-          />
-        </el-main>
-        <el-main>
-          <ImportExcelForm
-              v-if="currentTab === 'import'"
-          />
-        </el-main>
+        <el-main><ViewStudentInfoBase v-if="currentTab === 'student'"/></el-main>
+        <el-main><SelectRelationshipForm v-if="currentTab === 'relation'"/></el-main>
+        <el-main><ImportExcelForm v-if="currentTab === 'import'"/></el-main>
+        <el-main><ViewStudentInfoDiary v-if="currentTab === 'diary'"/></el-main>
       </el-container>
     </el-container>
   </div>
@@ -39,7 +29,9 @@ import { ref, onMounted } from 'vue'
 import UserHeader from '@/components/common/UserHeader.vue'
 import SelectRelationshipForm from "@/components/admain/SelectRelationshipForm.vue";
 import ImportExcelForm from "@/components/admain/ImportExcelForm.vue";
-import ViewStudentInfo from "@/components/admain/ViewStudentInfo.vue";
+import ViewStudentInfo from "@/components/admain/ViewStudentInfoBase.vue";
+import ViewStudentInfoDiary from "@/components/admain/ViewStudentInfoDiary.vue";
+import ViewStudentInfoBase from "@/components/admain/ViewStudentInfoBase.vue";
 const currentTab = ref('student' +
     '') // 当前标签页
 

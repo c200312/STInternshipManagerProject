@@ -67,7 +67,7 @@ import { ref, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import axios from '../../utils/request';
 
-const props = defineProps(['userName']);
+const props = defineProps(['s_id'])
 const emit = defineEmits(['submit']);
 
 const studentData = ref({
@@ -103,7 +103,7 @@ watch(() => studentData.value.parent_phone, (val) => {
 
 const loadDiary = async () => {
   try {
-    const res = await axios.get(`/student/getbyusernumber/${props.userName}`);
+    const res = await axios.get(`/student/${props.s_id}`);
     studentData.value = res.data.data;
   } catch (error) {
     ElMessage.error('加载学生信息失败');
