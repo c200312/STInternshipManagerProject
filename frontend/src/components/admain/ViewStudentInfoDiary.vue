@@ -5,7 +5,7 @@
       <el-option
           v-for="week in allWeeks"
           :key="week"
-          :label="'第 ' + week + ' 周'"
+          :label="getWeekLabel(week)"
           :value="week">
       </el-option>
     </el-select>
@@ -46,7 +46,6 @@
           class="student-item not-completed"
       >
         {{ student.student.student_name }} - 未提交
-        <span class="details">（详情）</span>
       </li>
     </ul>
   </div>
@@ -69,11 +68,8 @@ async function loadStudentInfo() {
       // 默认选第一个学生的班级
       selectedClass.value = studentData.value[0].student.stu_class;
 
-      // 默认选第一个学生拥有的第一个周
-      const firstStudentDiaryWeeks = studentData.value[0].duser?.diary?.map(d => d.week);
-      if (firstStudentDiaryWeeks && firstStudentDiaryWeeks.length > 0) {
-        selectedWeek.value = firstStudentDiaryWeeks[0];
-      }
+      // 默认选择第1周
+      selectedWeek.value = 1;
     }
   } catch (err) {
     ElMessage.error('加载学生数据失败');
@@ -87,15 +83,17 @@ onMounted(() => {
 
 // 获取所有存在的周
 const allWeeks = computed(() => {
-  const weeks = new Set();
-  studentData.value.forEach(student => {
-    if (student.duser && student.duser.diary) {
-      student.duser.diary.forEach(diary => {
-        weeks.add(diary.week);
-      });
-    }
-  });
-  return Array.from(weeks).sort(); // 确保周数按顺序排列
+  // 默认包含第1周到第16周
+  const defaultWeeks = [];
+  for (let i = 1; i <= 16; i++) {
+    defaultWeeks.push(i);
+  }
+  
+  // 添加总结类型
+  const summaryTypes = ['achievement', 'practice'];
+  
+  // 合并默认周期和总结类型
+  return [...defaultWeeks, ...summaryTypes];
 });
 
 // 获取所有存在的班级
@@ -127,7 +125,7 @@ const filteredStudents = computed(() => {
 
     if (isSameClass) {
       const hasDiaryForSelectedWeek = student.duser?.diary?.some(
-          diary => diary.week === selectedWeek.value
+          diary => String(diary.week) === String(selectedWeek.value)
       );
 
       if (hasDiaryForSelectedWeek) {
@@ -141,14 +139,29 @@ const filteredStudents = computed(() => {
   return result;
 });
 
+// 获取周期显示标签
+function getWeekLabel(week) {
+  if (typeof week === 'number') {
+    return `第 ${week} 周`;
+  } else if (week === 'achievement') {
+    return '实习成果总结';
+  } else if (week === 'practice') {
+    return '实习实践总结';
+  }
+  return week;
+}
+
 // 渲染周记内容的悬浮提示
 function renderDiaryTooltip(student) {
   const diaries = student.duser?.diary || [];
   if (!diaries.length) return '无周记记录';
 
   return diaries
-      .filter(diary => diary.week === selectedWeek.value)
-      .map(d => `<p><b>第${d.week}周：</b>${d.content}</p>`)
+      .filter(diary => String(diary.week) === String(selectedWeek.value))
+      .map(d => {
+        const weekLabel = getWeekLabel(d.week);
+        return `<p><b>${weekLabel}：</b>${d.content}</p>`;
+      })
       .join('');
 }
 </script>

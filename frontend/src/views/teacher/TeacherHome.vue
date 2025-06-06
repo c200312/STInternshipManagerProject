@@ -5,6 +5,7 @@
     <el-container class="main-container">
       <StudentAsideMenu 
         :students="studentList" 
+        :selectedStudent="selectedStudentView"
         @select="selectStudentView" 
         @view-change="handleViewChange"
       />
@@ -38,6 +39,11 @@ const currentView = ref('diary') // 'diary' 或 'assessment'
 const fetchStudents = async () => {
   const res = await axios.get(`/duser/selectbytnumber/${teacherInfo.username}`)
   studentList.value = res.data.data
+  
+  // 默认选中第一个学生
+  if (studentList.value.length > 0) {
+    selectedStudentView.value = studentList.value[0]
+  }
 }
 
 const selectStudentView = (studentView) => {

@@ -1,9 +1,10 @@
 <template>
   <el-aside width="200px" class="student-aside">
-    <el-menu>
+    <el-menu :default-active="selectedStudentId">
       <el-menu-item
           v-for="studentView in students"
           :key="studentView.student.s_id"
+          :index="studentView.student.s_id.toString()"
           @click="$emit('select', studentView)"
       >
         {{ studentView.student.student_name }}
@@ -24,10 +25,16 @@
   </el-aside>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
-defineProps({
-  students: Array  // 类型为 StudentView[]
+const props = defineProps({
+  students: Array,  // 类型为 StudentView[]
+  selectedStudent: Object  // 当前选中的学生
+})
+
+// 计算选中学生的ID
+const selectedStudentId = computed(() => {
+  return props.selectedStudent?.student?.s_id?.toString() || ''
 })
 
 const emit = defineEmits(['select', 'view-change'])

@@ -41,20 +41,13 @@
           </el-form-item>
           
           <el-form-item label="学校评分：">
-            <el-input-number
-                v-model="assessmentForm.school_score"
-                :min="0"
-                :max="25"
-                placeholder="0-50分"
-            />
-            <span style="margin-left: 10px; color: #666;">（满分50分）</span>
+            <span style="font-size: 16px; font-weight: bold; color: #409eff;">
+              {{ schoolScore }} 分
+            </span>
+            <span style="margin-left: 10px; color: #666;">（满分50）</span>
           </el-form-item>
           
-          <el-form-item label="总分：">
-            <span style="font-size: 18px; font-weight: bold; color: #409eff;">
-              {{ totalScore }} / 100
-            </span>
-          </el-form-item>
+
           
           <el-form-item label="教学单位评语：">
             <el-input
@@ -97,15 +90,26 @@ const props = defineProps({
   }
 })
 
-
 const saving = ref(false)
+
+// 用于缓存每个学生的评分数据
+const studentAssessmentCache = ref(new Map())
 
 const assessmentForm = ref({
   performance_score: 0,
   summary_score: 0,
   practice_result_score: 0,
-  school_score: 0,
   teachingUnitComment: ''
+})
+
+// 计算学校评分（其他三项总和除以2）
+const schoolScore = computed(() => {
+  const otherScores = (
+    Number(assessmentForm.value.performance_score || 0) +
+    Number(assessmentForm.value.summary_score || 0) +
+    Number(assessmentForm.value.practice_result_score || 0)
+  )
+  return Math.round(otherScores / 2 * 100) / 100 // 保留两位小数
 })
 
 // 计算总分
@@ -114,16 +118,39 @@ const totalScore = computed(() => {
     Number(assessmentForm.value.performance_score || 0) +
     Number(assessmentForm.value.summary_score || 0) +
     Number(assessmentForm.value.practice_result_score || 0) +
-    Number(assessmentForm.value.school_score || 0)
+    schoolScore.value
   )
 })
 
 
 
 // 监听学生选择变化，加载评分数据
-watch(() => props.selectedStudent, async (newStudent) => {
+watch(() => props.selectedStudent, async (newStudent, oldStudent) => {
+  // 保存当前学生的评分数据到缓存
+  if (oldStudent && oldStudent.student) {
+    studentAssessmentCache.value.set(oldStudent.student.s_id, {
+      performance_score: assessmentForm.value.performance_score,
+      summary_score: assessmentForm.value.summary_score,
+      practice_result_score: assessmentForm.value.practice_result_score,
+      teachingUnitComment: assessmentForm.value.teachingUnitComment
+    })
+  }
+  
   if (!newStudent) {
     resetForm()
+    return
+  }
+  
+  // 检查缓存中是否有该学生的数据
+  const cachedData = studentAssessmentCache.value.get(newStudent.student.s_id)
+  if (cachedData) {
+    // 使用缓存数据
+    assessmentForm.value = {
+      performance_score: cachedData.performance_score || 0,
+      summary_score: cachedData.summary_score || 0,
+      practice_result_score: cachedData.practice_result_score || 0,
+      teachingUnitComment: cachedData.teachingUnitComment || ''
+    }
     return
   }
   
@@ -138,16 +165,28 @@ watch(() => props.selectedStudent, async (newStudent) => {
     const assessmentData = assessmentRes.data && assessmentRes.data.data ? assessmentRes.data.data : {}
     const duserData = duserRes.data && duserRes.data.data ? duserRes.data.data : {}
     
-    assessmentForm.value = {
+    const formData = {
       performance_score: assessmentData.performance_score || 0,
       summary_score: assessmentData.summary_score || 0,
       practice_result_score: assessmentData.practice_result_score || 0,
-      school_score: assessmentData.school_score || 0,
       teachingUnitComment: duserData.teachingUnitComment || ''
     }
+    
+    assessmentForm.value = formData
+    
+    // 将数据存入缓存
+    studentAssessmentCache.value.set(newStudent.student.s_id, formData)
   } catch (error) {
     console.log('暂无评分数据，使用默认值')
-    resetForm()
+    const defaultData = {
+      performance_score: 0,
+      summary_score: 0,
+      practice_result_score: 0,
+      teachingUnitComment: ''
+    }
+    assessmentForm.value = defaultData
+    // 将默认数据存入缓存
+    studentAssessmentCache.value.set(newStudent.student.s_id, defaultData)
   }
 }, { immediate: true })
 
@@ -172,7 +211,7 @@ const saveAssessment = async () => {
       performance_score: Math.round(assessmentForm.value.performance_score),
       summary_score: Math.round(assessmentForm.value.summary_score),
       practice_result_score: Math.round(assessmentForm.value.practice_result_score),
-      school_score: Math.round(assessmentForm.value.school_score)
+      school_score: schoolScore.value
     }
     
     // 构造教学单位评语数据
@@ -193,6 +232,16 @@ const saveAssessment = async () => {
     
     if (isAssessmentSuccess && isDuserSuccess) {
       ElMessage.success('评分保存成功！')
+      
+      // 更新缓存中的数据
+      if (props.selectedStudent) {
+        studentAssessmentCache.value.set(props.selectedStudent.student.s_id, {
+          performance_score: assessmentForm.value.performance_score,
+          summary_score: assessmentForm.value.summary_score,
+          practice_result_score: assessmentForm.value.practice_result_score,
+          teachingUnitComment: assessmentForm.value.teachingUnitComment
+        })
+      }
     } else {
       throw new Error('保存失败')
     }
@@ -210,7 +259,6 @@ const resetForm = () => {
     performance_score: 0,
     summary_score: 0,
     practice_result_score: 0,
-    school_score: 0,
     teachingUnitComment: ''
   }
 }

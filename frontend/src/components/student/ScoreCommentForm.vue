@@ -90,10 +90,10 @@
         />
       </el-form-item>
 
-      <!-- 总分提示 -->
+      <!-- 校外实践单位评分提示 -->
       <div class="total-score-container">
         <div class="total-score">
-          当前总分：{{ calculatedTotal }} 分
+          校外实践单位评分：{{ calculatedTotal }} 分
           <span v-if="totalError" class="error-message">{{ totalError }}</span>
         </div>
       </div>
@@ -144,17 +144,18 @@ const fieldErrors = ref({
 });
 const totalError = ref('');
 
-// 计算总分
+// 计算校外实践单位评分
 const calculatedTotal = computed(() => {
-  return (
+  const total = (
       Number(assessmentData.value.attendance_score || 0) +
       Number(assessmentData.value.task_score || 0) +
       Number(assessmentData.value.professionalism_score || 0)
   );
+  return Math.round(total / 2 * 100) / 100; // 除以2并保留两位小数
 });
 
 const isTotalValid = computed(() => {
-  return calculatedTotal.value >= 0 && calculatedTotal.value <= 100;
+  return calculatedTotal.value >= 0 && calculatedTotal.value <= 50; // 最大值改为50
 });
 
 // 加载数据
@@ -225,9 +226,9 @@ const validateForm = () => {
   validateComment('practiceComment', '实习实践单位评语');
   validateComment('practiceContent', '校外实习实践内容');
 
-  // 验证总分
+  // 验证校外实践单位评分
   if (!isTotalValid.value) {
-    totalError.value = '总分必须在0-100分之间';
+    totalError.value = '校外实践单位评分必须在0-50分之间';
     isValid = false;
   }
 
@@ -249,7 +250,8 @@ const handleSubmit = async () => {
       s_id: assessmentData.value.s_id,
       attendance_score: Math.round(assessmentData.value.attendance_score),
       task_score: Math.round(assessmentData.value.task_score),
-      professionalism_score: Math.round(assessmentData.value.professionalism_score)
+      professionalism_score: Math.round(assessmentData.value.professionalism_score),
+      company_score: calculatedTotal.value // 添加校外实践单位评分
     };
 
     // 构造评语数据

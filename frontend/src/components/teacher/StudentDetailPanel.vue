@@ -1,21 +1,22 @@
 <template>
   <el-main class="right-main">
-    <div class="week-selector" v-if="studentView">
-      <el-select v-model="selectedLabel" placeholder="请选择评语周期">
-        <el-option
-            v-for="option in weekPeriodOptions"
-            :key="option.label"
-            :label="option.label"
-            :value="option.label"
-        />
-      </el-select>
-    </div>
-
     <el-card v-if="studentView">
       <h2>{{ studentView.student.student_name}} 的信息</h2>
       <p>学号: {{ studentView.student.student_number }}</p>
       <p>班级: {{ studentView.student.stu_class}}</p>
       <p>实习单位: {{ studentView.duser?.company?.[0]?.name || '无' }}</p>
+      
+      <div class="week-selector" style="margin: 15px 0;">
+        <label style="margin-right: 10px;">评语周期：</label>
+        <el-select v-model="selectedLabel" placeholder="请选择评语周期" style="width: 200px;">
+          <el-option
+              v-for="option in weekPeriodOptions"
+              :key="option.label"
+              :label="option.label"
+              :value="option.label"
+          />
+        </el-select>
+      </div>
 
       <el-card v-if="displayedDiaries.length" style="margin: 10px 0;">
         <h4>参考周记：</h4>
@@ -35,7 +36,6 @@
       </el-button>
 
       <el-input
-          v-if="comment"
           type="textarea"
           v-model="comment"
           rows="10"
@@ -43,7 +43,6 @@
           placeholder="生成的评语将显示在这里"
       />
       <el-button
-          v-if="comment"
           type="success"
           style="margin-top: 10px;"
           @click="saveComment"
@@ -64,7 +63,7 @@ const props = defineProps({
   studentView: Object
 })
 
-const selectedLabel = ref(null)
+const selectedLabel = ref('第1-2周')
 const selectedPeriod = ref(null)
 const displayedDiaries = ref([])
 const comment = ref('')
@@ -115,10 +114,29 @@ watch(
       if (!newVal) return
 
       // 重置状态
-      selectedLabel.value = null
+      selectedLabel.value = '第1-2周'
       selectedPeriod.value = null
       displayedDiaries.value = []
       comment.value = ''
+      
+      // 手动触发selectedLabel的处理逻辑
+      if (newVal.duser && Array.isArray(newVal.duser.diary)) {
+        const period = weekPeriodOptions.find(o => o.label === '第1-2周')
+        if (period) {
+          selectedPeriod.value = period
+          displayedDiaries.value = newVal.duser.diary
+              .filter(d => period.weeks.includes(Number(d.week)))
+              .sort((a, b) => Number(a.week) - Number(b.week))
+          
+          const week = period.weeks[0]
+          const teacherName = JSON.parse(localStorage.getItem('userInfo') || '{}').username
+          const allComments = newVal.duser.comment || []
+          const match = allComments.find(
+              c => c.week === week && c.teachername === teacherName
+          )
+          comment.value = match ? match.content : ''
+        }
+      }
     },
     { immediate: true }
 )
@@ -163,6 +181,33 @@ const saveComment = async () => {
         }
       ]
     })
+    
+    // 更新本地数据，避免需要刷新页面
+    if (props.studentView.duser) {
+      if (!props.studentView.duser.comment) {
+        props.studentView.duser.comment = []
+      }
+      
+      // 查找是否已存在相同周期和教师的评语
+      const existingIndex = props.studentView.duser.comment.findIndex(
+        c => c.week === week && c.teachername === teacherName
+      )
+      
+      const newComment = {
+        week,
+        teachername: teacherName,
+        content: comment.value
+      }
+      
+      if (existingIndex >= 0) {
+        // 更新现有评语
+        props.studentView.duser.comment[existingIndex] = newComment
+      } else {
+        // 添加新评语
+        props.studentView.duser.comment.push(newComment)
+      }
+    }
+    
     ElMessage.success('保存成功')
   } catch (err) {
     ElMessage.error('保存失败')
@@ -178,14 +223,5 @@ const saveComment = async () => {
   overflow-y: auto;
   background-color: #fff;
 }
-.week-selector {
-  position: fixed;
-  top: 50px;
-  left: 210px;
-  width: calc(100% - 210px);
-  z-index: 1001;
-  background-color: #fff;
-  padding: 10px 20px;
-  border-bottom: 1px solid #eee;
-}
+
 </style>
