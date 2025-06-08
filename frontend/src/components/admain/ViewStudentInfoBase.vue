@@ -8,60 +8,47 @@
       <el-table-column prop="academicAdvisorName" label="校内导师" />
       <el-table-column prop="industryAdvisorName" label="行业导师" />
 
-      <el-table-column label="实习信息">
+      <el-table-column label="公司名称" prop="internship.company_name" width="150" />
+      <el-table-column label="实践基地名称" prop="internship.practice_base_name" width="150" />
+      <el-table-column label="是否实践基地" width="120">
         <template #default="{ row }">
-          <el-tooltip
-              class="item"
-              effect="dark"
-              placement="top-start"
-              :content="renderInternshipTooltip(row)"
-              raw-content
-          >
-            <el-button type="text" size="small">查看</el-button>
-          </el-tooltip>
+          {{ row.internship ? (row.internship.is_practice_base ? '是' : '否') : '未填写' }}
         </template>
       </el-table-column>
-      <el-table-column label="成绩">
+      <el-table-column label="社会信用代码" prop="internship.credit_code" width="180" />
+      <el-table-column label="实践区域" prop="internship.practice_region" width="150" />
+      <el-table-column label="审批状态" width="100">
         <template #default="{ row }">
-          <el-tooltip
-              class="item"
-              effect="dark"
-              placement="top-start"
-              :content="renderAssessmentTooltip(row)"
-              raw-content
-          >
-            <el-button type="text" size="small">查看</el-button>
-          </el-tooltip>
+          <el-tag v-if="row.internship" :type="getApprovalStatusType(row.internship.approval_status)">
+            {{ getApprovalStatusText(row.internship.approval_status) }}
+          </el-tag>
+          <span v-else>未填写</span>
         </template>
       </el-table-column>
-
-<!--      <el-table-column label="周记">-->
-<!--        <template #default="{ row }">-->
-<!--          <el-tooltip-->
-<!--              class="item"-->
-<!--              effect="dark"-->
-<!--              placement="top-start"-->
-<!--              :content="renderDiaryTooltip(row)"-->
-<!--              raw-content-->
-<!--          >-->
-<!--            <el-button type="text" size="small">查看</el-button>-->
-<!--          </el-tooltip>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-
-<!--      <el-table-column label="评语">-->
-<!--        <template #default="{ row }">-->
-<!--          <el-tooltip-->
-<!--              class="item"-->
-<!--              effect="dark"-->
-<!--              placement="top-start"-->
-<!--              :content="renderCommentTooltip(row)"-->
-<!--              raw-content-->
-<!--          >-->
-<!--            <el-button type="text" size="small">查看</el-button>-->
-<!--          </el-tooltip>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <el-table-column label="开始日期" width="120">
+        <template #default="{ row }">
+          {{ row.internship ? formatDate(row.internship.start_date) : '未填写' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="结束日期" width="120">
+        <template #default="{ row }">
+          {{ row.internship ? formatDate(row.internship.end_date) : '未填写' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="实习天数" prop="internship.actual_days" width="100" />
+      <el-table-column label="实习岗位" prop="internship.position" width="120" />
+      <el-table-column label="薪资" width="100">
+        <template #default="{ row }">
+          {{ row.internship && row.internship.salary ? `¥${row.internship.salary}` : '未填写' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="实习模式" prop="internship.internship_mode" width="100" />
+      <el-table-column label="实习类型" prop="internship.internship_type" width="100" />
+      <el-table-column label="企业导师姓名" prop="internship.company_advisor_name" width="120" />
+      <el-table-column label="企业导师职位" prop="internship.company_advisor_position" width="120" />
+      <el-table-column label="实习地址" prop="internship.address" width="200" />
+      <el-table-column label="联系人" prop="internship.contact_person" width="100" />
+      <el-table-column label="企业电话" prop="internship.company_phone" width="150" />
 
     </el-table>
 
@@ -85,56 +72,33 @@ async function loadStudentInfo() {
     console.error(err);
   }
 }
-const renderInternshipTooltip = (row) => {
-  const i = row.internship;
-  if (!i) return '无实习记录';
-  return `
-    <div>
-      <p><b>公司：</b>${i.company_name}</p>
-      <p><b>岗位：</b>${i.position}</p>
-      <p><b>地址：</b>${i.address}</p>
-      <p><b>公司社会信用代码：</b>${i.credit_code}</p>
-      <p><b>开始：</b>${dayjs(i.start_date).format('YYYY-MM-DD')}</p>
-      <p><b>结束：</b>${dayjs(i.end_date).format('YYYY-MM-DD')}</p>
-      <p><b>天数：</b>${i.actual_days}</p>
-    </div>
-  `;
-};
-const renderAssessmentTooltip = (row) => {
-  const a = row.assessment;
-  if (!a) return '无成绩记录';
-  return `
-    <div>
-      <p><b>出勤：</b>${a.attendance_score}</p>
-      <p><b>任务完成：</b>${a.task_score}</p>
-      <p><b>专业素养：</b>${a.professionalism_score}</p>
-      <p><b>岗位表现：</b>${a.performance_score}</p>
-      <p><b>总结报告：</b>${a.summary_score}</p>
-      <p><b>实习成果：</b>${a.practice_result_score}</p>
-      <p><b>公司评分：</b>${a.company_score}</p>
-      <p><b>学校评分：</b>${a.school_score}</p>
-      <p><b>总分：</b><b>${a.total_score}</b></p>
-    </div>
-  `;
+// 格式化日期显示
+const formatDate = (date) => {
+  return date ? dayjs(date).format('YYYY-MM-DD') : '';
 };
 
-// const renderDiaryTooltip = (row) => {
-//   const diaries = row.duser?.diary || [];
-//   if (!diaries.length) return '无周记记录';
-//   return diaries
-//       .sort((a, b) => a.week - b.week)
-//       .map(d => `<p><b>第${d.week}周：</b>${d.content}</p>`)
-//       .join('');
-// };
-//
-// const renderCommentTooltip = (row) => {
-//   const comments = row.duser?.comment || [];
-//   if (!comments.length) return '无评语记录';
-//   return comments
-//       .sort((a, b) => a.week - b.week)
-//       .map(c => `<p><b>第${c.week}周 - ${c.teachername}：</b>${c.content}</p>`)
-//       .join('<hr style="margin: 4px 0;" />');
-// };
+// 获取审批状态文本
+const getApprovalStatusText = (status) => {
+  const statusMap = {
+    0: '待审批',
+    1: '已通过',
+    2: '已拒绝'
+  };
+  return statusMap[status] || '未知状态';
+};
+
+// 获取审批状态标签类型
+const getApprovalStatusType = (status) => {
+  const typeMap = {
+    0: 'warning',
+    1: 'success',
+    2: 'danger'
+  };
+  return typeMap[status] || 'info';
+};
+
+
+
 
 
 
