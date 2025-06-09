@@ -7,11 +7,12 @@
     <el-container>
       <el-aside width="200px">
         <el-menu @select="currentTab = $event" :default-active="currentTab">
-          <el-menu-item index="diary">填写周记</el-menu-item>
+
           <el-menu-item index="info">填写基本信息</el-menu-item>
           <el-menu-item index="internship">填写实习信息</el-menu-item>
+          <el-menu-item index="diary">填写周记</el-menu-item>
           <!-- 新增评分与评语标签 -->
-          <el-menu-item index="evaluation">填写评分与评语</el-menu-item>
+          <el-menu-item index="evaluation">实习单位鉴定</el-menu-item>
         </el-menu>
       </el-aside>
 
