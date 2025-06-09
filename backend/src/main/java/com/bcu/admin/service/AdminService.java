@@ -132,16 +132,13 @@ public class AdminService {
         return "unknown";
     }
 
-    public Result getStInfo() throws IOException{
+    public Result getStInfo(){
         List<Student> students = studentMapper.selectByExample(null);
         List<Teacher> teachers = teacherMapper.selectByExample(null);
         List<Internship> internships = internshipMapper.selectByExample(null);
         List<Assessment> assessments = assessmentMapper.selectByExample(null);
         List<DUser> dUsers = dUserRepository.findAll();
 
-        // 构造：导师ID => 姓名 映射
-        Map<Integer, String> teacherNameMap = teachers.stream()
-                .collect(Collectors.toMap(Teacher::getT_id, Teacher::getTeacher_name));
 
         // 构造：学生ID => 实习记录列表 映射
         Map<Integer, List<Internship>> internshipMap = internships.stream()
@@ -150,16 +147,15 @@ public class AdminService {
                 .collect(Collectors.groupingBy(Assessment::getS_id));
         Map<String, List<DUser>> dUserMap = dUsers.stream()
                 .collect(Collectors.groupingBy(DUser::getId));
+        Map<Integer,List<Teacher>> teacherMap = teachers.stream()
+                .collect(Collectors.groupingBy(Teacher::getT_id));
+
 
         List<StudentDetailDTO> result = new ArrayList<>();
 
         for (Student student : students) {
             StudentDetailDTO dto = new StudentDetailDTO();
             dto.setStudent(student);
-
-            // 导师名设置
-            dto.setAcademicAdvisorName(teacherNameMap.get(student.getAcademic_advisor_id()));
-            dto.setIndustryAdvisorName(teacherNameMap.get(student.getIndustry_advisor_id()));
 
             // 设置一个实习信息（如有）
             List<Internship> studentInternships = internshipMap.get(student.getS_id());
@@ -173,6 +169,14 @@ public class AdminService {
             List<DUser> studentDUsers = dUserMap.get(student.getStudent_number());
             if (studentDUsers != null && !studentDUsers.isEmpty()) {
                 dto.setDuser(studentDUsers.getFirst());
+            }
+            List<Teacher> academicAdvisors = teacherMap.get(student.getAcademic_advisor_id());
+            if (academicAdvisors != null && !academicAdvisors.isEmpty()) {
+                dto.setAcademicAdvisor(academicAdvisors.getFirst());
+            }
+            List<Teacher> industryAdvisors = teacherMap.get(student.getIndustry_advisor_id());
+            if (industryAdvisors != null && !industryAdvisors.isEmpty()) {
+                dto.setIndustryAdvisor(industryAdvisors.getFirst());
             }
 
             result.add(dto);

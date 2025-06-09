@@ -2,7 +2,6 @@ package com.bcu.common.util;
 
 import com.deepoove.poi.XWPFTemplate;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 public class WordUtil {
@@ -16,9 +15,7 @@ public class WordUtil {
      * @throws IOException 如果文件操作失败
      */
     public static void generateWord(Map<String, Object> data, String templatePath, String outputPath) throws IOException {
-        try (XWPFTemplate template = XWPFTemplate.compile(templatePath).render(data);
-             FileOutputStream out = new FileOutputStream(outputPath)) {
-            template.write(out);
-        }
+        XWPFTemplate.compile(templatePath).render(data).writeToFile(outputPath);
+
     }
 }
