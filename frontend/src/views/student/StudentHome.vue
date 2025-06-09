@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 顶部头像 + 姓名 -->
-    <UserHeader :username="userName" />
+    <UserHeader v-if="loaded" :username="userName" />
 
     <!-- 页面主体部分 -->
     <el-container>
@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import { onMounted, ref } from 'vue'
 import DiaryForm from '../../components/student/DiaryForm.vue'
 import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
 import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
@@ -49,13 +49,20 @@ import axios from '@/utils/request'
 const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 const userName = userInfo.username
 const userId = userInfo.user_id
-const currentTab = ref('info') // 当前标签页，默认为基本信息
+const currentTab = ref('diary') // 当前标签页，默认为基本信息
 const s_id = ref()
+const loaded = ref(false) // 添加加载状态
 
 // 加载学生 ID
 const loadS_id = async () => {
-  const res = await axios.get(`/student/getbyusername/${userName}`)
-  s_id.value = res.data.data.s_id
+  try {
+    const res = await axios.get(`/student/getbyusername/${userName}`)
+    s_id.value = res.data.data.s_id
+    loaded.value = true // 数据加载完成后设置加载状态为 true
+  } catch (error) {
+    console.error('加载学生信息失败:', error)
+    ElMessage.error('加载学生信息失败，请稍后重试')
+  }
 }
 
 // 处理评分保存事件
@@ -78,7 +85,6 @@ onMounted(() => {
   border-right: none;
   background-color: #f8f9fa;
 }
-
 .el-menu-item.is-active {
   color: #409eff;
   background-color: #e7f3ff;
