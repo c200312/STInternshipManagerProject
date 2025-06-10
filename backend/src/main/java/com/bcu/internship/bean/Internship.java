@@ -45,6 +45,12 @@ public class Internship {
 
     private String company_phone;
 
+    private String review_comments;
+
+    private String reviewer_name;
+
+    private Date review_time;
+
     private String base_notes;
 
     public Integer getInternship_id() {
@@ -213,6 +219,30 @@ public class Internship {
 
     public void setCompany_phone(String company_phone) {
         this.company_phone = company_phone == null ? null : company_phone.trim();
+    }
+
+    public String getReview_comments() {
+        return review_comments;
+    }
+
+    public void setReview_comments(String review_comments) {
+        this.review_comments = review_comments == null ? null : review_comments.trim();
+    }
+
+    public String getReviewer_name() {
+        return reviewer_name;
+    }
+
+    public void setReviewer_name(String reviewer_name) {
+        this.reviewer_name = reviewer_name == null ? null : reviewer_name.trim();
+    }
+
+    public Date getReview_time() {
+        return review_time;
+    }
+
+    public void setReview_time(Date review_time) {
+        this.review_time = review_time;
     }
 
     public String getBase_notes() {

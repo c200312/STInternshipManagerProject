@@ -158,13 +158,13 @@ import { ElMessage } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
 
 // 定义组件属性
-const props = defineProps(['userName'])
+const props = defineProps(['userName', 'initialWeek'])
 
 // 定义组件事件
 const emit = defineEmits(['submit'])
 
 // 周数选择
-const selectedWeek = ref(1)
+const selectedWeek = ref(props.initialWeek || 1)
 
 // 周记内容响应式变量
 const content = ref('')

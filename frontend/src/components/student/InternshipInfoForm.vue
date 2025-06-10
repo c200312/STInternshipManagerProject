@@ -6,6 +6,26 @@
       <el-tag :type="statusTagType">{{ statusText }}</el-tag>
     </el-form-item>
 
+    <!-- 审核信息显示 -->
+    <div v-if="internshipData.approval_status >= 2 && internshipData.review_comments" class="review-info">
+      <el-divider content-position="left">审核信息</el-divider>
+      <el-form-item label="审核人">
+        <span>{{ internshipData.reviewer_name || '未知' }}</span>
+      </el-form-item>
+      <el-form-item label="审核时间">
+        <span>{{ internshipData.review_time ? new Date(internshipData.review_time).toLocaleString() : '未知' }}</span>
+      </el-form-item>
+      <el-form-item label="审核意见">
+        <el-input
+            v-model="internshipData.review_comments"
+            type="textarea"
+            :rows="3"
+            readonly
+            placeholder="暂无审核意见"
+        />
+      </el-form-item>
+    </div>
+
     <!-- 基础信息 -->
     <el-form-item label="学生学号" required>
       <el-input v-model="internshipData.s_id" disabled placeholder="学生学号"/>
@@ -181,6 +201,13 @@
         提交
       </el-button>
       <el-button
+          type="warning"
+          @click="handleWithdraw"
+          :disabled="!canWithdraw"
+      >
+        撤回
+      </el-button>
+      <el-button
           type="info"
           @click="applyForModification"
           :disabled="!canApplyForModification"
@@ -192,19 +219,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axios from '@/utils/request';
 
-// 定义组件属性
+// 定义组件属性和事件
 const props = defineProps(['s_id'])
-// 定义组件事件
 const emit = defineEmits(['submit']);
 
 // 缓存节假日数据，避免重复请求
 const holidayCache = ref({});
-// 公司信息响应式变量
-const internshipData = ref({
+
+// 状态映射配置
+const STATUS_CONFIG = {
+  approval: {
+    0: { text: '草稿状态（可修改）', type: 'info' },
+    1: { text: '已提交（等待审核）', type: 'warning' },
+    2: { text: '已审核通过', type: 'success' },
+    3: { text: '已驳回（可修改）', type: 'danger' },
+    4: { text: '需要修改', type: 'warning' },
+    5: { text: '已撤回（可修改）', type: 'info' }
+  },
+  modification: {
+    1: { text: ' - 修改申请处理中', type: 'warning' },
+    2: { text: ' - 修改申请已通过', type: 'success' },
+    3: { text: ' - 修改申请已拒绝', type: 'danger' }
+  }
+};
+
+// 初始化实习数据
+const createInitialData = () => ({
   internship_id: null,
   company_name: '',
   practice_base_name: '',
@@ -212,11 +256,14 @@ const internshipData = ref({
   base_notes: '',
   credit_code: '',
   practice_region: '',
-  approval_status: 0, // 0-未审核 1-通过 2-驳回
+  approval_status: 0,
+  review_comments: '',
+  reviewer_name: '',
+  review_time: null,
   start_date: null,
   end_date: null,
   actual_days: null,
-  company_count: 1, // 默认无变更
+  company_count: 1,
   position: '',
   salary: null,
   internship_mode: '',
@@ -227,134 +274,89 @@ const internshipData = ref({
   contact_person: '',
   company_phone: '',
   s_id: props.s_id,
-  status: 0, // 0-保存状态 1-已提交 2-已审核通过 3-已驳回
-  modification_reason: '', // 申请修改原因
-  modification_status: 0, // 修改申请状态: 0-无申请 1-申请中 2-申请通过 3-申请拒绝
+  modification_reason: '',
+  modification_status: 0
 });
 
-// 从localStorage加载状态
-const loadStateFromStorage = () => {
-  try {
-    const savedState = localStorage.getItem(`internship_${props.s_id}`);
-    if (savedState) {
-      return JSON.parse(savedState);
-    }
-    return null;
-  } catch (error) {
-    console.error('Failed to load state from localStorage:', error);
-    return null;
-  }
-};
-
-// 保存状态到localStorage
-const saveStateToStorage = () => {
-  try {
-    // 只保存需要持久化的状态
-    const stateToSave = {
-      status: internshipData.value.status,
-      modification_status: internshipData.value.modification_status,
-      modification_reason: internshipData.value.modification_reason,
-    };
-
-    localStorage.setItem(`internship_${props.s_id}`, JSON.stringify(stateToSave));
-  } catch (error) {
-    console.error('Failed to save state to localStorage:', error);
-  }
-};
+const internshipData = ref(createInitialData());
 
 // 计算属性
 const isReadOnly = computed(() => {
-  // 已提交但未审核、已通过审核、修改申请处理中时不可编辑
-  return internshipData.value.status === 1 ||
-      internshipData.value.status === 2 ||
-      internshipData.value.modification_status === 1;
+  const { approval_status, modification_status } = internshipData.value;
+  return [1, 2].includes(approval_status) || modification_status === 1;
 });
 
-const isSubmitted = computed(() => {
-  // 已提交、已通过审核、修改申请处理中时不可再次提交
-  return internshipData.value.status === 1 ||
-      internshipData.value.status === 2 ||
-      internshipData.value.modification_status === 1;
-});
+const isSubmitted = computed(() => isReadOnly.value);
 
 const canApplyForModification = computed(() => {
-  // 只有在已审核通过且没有进行中的修改申请时才能申请修改
-  return internshipData.value.status === 2 &&
-      internshipData.value.modification_status === 0;
+  const { approval_status, modification_status } = internshipData.value;
+  return approval_status === 2 && modification_status === 0;
 });
 
+const canWithdraw = computed(() => internshipData.value.approval_status === 1);
+
 const statusText = computed(() => {
-  let text = '';
-
-  switch(internshipData.value.status) {
-    case 0: text = '草稿状态（可修改）'; break;
-    case 1: text = '已提交（等待审核）'; break;
-    case 2: text = '已审核通过'; break;
-    case 3: text = '已驳回（可修改）'; break;
-    default: text = '未知状态';
+  const { approval_status, modification_status } = internshipData.value;
+  const approvalConfig = STATUS_CONFIG.approval[approval_status];
+  const modificationConfig = STATUS_CONFIG.modification[modification_status];
+  
+  let text = approvalConfig?.text || '未知状态';
+  if (modificationConfig) {
+    text += modificationConfig.text;
   }
-
-  // 添加修改申请状态
-  if (internshipData.value.modification_status === 1) {
-    text += ' - 修改申请处理中';
-  } else if (internshipData.value.modification_status === 2) {
-    text += ' - 修改申请已通过';
-  } else if (internshipData.value.modification_status === 3) {
-    text += ' - 修改申请已拒绝';
-  }
-
+  
   return text;
 });
 
 const statusTagType = computed(() => {
-  if (internshipData.value.modification_status === 1) {
-    return 'warning';
-  } else if (internshipData.value.modification_status === 2) {
-    return 'success';
-  } else if (internshipData.value.modification_status === 3) {
-    return 'danger';
+  const { approval_status, modification_status } = internshipData.value;
+  const modificationConfig = STATUS_CONFIG.modification[modification_status];
+  
+  if (modificationConfig) {
+    return modificationConfig.type;
   }
-
-  switch(internshipData.value.status) {
-    case 0: return 'info';
-    case 1: return 'warning';
-    case 2: return 'success';
-    case 3: return 'danger';
-    default: return '';
-  }
+  
+  return STATUS_CONFIG.approval[approval_status]?.type || '';
 });
 
 const loadInternshipData = async () => {
   try {
-    // 先从localStorage加载状态
-    const savedState = loadStateFromStorage();
-    if (savedState) {
-      internshipData.value.status = savedState.status;
-      internshipData.value.modification_status = savedState.modification_status;
-      internshipData.value.modification_reason = savedState.modification_reason;
-    }
-
     const res = await axios.get(`/internship/${props.s_id}`);
-    await calculateActualDays();
-
-    if (res.data.data[0] === undefined) {
-      // 如果没有数据，初始化一个新的
-      internshipData.value.s_id = props.s_id;
-      internshipData.value.status = 0; // 默认草稿状态
-      internshipData.value.modification_status = 0; // 默认无修改申请
+    
+    if (!res.data.data[0]) {
+      // 如果没有数据，使用初始化数据
+      internshipData.value = createInitialData();
       return;
     }
 
-    // 合并从后端获取的数据和localStorage中的状态
+    // 合并后端数据和默认值
     internshipData.value = {
+      ...createInitialData(),
       ...res.data.data[0],
-      status: savedState?.status ?? res.data.data[0].status ?? 0,
-      modification_status: savedState?.modification_status ?? res.data.data[0].modification_status ?? 0,
-      modification_reason: savedState?.modification_reason ?? res.data.data[0].modification_reason ?? '',
+      approval_status: res.data.data[0].approval_status ?? 0,
+      modification_status: res.data.data[0].modification_status ?? 0,
+      modification_reason: res.data.data[0].modification_reason ?? ''
     };
+
+    // 计算实习天数
+    await calculateActualDays();
+    
+    // 清除可能的本地缓存
+    localStorage.removeItem(`internship_${props.s_id}`);
   } catch (error) {
     console.error('加载实习信息失败:', error);
     ElMessage.error('加载实习信息失败');
+  }
+};
+
+// 通用API响应处理
+const handleApiResponse = (response, successMsg, errorMsg = '操作失败') => {
+  if (response.data.code === '200') {
+    if (successMsg) ElMessage.success(successMsg);
+    return true;
+  } else {
+    ElMessage.error(response.data.msg || errorMsg);
+    return false;
   }
 };
 
@@ -368,14 +370,9 @@ const isWorkingDay = async (date) => {
   }
 
   try {
-    // 调用中国节假日API
     const response = await fetch(`https://timor.tech/api/holiday/info/${dateStr}`);
     const data = await response.json();
-
-    // 缓存结果
     holidayCache.value[dateStr] = data.type.type;
-
-    // type: 0-工作日 1-周末 2-节假日
     return data.type.type === 0;
   } catch (error) {
     console.error('获取节假日信息失败:', error);
@@ -414,24 +411,20 @@ const calculateActualDays = async () => {
 
 const handleSave = async () => {
   try {
-    // 保存时保持状态不变（如果是草稿或驳回状态）
-    if (internshipData.value.status === undefined ||
-        internshipData.value.status === 0 ||
-        internshipData.value.status === 3) {
-      internshipData.value.status = 0; // 草稿状态
+    // 保存时设置为草稿状态（如果是可编辑状态）
+    const editableStatuses = [undefined, 0, 3, 4, 5];
+    if (editableStatuses.includes(internshipData.value.approval_status)) {
+      internshipData.value.approval_status = 0;
     }
 
-    if (internshipData.value.internship_id) {
-      // 更新已有记录
-      await axios.put(`/internship`, internshipData.value);
-    } else {
-      // 创建新记录
-      const res = await axios.post(`/internship`, internshipData.value);
-      internshipData.value.internship_id = res.data.data.internship_id;
-    }
+    const isUpdate = !!internshipData.value.internship_id;
+    const response = isUpdate 
+      ? await axios.put('/internship', internshipData.value)
+      : await axios.post('/internship', internshipData.value);
 
-    // 保存状态到localStorage
-    saveStateToStorage();
+    if (!isUpdate) {
+      internshipData.value.internship_id = response.data.data.internship_id;
+    }
 
     ElMessage.success('保存成功');
     emit('submit', internshipData.value);
@@ -446,28 +439,19 @@ const handleSubmit = async () => {
     await ElMessageBox.confirm(
         '确认提交实习信息吗？提交后将不能修改，等待教师审核。',
         '提示',
-        {
-          confirmButtonText: '确认',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
+        { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' }
     );
 
-    // 更新状态为已提交
-    internshipData.value.status = 1;
+    // 先保存数据
+    await handleSave();
 
-    if (internshipData.value.internship_id) {
-      await axios.put(`/internship`, internshipData.value);
-    } else {
-      const res = await axios.post(`/internship`, internshipData.value);
-      internshipData.value.internship_id = res.data.data.internship_id;
+    // 调用提交审核接口
+    const response = await axios.post(`/internship/${internshipData.value.s_id}/submit`);
+    
+    if (handleApiResponse(response, '提交成功，等待教师审核', '提交失败')) {
+      internshipData.value.approval_status = 1;
+      emit('submit', internshipData.value);
     }
-
-    // 保存状态到localStorage
-    saveStateToStorage();
-
-    ElMessage.success('提交成功，等待教师审核');
-    emit('submit', internshipData.value);
   } catch (error) {
     if (error !== 'cancel') {
       console.error('提交失败:', error);
@@ -476,9 +460,30 @@ const handleSubmit = async () => {
   }
 };
 
+const handleWithdraw = async () => {
+  try {
+    await ElMessageBox.confirm(
+        '确认撤回实习信息吗？撤回后可以重新修改和提交。',
+        '提示',
+        { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' }
+    );
+
+    const response = await axios.post(`/internship/${internshipData.value.s_id}/withdraw`);
+    
+    if (handleApiResponse(response, '撤回成功，可以重新修改和提交', '撤回失败')) {
+      internshipData.value.approval_status = 5;
+      emit('submit', internshipData.value);
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('撤回失败:', error);
+      ElMessage.error('撤回失败');
+    }
+  }
+};
+
 const applyForModification = async () => {
   try {
-    // 打开输入原因的对话框
     const { value: reason } = await ElMessageBox.prompt(
         '请输入申请修改的原因',
         '申请修改',
@@ -486,30 +491,23 @@ const applyForModification = async () => {
           confirmButtonText: '提交申请',
           cancelButtonText: '取消',
           inputPlaceholder: '请输入修改原因',
-          inputValidator: (value) => {
-            if (!value) return '请输入修改原因';
-            return true;
-          }
+          inputValidator: (value) => value ? true : '请输入修改原因'
         }
     );
 
     if (reason) {
-      // 更新修改申请信息
       internshipData.value.modification_reason = reason;
-      internshipData.value.modification_status = 1; // 申请中
+      internshipData.value.modification_status = 1;
 
-      // 发送申请到后端
-      await axios.put(`/internship/${internshipData.value.internship_id}/apply-modification`, {
-        modification_reason: reason
-      });
+      const response = await axios.put(
+        `/internship/${internshipData.value.internship_id}/apply-modification`,
+        { modification_reason: reason }
+      );
 
-      // 保存状态到localStorage
-      saveStateToStorage();
-
-      ElMessage.success('修改申请已提交，等待教师审核');
-      emit('submit', internshipData.value);
-      // 刷新页面数据
-      await loadInternshipData();
+      if (handleApiResponse(response, '修改申请已提交，等待教师审核', '修改申请提交失败')) {
+        emit('submit', internshipData.value);
+        await loadInternshipData();
+      }
     }
   } catch (error) {
     if (error !== 'cancel') {
@@ -518,19 +516,6 @@ const applyForModification = async () => {
     }
   }
 };
-
-// 监听状态变化，自动保存到localStorage
-watch(
-    () => ({
-      status: internshipData.value.status,
-      modification_status: internshipData.value.modification_status,
-      modification_reason: internshipData.value.modification_reason,
-    }),
-    (newValue) => {
-      saveStateToStorage();
-    },
-    { deep: true }
-);
 
 onMounted(() => {
   loadInternshipData();
@@ -548,5 +533,18 @@ onMounted(() => {
   display: inline-block;
   width: 4%;
   text-align: center;
+}
+.review-info {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #409eff;
+}
+.review-info .el-form-item {
+  margin-bottom: 10px;
+}
+.review-info .el-divider {
+  margin: 0 0 15px 0;
 }
 </style>
