@@ -53,7 +53,7 @@ public class AdminController {
                     if (data.getStudent() == null) {
                         continue; // 跳过没有学生信息的记录
                     }
-                    
+
                     Map<String, Object> map = new HashMap<>();
                     map.put("sId", data.getStudent().getS_id());
                     map.put("sName", data.getStudent().getStudent_name());
@@ -106,11 +106,11 @@ public class AdminController {
                         map.put("sInternshipStartDate", "");
                         map.put("sInternshipEndDate", "");
                     }
-                    
+
                     // 创建班级文件夹路径
                     String className = data.getStudent().getStu_class();
                     String studentName = data.getStudent().getStudent_name();
-                    
+
                     // 检查班级和姓名是否为空
                     if (className == null || className.trim().isEmpty()) {
                         className = "未分配班级";
@@ -118,15 +118,15 @@ public class AdminController {
                     if (studentName == null || studentName.trim().isEmpty()) {
                         studentName = "未知学生";
                     }
-                    
+
                     String classDir = "D:/templates/" + className;
-                    
+
                     // 创建班级文件夹
                     java.io.File dir = new java.io.File(classDir);
                     if (!dir.exists()) {
                         dir.mkdirs();
                     }
-                    
+
                     // 生成文件路径：班级文件夹/班级+姓名.docx
                     String outputPath = classDir + "/" + className + "+" + studentName + ".docx";
                     WordUtil.generateWord(map, "D:/templates/模板.docx", outputPath);

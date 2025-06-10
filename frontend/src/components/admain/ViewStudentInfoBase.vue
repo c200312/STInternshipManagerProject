@@ -5,8 +5,8 @@
       <el-table-column prop="student.student_number" label="学号" />
       <el-table-column prop="student.student_name" label="姓名" />
       <el-table-column prop="student.stu_class" label="班级" />
-      <el-table-column prop="academicAdvisorName" label="校内导师" />
-      <el-table-column prop="industryAdvisorName" label="行业导师" />
+      <el-table-column prop="academicAdvisor.teacher_name" label="校内导师" />
+      <el-table-column prop="industryAdvisor.teacher_name" label="行业导师" />
 
       <el-table-column label="公司名称" prop="internship.company_name" width="150" />
       <el-table-column label="实践基地名称" prop="internship.practice_base_name" width="150" />

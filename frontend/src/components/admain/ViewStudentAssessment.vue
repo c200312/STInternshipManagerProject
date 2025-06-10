@@ -5,8 +5,8 @@
       <el-table-column prop="student.student_number" label="学号" />
       <el-table-column prop="student.student_name" label="姓名" />
       <el-table-column prop="student.stu_class" label="班级" />
-      <el-table-column prop="academicAdvisorName" label="校内导师" />
-      <el-table-column prop="industryAdvisorName" label="行业导师" />
+      <el-table-column prop="academicAdvisor.teacher_name" label="校内导师" />
+      <el-table-column prop="industryAdvisor.teacher_name" label="行业导师" />
       
       <el-table-column label="出勤" prop="assessment.attendance_score" width="80" />
       <el-table-column label="任务完成" prop="assessment.task_score" width="100" />

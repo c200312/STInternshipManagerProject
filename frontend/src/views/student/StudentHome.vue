@@ -42,7 +42,7 @@ import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
 import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
 import ScoreCommentForm from '../../components/student/ScoreCommentForm.vue' // 导入评分评语组件
 import UserHeader from '../../components/common/UserHeader.vue'
-import WeekStatus from '../../components/student/DiaryStutas.vue' // 导入周记状态查看组件
+import WeekStatus from '../../components/student/WeekStatus.vue' // 导入周记状态查看组件
 import axios from '@/utils/request'
 
 // 用户信息

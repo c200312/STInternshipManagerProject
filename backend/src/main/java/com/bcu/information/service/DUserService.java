@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -88,11 +90,30 @@ public class DUserService {
             }
         }
 
-        // 周记：按 week 唯一 → 替换内容或添加
+        // 周记：按 week 唯一 → 替换内容或添加（检查审核状态）
         if (partial.getDiary() != null) {
             for (DDiary d : partial.getDiary()) {
-                user.getDiary().removeIf(existing -> existing.getWeek().equals(d.getWeek()));
-                user.getDiary().add(d);
+                // 检查是否存在已审核通过的周记
+                DDiary existingDiary = user.getDiary().stream()
+                        .filter(existing -> existing.getWeek().equals(d.getWeek()))
+                        .findFirst()
+                        .orElse(null);
+                
+                if (existingDiary != null && "APPROVED".equals(existingDiary.getStatus())) {
+                    // 已审核通过的周记不允许修改内容，只能修改审核相关字段
+                    if (d.getStatus() != null) existingDiary.setStatus(d.getStatus());
+                    if (d.getReviewComment() != null) existingDiary.setReviewComment(d.getReviewComment());
+                    if (d.getReviewTime() != null) existingDiary.setReviewTime(d.getReviewTime());
+                    if (d.getReviewer() != null) existingDiary.setReviewer(d.getReviewer());
+                } else {
+                    // 未审核通过的可以正常更新
+                    user.getDiary().removeIf(existing -> existing.getWeek().equals(d.getWeek()));
+                    // 如果状态为空，默认设置为草稿
+                    if (d.getStatus() == null) {
+                        d.setStatus("DRAFT");
+                    }
+                    user.getDiary().add(d);
+                }
             }
         }
 
@@ -142,6 +163,91 @@ public class DUserService {
         }
 
         return Result.success(resultList);
+    }
+
+    // 提交周记审核
+    public Result submitDiaryForReview(String studentId, String week) {
+        Optional<DUser> optionalUser = repository.findById(studentId);
+        if (optionalUser.isEmpty()) {
+            return Result.error("学生不存在");
+        }
+
+        DUser user = optionalUser.get();
+        DDiary diary = user.getDiary().stream()
+                .filter(d -> d.getWeek().equals(week))
+                .findFirst()
+                .orElse(null);
+
+        if (diary == null) {
+            return Result.error("该周周记不存在");
+        }
+
+        if ("SUBMITTED".equals(diary.getStatus()) || "APPROVED".equals(diary.getStatus())) {
+            return Result.error("该周记已提交或已审核，无法重复提交");
+        }
+
+        if (diary.getContent() == null || diary.getContent().trim().isEmpty()) {
+            return Result.error("周记内容不能为空");
+        }
+
+        diary.setStatus("SUBMITTED");
+        repository.save(user);
+        return Result.success(diary, "周记提交审核成功");
+    }
+
+    // 审核周记
+    public Result reviewDiary(String studentId, String week, String status, String reviewComment, String reviewer) {
+        if (!"APPROVED".equals(status) && !"REJECTED".equals(status)) {
+            return Result.error("审核状态只能是APPROVED或REJECTED");
+        }
+
+        Optional<DUser> optionalUser = repository.findById(studentId);
+        if (optionalUser.isEmpty()) {
+            return Result.error("学生不存在");
+        }
+
+        DUser user = optionalUser.get();
+        DDiary diary = user.getDiary().stream()
+                .filter(d -> d.getWeek().equals(week))
+                .findFirst()
+                .orElse(null);
+
+        if (diary == null) {
+            return Result.error("该周周记不存在");
+        }
+
+        if (!"SUBMITTED".equals(diary.getStatus())) {
+            return Result.error("只能审核已提交的周记");
+        }
+
+        diary.setStatus(status);
+        diary.setReviewComment(reviewComment);
+        diary.setReviewer(reviewer);
+        diary.setReviewTime(java.time.LocalDateTime.now().toString());
+
+        repository.save(user);
+        return Result.success(diary, "审核完成");
+    }
+
+    // 获取待审核的周记列表
+    public Result getPendingDiaries() {
+        List<DUser> users = repository.findAll();
+        List<Object> pendingDiaries = new ArrayList<>();
+
+        for (DUser user : users) {
+            for (DDiary diary : user.getDiary()) {
+                if ("SUBMITTED".equals(diary.getStatus())) {
+                    Map<String, Object> diaryInfo = new HashMap<>();
+                    diaryInfo.put("studentId", user.getId());
+                    diaryInfo.put("week", diary.getWeek());
+                    diaryInfo.put("content", diary.getContent());
+                    diaryInfo.put("status", diary.getStatus());
+                    pendingDiaries.add(diaryInfo);
+                }
+            }
+        }
+
+        return Result.success(pendingDiaries, "获取待审核周记成功");
     }
 
 

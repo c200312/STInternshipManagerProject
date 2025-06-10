@@ -23,10 +23,29 @@
         <div
             v-for="item in displayedDiaries"
             :key="item.week"
-            style="margin-bottom: 10px;"
+            style="margin-bottom: 15px; border: 1px solid #eee; padding: 10px; border-radius: 5px;"
         >
-          <strong>第 {{ item.week }} 周：</strong>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+             <strong>{{ getWeekLabel(item.week) }}：</strong>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <el-tag :type="getStatusType(item.status)">{{ getStatusText(item.status) }}</el-tag>
+              <el-button 
+                v-if="item.status === 'SUBMITTED'"
+                type="primary" 
+                size="small" 
+                @click="openReviewDialog(item)"
+              >
+                审核
+              </el-button>
+            </div>
+          </div>
           <p style="white-space: pre-line;">{{ item.content }}</p>
+          <div v-if="item.reviewComment" style="margin-top: 10px; padding: 8px; background-color: #f5f5f5; border-radius: 4px;">
+            <strong>审核意见：</strong>{{ item.reviewComment }}
+            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+              审核人：{{ item.reviewer }} | 审核时间：{{ formatDate(item.reviewTime) }}
+            </div>
+          </div>
         </div>
       </el-card>
 
@@ -51,6 +70,38 @@
       </el-button>
 
     </el-card>
+
+    <!-- 审核对话框 -->
+    <el-dialog v-model="reviewDialogVisible" title="审核周记" width="500px">
+      <div>
+        <h4>第 {{ currentReviewDiary?.week }} 周周记</h4>
+        <p style="white-space: pre-line; margin: 10px 0; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">{{ currentReviewDiary?.content }}</p>
+        
+        <el-form :model="reviewForm" label-width="80px">
+          <el-form-item label="审核结果">
+            <el-radio-group v-model="reviewForm.status">
+              <el-radio label="APPROVED">通过</el-radio>
+              <el-radio label="REJECTED">拒绝</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="审核意见">
+            <el-input
+              v-model="reviewForm.reviewComment"
+              type="textarea"
+              rows="4"
+              placeholder="请输入审核意见"
+            />
+          </el-form-item>
+        </el-form>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="reviewDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitReview">提交审核</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
   </el-main>
 </template>
 
@@ -68,6 +119,14 @@ const selectedPeriod = ref(null)
 const displayedDiaries = ref([])
 const comment = ref('')
 
+// 审核相关
+const reviewDialogVisible = ref(false)
+const currentReviewDiary = ref(null)
+const reviewForm = ref({
+  status: 'APPROVED',
+  reviewComment: ''
+})
+
 const weekPeriodOptions = [
   { label: '第1-2周', weeks: [1, 2] },
   { label: '第3-4周', weeks: [3, 4] },
@@ -75,7 +134,7 @@ const weekPeriodOptions = [
   { label: '第7-8周', weeks: [7, 8] },
   { label: '第9-10周', weeks: [9, 10] },
   { label: '第11-12周', weeks: [11, 12] },
-  { label: '实习总结（第13周）', weeks: [13] }
+  { label: '实习总结（第13周）', weeks: ["achievement","practice"] }
 ]
 
 watch(selectedLabel, () => {
@@ -97,8 +156,22 @@ watch(selectedLabel, () => {
   selectedPeriod.value = period
 
   displayedDiaries.value = props.studentView.duser.diary
-      .filter(d => period.weeks.includes(Number(d.week)))
-      .sort((a, b) => Number(a.week) - Number(b.week))
+      .filter(d => {
+        // 对于数字周期，转换为数字进行比较
+        if (typeof period.weeks[0] === 'number') {
+          return period.weeks.includes(Number(d.week))
+        }
+        // 对于字符串周期（如achievement, practice），直接比较
+        return period.weeks.includes(d.week)
+      })
+      .sort((a, b) => {
+        // 数字周期按数字排序
+        if (!isNaN(Number(a.week)) && !isNaN(Number(b.week))) {
+          return Number(a.week) - Number(b.week)
+        }
+        // 字符串周期按字母排序
+        return a.week.localeCompare(b.week)
+      })
 
   const week = period.weeks[0]
   const teacherName = JSON.parse(localStorage.getItem('userInfo') || '{}').username
@@ -125,8 +198,22 @@ watch(
         if (period) {
           selectedPeriod.value = period
           displayedDiaries.value = newVal.duser.diary
-              .filter(d => period.weeks.includes(Number(d.week)))
-              .sort((a, b) => Number(a.week) - Number(b.week))
+              .filter(d => {
+                // 对于数字周期，转换为数字进行比较
+                if (typeof period.weeks[0] === 'number') {
+                  return period.weeks.includes(Number(d.week))
+                }
+                // 对于字符串周期（如achievement, practice），直接比较
+                return period.weeks.includes(d.week)
+              })
+              .sort((a, b) => {
+                // 数字周期按数字排序
+                if (!isNaN(Number(a.week)) && !isNaN(Number(b.week))) {
+                  return Number(a.week) - Number(b.week)
+                }
+                // 字符串周期按字母排序
+                return a.week.localeCompare(b.week)
+              })
           
           const week = period.weeks[0]
           const teacherName = JSON.parse(localStorage.getItem('userInfo') || '{}').username
@@ -211,6 +298,105 @@ const saveComment = async () => {
     ElMessage.success('保存成功')
   } catch (err) {
     ElMessage.error('保存失败')
+    console.error(err)
+  }
+}
+
+// 获取周数标签
+const getWeekLabel = (week) => {
+  if (typeof week === 'number' || !isNaN(Number(week))) {
+    return `第 ${week} 周`
+  } else if (week === 'achievement') {
+    return '成果总结'
+  } else if (week === 'practice') {
+    return '实践总结'
+  }
+  return week
+}
+
+// 获取状态显示文本
+const getStatusText = (status) => {
+  const statusMap = {
+    'DRAFT': '草稿',
+    'SUBMITTED': '已提交',
+    'APPROVED': '已通过',
+    'REJECTED': '已拒绝'
+  }
+  return statusMap[status] || '草稿'
+}
+
+// 获取状态标签类型
+const getStatusType = (status) => {
+  const typeMap = {
+    'DRAFT': 'info',
+    'SUBMITTED': 'warning',
+    'APPROVED': 'success',
+    'REJECTED': 'danger'
+  }
+  return typeMap[status] || 'info'
+}
+
+// 格式化日期
+const formatDate = (dateString) => {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return date.toLocaleString('zh-CN')
+}
+
+// 打开审核对话框
+const openReviewDialog = (diary) => {
+  currentReviewDiary.value = diary
+  reviewForm.value = {
+    status: 'APPROVED',
+    reviewComment: ''
+  }
+  reviewDialogVisible.value = true
+}
+
+// 提交审核
+const submitReview = async () => {
+  if (!currentReviewDiary.value || !reviewForm.value.status) {
+    ElMessage.warning('请选择审核结果')
+    return
+  }
+
+  const teacherName = JSON.parse(localStorage.getItem('userInfo') || '{}').username
+  
+  try {
+    await axios.post(`/duser/${props.studentView.student.student_number}/diary/${currentReviewDiary.value.week}/review`, {
+      status: reviewForm.value.status,
+      reviewComment: reviewForm.value.reviewComment,
+      reviewer: teacherName
+    })
+    
+    // 更新本地数据
+    if (props.studentView.duser && props.studentView.duser.diary) {
+      const diaryIndex = props.studentView.duser.diary.findIndex(
+        d => d.week === currentReviewDiary.value.week
+      )
+      if (diaryIndex >= 0) {
+        props.studentView.duser.diary[diaryIndex].status = reviewForm.value.status
+        props.studentView.duser.diary[diaryIndex].reviewComment = reviewForm.value.reviewComment
+        props.studentView.duser.diary[diaryIndex].reviewer = teacherName
+        props.studentView.duser.diary[diaryIndex].reviewTime = new Date().toISOString()
+      }
+    }
+    
+    // 更新显示的周记列表
+    const displayIndex = displayedDiaries.value.findIndex(
+      d => d.week === currentReviewDiary.value.week
+    )
+    if (displayIndex >= 0) {
+      displayedDiaries.value[displayIndex].status = reviewForm.value.status
+      displayedDiaries.value[displayIndex].reviewComment = reviewForm.value.reviewComment
+      displayedDiaries.value[displayIndex].reviewer = teacherName
+      displayedDiaries.value[displayIndex].reviewTime = new Date().toISOString()
+    }
+    
+    reviewDialogVisible.value = false
+    ElMessage.success('审核完成')
+  } catch (err) {
+    ElMessage.error('审核失败')
     console.error(err)
   }
 }

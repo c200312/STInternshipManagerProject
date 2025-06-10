@@ -28,6 +28,7 @@
 
 存在问题与改进措施："
             style="width: 100%"
+            :disabled="!canEdit()"
         />
       </el-form-item>
     </template>
@@ -41,6 +42,7 @@
               v-model="achievementContent"
               placeholder="不少于5条，对成果进行总结"
               style="flex: 1; min-height: 200px; resize: none; width: 1000px"
+              :disabled="!canEdit()"
           />
           <el-tooltip
               effect="light"
@@ -72,6 +74,7 @@
               v-model="practiceContent"
               placeholder="实习实践的整体总结与感悟"
               style="flex: 1; min-height: 200px; resize: none; width: 1000px"
+              :disabled="!canEdit()"
           />
           <el-tooltip
               effect="light"
@@ -123,8 +126,27 @@
       </el-form-item>
     </template>
 
+    <!-- 状态显示 -->
+    <el-form-item label="当前状态">
+      <el-tag :type="getStatusType(currentDiaryStatus)">{{ getStatusText(currentDiaryStatus) }}</el-tag>
+    </el-form-item>
+
     <el-form-item>
-      <el-button type="primary" @click="handleSubmit">保存</el-button>
+      <el-button 
+        type="primary" 
+        @click="handleSubmit"
+        :disabled="!canEdit()"
+      >
+        保存
+      </el-button>
+      <el-button 
+        type="success" 
+        @click="submitForReview"
+        :disabled="!canSubmitForReview()"
+        style="margin-left: 10px;"
+      >
+        提交审核
+      </el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -149,6 +171,8 @@ const content = ref('')
 // 总结内容响应式变量
 const achievementContent = ref('')
 const practiceContent = ref('')
+// 当前周记状态
+const currentDiaryStatus = ref('')
 
 // 加载周记数据
 const loadDiary = async () => {
@@ -158,12 +182,17 @@ const loadDiary = async () => {
     if (selectedWeek.value !== 17) {
       const found = diaries.find(d => d.week === `${selectedWeek.value}`)
       content.value = found ? found.content : ''
+      currentDiaryStatus.value = found ? found.status || 'DRAFT' : 'DRAFT'
     } else {
       // 总结周，需要同时处理成果和实践内容
       const achievementFound = diaries.find(d => d.week === 'achievement')
       const practiceFound = diaries.find(d => d.week === 'practice')
       achievementContent.value = achievementFound ? achievementFound.content : ''
       practiceContent.value = practiceFound ? practiceFound.content : ''
+      // 对于总结周，检查两个部分的状态，取较高的状态
+      const achievementStatus = achievementFound ? achievementFound.status || 'DRAFT' : 'DRAFT'
+      const practiceStatus = practiceFound ? practiceFound.status || 'DRAFT' : 'DRAFT'
+      currentDiaryStatus.value = getHigherStatus(achievementStatus, practiceStatus)
     }
   } catch (error) {
     console.error('加载周记数据失败:', error)
@@ -196,6 +225,62 @@ const saveDiary = async () => {
     console.error('保存周记失败:', error)
     ElMessage.error('保存失败，请稍后重试')
   }
+}
+
+// 提交审核
+const submitForReview = async () => {
+  try {
+    if (selectedWeek.value !== 17) {
+      await axios.post(`/duser/${props.userName}/diary/${selectedWeek.value}/submit`)
+    } else {
+      // 总结周，提交两个部分
+      await axios.post(`/duser/${props.userName}/diary/achievement/submit`)
+      await axios.post(`/duser/${props.userName}/diary/practice/submit`)
+    }
+    ElMessage.success('提交审核成功')
+    loadDiary() // 重新加载数据以更新状态
+  } catch (error) {
+    console.error('提交审核失败:', error)
+    ElMessage.error('提交审核失败，请稍后重试')
+  }
+}
+
+// 获取较高的状态（用于总结周）
+const getHigherStatus = (status1, status2) => {
+  const statusOrder = { 'DRAFT': 0, 'SUBMITTED': 1, 'APPROVED': 2, 'REJECTED': 3 }
+  return statusOrder[status1] >= statusOrder[status2] ? status1 : status2
+}
+
+// 获取状态显示文本
+const getStatusText = (status) => {
+  const statusMap = {
+    'DRAFT': '草稿',
+    'SUBMITTED': '已提交',
+    'APPROVED': '已通过',
+    'REJECTED': '已拒绝'
+  }
+  return statusMap[status] || '草稿'
+}
+
+// 获取状态标签类型
+const getStatusType = (status) => {
+  const typeMap = {
+    'DRAFT': 'info',
+    'SUBMITTED': 'warning',
+    'APPROVED': 'success',
+    'REJECTED': 'danger'
+  }
+  return typeMap[status] || 'info'
+}
+
+// 检查是否可以编辑
+const canEdit = () => {
+  return currentDiaryStatus.value === 'DRAFT' || currentDiaryStatus.value === 'REJECTED'
+}
+
+// 检查是否可以提交审核
+const canSubmitForReview = () => {
+  return currentDiaryStatus.value === 'DRAFT' || currentDiaryStatus.value === 'REJECTED'
 }
 
 // 提交处理函数
