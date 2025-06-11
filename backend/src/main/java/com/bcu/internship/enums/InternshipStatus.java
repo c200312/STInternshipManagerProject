@@ -8,7 +8,6 @@ public enum InternshipStatus {
     SUBMITTED((byte) 1, "待审核"),
     APPROVED((byte) 2, "审核通过"),
     REJECTED((byte) 3, "审核拒绝"),
-    NEED_MODIFY((byte) 4, "需要修改"),
     WITHDRAWN((byte) 5, "已撤回");
 
     private final Byte code;
@@ -46,7 +45,7 @@ public enum InternshipStatus {
      * 检查是否可以提交审核
      */
     public boolean canSubmit() {
-        return this == DRAFT || this == REJECTED || this == NEED_MODIFY;
+        return this == DRAFT || this == REJECTED ;
     }
 
     /**
@@ -60,6 +59,6 @@ public enum InternshipStatus {
      * 检查是否可以修改
      */
     public boolean canModify() {
-        return this == DRAFT || this == REJECTED || this == NEED_MODIFY;
+        return this == DRAFT || this == REJECTED;
     }
 }

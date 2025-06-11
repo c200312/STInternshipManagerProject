@@ -237,7 +237,6 @@ const STATUS_CONFIG = {
     1: { text: '已提交（等待审核）', type: 'warning' },
     2: { text: '已审核通过', type: 'success' },
     3: { text: '已驳回（可修改）', type: 'danger' },
-    4: { text: '需要修改', type: 'warning' },
     5: { text: '已撤回（可修改）', type: 'info' }
   },
   modification: {
@@ -412,7 +411,7 @@ const calculateActualDays = async () => {
 const handleSave = async () => {
   try {
     // 保存时设置为草稿状态（如果是可编辑状态）
-    const editableStatuses = [undefined, 0, 3, 4, 5];
+    const editableStatuses = [undefined, 0, 3, 5];
     if (editableStatuses.includes(internshipData.value.approval_status)) {
       internshipData.value.approval_status = 0;
     }

@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class InternshipReviewRequest {
     /**
-     * 审核状态：2(通过) 或 3(拒绝) 或 4(需要修改)
+     * 审核状态：2(通过) 或 3(拒绝)
      */
     @JsonProperty("approval_status")
     private Byte approvalStatus;

@@ -128,9 +128,8 @@ public class InternshipService {
         InternshipStatus reviewStatus = InternshipStatus.fromCode(request.getApprovalStatus());
         
         if (reviewStatus != InternshipStatus.APPROVED && 
-            reviewStatus != InternshipStatus.REJECTED && 
-            reviewStatus != InternshipStatus.NEED_MODIFY) {
-            return Result.error("审核状态只能是通过(2)、拒绝(3)或需要修改(4)");
+            reviewStatus != InternshipStatus.REJECTED) {
+            return Result.error("审核状态只能是通过(2)、拒绝(3)");
         }
         
         Result result = getInternshipBySId(sId);

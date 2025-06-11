@@ -70,15 +70,7 @@
             >
               拒绝
             </el-button>
-            <el-button 
-              v-if="row.internship.approval_status === 1" 
-              type="warning" 
-              size="small" 
-              @click="openReviewDialog(row, 'modify')"
-            >
-              需要修改
-            </el-button>
-            <el-button 
+            <el-button
               type="info" 
               size="small" 
               @click="viewDetails(row)"
@@ -230,7 +222,6 @@ function getApprovalStatusText(status) {
     1: '待审核',
     2: '审核通过',
     3: '审核拒绝',
-    4: '需要修改',
     5: '已撤回'
   };
   return statusMap[status] || '未知状态';
@@ -243,7 +234,6 @@ function getApprovalStatusType(status) {
     1: 'warning',
     2: 'success',
     3: 'danger',
-    4: 'warning',
     5: 'info'
   };
   return typeMap[status] || 'info';
@@ -253,7 +243,7 @@ function getApprovalStatusType(status) {
 function openReviewDialog(student, action) {
   currentStudent.value = student;
   reviewForm.value = {
-    approval_status: action === 'approve' ? 2 : action === 'reject' ? 3 : 4,
+    approval_status: action === 'approve' ? 2 : 3,
     review_comments: '',
     reviewer_name: ''
   };
@@ -261,7 +251,6 @@ function openReviewDialog(student, action) {
   const actionMap = {
     'approve': '审核通过',
     'reject': '审核拒绝',
-    'modify': '需要修改'
   };
   
   reviewDialogTitle.value = `${actionMap[action]} - ${student.student?.student_name}`;
