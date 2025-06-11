@@ -21,6 +21,14 @@
         <i :class="currentView === 'diary' ? 'el-icon-star-on' : 'el-icon-document'"></i>
         <span>{{ currentView === 'diary' ? '评分管理' : '周记管理' }}</span>
       </el-button>
+      <el-button
+          type="text"
+          @click="setView('enterprise')"
+          style="width: 100%; text-align: left; margin-top: 12px;"
+      >
+        <i class="el-icon-office-building"></i>
+        <span>企业信息管理</span>
+      </el-button>
     </div>
   </el-aside>
 </template>
@@ -44,6 +52,10 @@ const currentView = ref('diary') // 'diary' 或 'assessment'
 const toggleView = () => {
   currentView.value = currentView.value === 'diary' ? 'assessment' : 'diary'
   emit('view-change', currentView.value)
+}
+
+const setView = (view) => {
+  emit('view-change', view)
 }
 </script>
 

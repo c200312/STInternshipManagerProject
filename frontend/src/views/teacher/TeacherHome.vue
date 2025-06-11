@@ -3,38 +3,67 @@
     <UserHeader :username="teacherInfo.username" />
 
     <el-container class="main-container">
-      <StudentAsideMenu 
-        :students="studentList" 
-        :selectedStudent="selectedStudentView"
-        @select="selectStudentView" 
-        @view-change="handleViewChange"
-      />
-      <StudentDetailPanel 
-        v-if="currentView === 'diary'"
-        :studentView="selectedStudentView" 
-      />
-      <StudentAssessmentPanel 
-        v-else-if="currentView === 'assessment'"
-        :students="studentList"
-        :selectedStudent="selectedStudentView"
-      />
+      <el-aside width="200px">
+        <el-menu :default-active="selectedStudentId" class="menu-container">
+          <el-sub-menu v-for="studentView in studentList" :key="studentView.student.s_id" :index="studentView.student.s_id.toString()">
+            <template #title>{{ studentView.student.student_name }}</template>
+            <el-menu-item index="assessment" @click="handleMenuClick(studentView, 'assessment')">评分管理</el-menu-item>
+            <el-menu-item index="diary" @click="handleMenuClick(studentView, 'diary')">周记管理</el-menu-item>
+            <el-menu-item index="enterprise" @click="handleMenuClick(studentView, 'enterprise')">企业信息管理</el-menu-item>
+          </el-sub-menu>
+        </el-menu>
+      </el-aside>
+
+      <el-main>
+        <!-- 学生基本信息展示区域 -->
+        <el-card v-if="selectedStudentView" class="student-info-card">
+          <h3>学生基本信息</h3>
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="姓名">{{ selectedStudentView.student.student_name }}</el-descriptions-item>
+            <el-descriptions-item label="学号">{{ selectedStudentView.student.student_number }}</el-descriptions-item>
+            <el-descriptions-item label="班级">{{ selectedStudentView.student.stu_class }}</el-descriptions-item>
+            <el-descriptions-item label="实习单位">{{ selectedStudentView.duser?.company?.[0]?.name || '无' }}</el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+
+        <!-- 功能面板区域 -->
+        <div class="panel-container">
+          <StudentDetailPanel 
+            v-if="currentView === 'diary'"
+            :studentView="selectedStudentView" 
+          />
+          <StudentAssessmentPanel 
+            v-else-if="currentView === 'assessment'"
+            :students="studentList"
+            :selectedStudent="selectedStudentView"
+          />
+          <EnterpriseInfoPanel
+            v-else-if="currentView === 'enterprise'"
+            :student="selectedStudentView?.student"
+          />
+        </div>
+      </el-main>
     </el-container>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from '@/utils/request'
 import UserHeader from '@/components/common/UserHeader.vue'
-import StudentAsideMenu from '@/components/teacher/StudentAsideMenu.vue'
 import StudentDetailPanel from '@/components/teacher/StudentDetailPanel.vue'
 import StudentAssessmentPanel from '@/components/teacher/StudentAssessmentPanel.vue'
+import EnterpriseInfoPanel from '@/components/teacher/EnterpriseInfoPanel.vue'
 
 const teacherInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 
 const studentList = ref([])
 const selectedStudentView = ref(null)
-const currentView = ref('diary') // 'diary' 或 'assessment'
+const currentView = ref('diary')
+
+const selectedStudentId = computed(() => {
+  return selectedStudentView.value?.student.s_id.toString() || ''
+})
 
 const fetchStudents = async () => {
   const res = await axios.get(`/duser/selectbytnumber/${teacherInfo.username}`)
@@ -46,13 +75,9 @@ const fetchStudents = async () => {
   }
 }
 
-const selectStudentView = (studentView) => {
+const handleMenuClick = (studentView, view) => {
   selectedStudentView.value = studentView
-}
-
-const handleViewChange = (view) => {
   currentView.value = view
-  // 评分模式下保持学生选择状态
 }
 
 onMounted(fetchStudents)
@@ -63,5 +88,27 @@ onMounted(fetchStudents)
   margin-top: 50px;
   height: calc(100vh - 50px);
   overflow: hidden;
+}
+
+.menu-container {
+  height: 100%;
+  border-right: 1px solid #e6e6e6;
+}
+
+.student-info-card {
+  margin-bottom: 20px;
+}
+
+.panel-container {
+  margin-top: 20px;
+}
+
+:deep(.el-menu) {
+  border-right: none;
+}
+
+:deep(.el-sub-menu .el-menu-item) {
+  min-width: 0;
+  padding-left: 40px !important;
 }
 </style>
