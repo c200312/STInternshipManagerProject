@@ -1,7 +1,7 @@
 package com.bcu.information.controller;
 
 import com.bcu.information.bean.FileInfo;
-import com.bcu.information.common.Result;
+import com.bcu.common.result.Result;
 import com.bcu.information.service.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +25,7 @@ public class FileController {
     private final FileService fileService;
 
     @PostMapping("/upload/{studentId}")
-    public Result<String> uploadFile(@PathVariable Integer studentId, @RequestParam("file") MultipartFile file) {
+    public Result uploadFile(@PathVariable Integer studentId, @RequestParam("file") MultipartFile file) {
         log.info("开始上传文件，学生ID: {}, 文件名: {}, 文件大小: {} bytes", 
             studentId, file.getOriginalFilename(), file.getSize());
         
@@ -63,7 +63,7 @@ public class FileController {
     }
 
     @DeleteMapping("/delete/{studentId}/{fileName:.+}")
-    public Result<Void> deleteFile(@PathVariable Integer studentId, @PathVariable String fileName) {
+    public Result deleteFile(@PathVariable Integer studentId, @PathVariable String fileName) {
         log.info("开始删除文件: {} 从学生ID: {}", fileName, studentId);
         try {
             fileService.deleteFile(studentId, fileName);
@@ -79,7 +79,7 @@ public class FileController {
     }
 
     @GetMapping("/list/{studentId}")
-    public Result<List<FileInfo>> listFiles(@PathVariable Integer studentId) {
+    public Result listFiles(@PathVariable Integer studentId) {
         log.info("开始获取文件列表，学生ID: {}", studentId);
         try {
             List<FileInfo> files = fileService.listFiles(studentId);
