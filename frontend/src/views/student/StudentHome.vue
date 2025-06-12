@@ -10,13 +10,14 @@
           <el-menu-item index="info">填写基本信息</el-menu-item>
           <el-menu-item index="internship">填写实习信息</el-menu-item>
           <el-menu-item index="diary">填写周记</el-menu-item>
-          <el-menu-item index="status">周记状态查看</el-menu-item> <!-- 添加周记状态查看菜单项 -->
+          <el-menu-item index="status">周记状态查看</el-menu-item>
           <el-menu-item index="evaluation">实习单位鉴定</el-menu-item>
         </el-menu>
       </el-aside>
 
       <el-container>
         <el-main>
+          <!-- 周记表单组件，添加initialWeek和submit事件 -->
           <DiaryForm
               v-if="currentTab === 'diary' && loaded"
               :userName="userName"
@@ -28,12 +29,16 @@
           <!-- 评分评语组件 -->
           <ScoreCommentForm
               v-else-if="currentTab === 'evaluation'"
-              :s_id="s_id"
+              :assessmentData="{ s_id: s_id }"
               :isReadOnly="false"
               @save-success="handleEvaluationSave"
           />
-          <!-- 周记状态查看组件 -->
-          <WeekStatus v-else-if="currentTab === 'status'" :username="userName" @edit-diary="handleEditDiary" />
+          <!-- 周记状态查看组件，添加edit-diary事件 -->
+          <WeekStatus
+              v-else-if="currentTab === 'status'"
+              :username="userName"
+              @edit-diary="handleEditDiary"
+          />
         </el-main>
       </el-container>
     </el-container>
@@ -41,31 +46,30 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import { onMounted, ref } from 'vue'
 import DiaryForm from '../../components/student/DiaryForm.vue'
 import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
 import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
-import ScoreCommentForm from '../../components/student/ScoreCommentForm.vue' // 导入评分评语组件
+import ScoreCommentForm from '../../components/student/ScoreCommentForm.vue'
 import UserHeader from '../../components/common/UserHeader.vue'
-import WeekStatus from '../../components/student/WeekStatus.vue' // 导入周记状态查看组件
+import WeekStatus from '../../components/student/WeekStatus.vue'
 import axios from '@/utils/request'
-import {ElMessage} from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 // 用户信息
 const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 const userName = userInfo.username
-const userId = userInfo.user_id
-const currentTab = ref('diary') // 当前标签页，默认为基本信息
+const currentTab = ref('diary') // 当前标签页，默认为填写周记
 const editingWeek = ref(null) // 要编辑的周数
 const s_id = ref()
-const loaded = ref(false) // 添加加载状态
+const loaded = ref(false) // 数据加载状态
 
-// 加载学生 ID
+// 加载学生ID
 const loadS_id = async () => {
   try {
     const res = await axios.get(`/student/getbyusername/${userName}`)
     s_id.value = res.data.data.s_id
-    loaded.value = true // 数据加载完成后设置加载状态为 true
+    loaded.value = true
   } catch (error) {
     console.error('加载学生信息失败:', error)
     ElMessage.error('加载学生信息失败，请稍后重试')
@@ -75,7 +79,7 @@ const loadS_id = async () => {
 // 处理评分保存事件
 const handleEvaluationSave = (data) => {
   console.log('评分与评语保存成功，数据：', data)
-  // 可添加后续逻辑
+  ElMessage.success('评估数据保存成功')
 }
 
 // 处理编辑周记事件
@@ -96,6 +100,7 @@ const handleSubmit = (content) => {
   console.log('周记提交成功:', content)
   // 清除编辑状态
   editingWeek.value = null
+  ElMessage.success('周记提交成功')
 }
 
 onMounted(() => {
