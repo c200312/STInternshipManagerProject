@@ -274,7 +274,7 @@ const beforeUpload = (file) => {
 
 // 文件上传成功处理
 const handleSuccess = (response, file) => {
-  if (response.code === 200) {
+  if (response.code === "200") {
     ElMessage.success('文件上传成功')
     loadFiles() // 重新加载文件列表
   } else {
@@ -291,7 +291,7 @@ const handleError = (error) => {
 // 文件预览处理
 const handlePreview = async (file) => {
   try {
-    const response = await axios.get(`/api/files/download/${localAssessmentData.value.s_id}/${file.name}`, {
+    const response = await axios.get(`/files/download/${localAssessmentData.value.s_id}/${file.name}`, {
       responseType: 'blob'
     })
     
@@ -308,8 +308,8 @@ const handlePreview = async (file) => {
 // 文件删除处理
 const handleRemove = async (file) => {
   try {
-    const response = await axios.delete(`/api/files/delete/${localAssessmentData.value.s_id}/${file.name}`)
-    if (response.data.code === 200) {
+    const response = await axios.delete(`/files/delete/${localAssessmentData.value.s_id}/${file.name}`)
+    if (response.data.code === "200") {
       ElMessage.success('文件删除成功')
       loadFiles() // 重新加载文件列表
     } else {
@@ -324,8 +324,8 @@ const handleRemove = async (file) => {
 // 加载文件列表
 const loadFiles = async () => {
   try {
-    const response = await axios.get(`/api/files/list/${localAssessmentData.value.s_id}`)
-    if (response.data.code === 200) {
+    const response = await axios.get(`/files/list/${localAssessmentData.value.s_id}`)
+    if (response.data.code === "200") {
       fileList.value = response.data.data
     } else {
       ElMessage.error(response.data.msg || '获取文件列表失败')
@@ -339,7 +339,7 @@ const loadFiles = async () => {
 // 下载文件
 const handleDownload = async (file) => {
   try {
-    const response = await axios.get(`/api/files/download/${localAssessmentData.value.s_id}/${file.name}`, { responseType: 'blob' });
+    const response = await axios.get(`/files/download/${localAssessmentData.value.s_id}/${file.name}`, { responseType: 'blob' });
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
@@ -356,8 +356,8 @@ const handleDownload = async (file) => {
 // 删除文件
 const handleDelete = async (file) => {
   try {
-    const response = await axios.delete(`/api/files/delete/${localAssessmentData.value.s_id}/${file.name}`);
-    if (response.data.code === 200) {
+    const response = await axios.delete(`/files/delete/${localAssessmentData.value.s_id}/${file.name}`);
+    if (response.data.code === "200") {
       ElMessage.success('文件删除成功');
       await loadFiles(); // 重新加载文件列表
     } else {

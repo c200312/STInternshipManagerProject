@@ -5,6 +5,7 @@ import com.bcu.assessment.bean.Assessment;
 import com.bcu.assessment.dao.AssessmentMapper;
 import com.bcu.common.result.Result;
 import com.bcu.common.util.ExcelCellUtil;
+import com.bcu.common.util.StudentDetailDataUtil;
 import com.bcu.information.bean.DUser;
 import com.bcu.information.dao.DUserRepository;
 import com.bcu.internship.bean.Internship;
@@ -132,57 +133,47 @@ public class AdminService {
         return "unknown";
     }
 
-    public Result getStInfo(){
+    public Result getAllStInfo(){
         List<Student> students = studentMapper.selectByExample(null);
         List<Teacher> teachers = teacherMapper.selectByExample(null);
         List<Internship> internships = internshipMapper.selectByExample(null);
         List<Assessment> assessments = assessmentMapper.selectByExample(null);
         List<DUser> dUsers = dUserRepository.findAll();
 
-
-        // 构造：学生ID => 实习记录列表 映射
-        Map<Integer, List<Internship>> internshipMap = internships.stream()
-                .collect(Collectors.groupingBy(Internship::getS_id));
-        Map<Integer, List<Assessment>> assessmentMap = assessments.stream()
-                .collect(Collectors.groupingBy(Assessment::getS_id));
-        Map<String, List<DUser>> dUserMap = dUsers.stream()
-                .collect(Collectors.groupingBy(DUser::getId));
-        Map<Integer,List<Teacher>> teacherMap = teachers.stream()
-                .collect(Collectors.groupingBy(Teacher::getT_id));
-
+        // 使用工具类构建数据映射
+        StudentDetailDataUtil.DataMaps dataMaps = StudentDetailDataUtil.buildDataMaps(teachers, internships, assessments, dUsers);
 
         List<StudentDetailDTO> result = new ArrayList<>();
 
         for (Student student : students) {
-            StudentDetailDTO dto = new StudentDetailDTO();
-            dto.setStudent(student);
-
-            // 设置一个实习信息（如有）
-            List<Internship> studentInternships = internshipMap.get(student.getS_id());
-            if (studentInternships != null && !studentInternships.isEmpty()) {
-                dto.setInternship(studentInternships.getFirst());
-            }
-            List<Assessment> studentAssessments = assessmentMap.get(student.getS_id());
-            if (studentAssessments != null && !studentAssessments.isEmpty()) {
-                dto.setAssessment(studentAssessments.getFirst());
-            }
-            List<DUser> studentDUsers = dUserMap.get(student.getStudent_number());
-            if (studentDUsers != null && !studentDUsers.isEmpty()) {
-                dto.setDuser(studentDUsers.getFirst());
-            }
-            List<Teacher> academicAdvisors = teacherMap.get(student.getAcademic_advisor_id());
-            if (academicAdvisors != null && !academicAdvisors.isEmpty()) {
-                dto.setAcademicAdvisor(academicAdvisors.getFirst());
-            }
-            List<Teacher> industryAdvisors = teacherMap.get(student.getIndustry_advisor_id());
-            if (industryAdvisors != null && !industryAdvisors.isEmpty()) {
-                dto.setIndustryAdvisor(industryAdvisors.getFirst());
-            }
-
+            // 使用工具类构建StudentDetailDTO
+            StudentDetailDTO dto = StudentDetailDataUtil.buildStudentDetailDTO(student, dataMaps);
             result.add(dto);
         }
 
         return Result.success(result);
+    }
+
+    public Result getStInfo(String id) {
+        // 根据学生ID获取学生信息
+        Student student = studentMapper.selectByPrimaryKey(Integer.parseInt(id));
+        if (student == null) {
+            return Result.error("学生不存在");
+        }
+
+        // 获取所有相关数据
+        List<Teacher> teachers = teacherMapper.selectByExample(null);
+        List<Internship> internships = internshipMapper.selectByExample(null);
+        List<Assessment> assessments = assessmentMapper.selectByExample(null);
+        List<DUser> dUsers = dUserRepository.findAll();
+
+        // 使用工具类构建数据映射
+        StudentDetailDataUtil.DataMaps dataMaps = StudentDetailDataUtil.buildDataMaps(teachers, internships, assessments, dUsers);
+
+        // 使用工具类构建StudentDetailDTO
+        StudentDetailDTO dto = StudentDetailDataUtil.buildStudentDetailDTO(student, dataMaps);
+
+        return Result.success(dto);
     }
 
     @FunctionalInterface

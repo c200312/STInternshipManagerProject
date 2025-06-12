@@ -12,6 +12,7 @@
           <el-menu-item index="diary">填写周记</el-menu-item>
           <el-menu-item index="status">周记状态查看</el-menu-item>
           <el-menu-item index="evaluation">实习单位鉴定</el-menu-item>
+          <el-menu-item index="wordreport">Word报告管理</el-menu-item> <!-- 添加Word报告管理菜单项 -->
         </el-menu>
       </el-aside>
 
@@ -39,6 +40,8 @@
               :username="userName"
               @edit-diary="handleEditDiary"
           />
+          <!-- Word报告管理组件 -->
+          <WordReportManagement v-else-if="currentTab === 'wordreport'" :studentNumber="userName" :s_id="s_id" />
         </el-main>
       </el-container>
     </el-container>
@@ -52,7 +55,8 @@ import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
 import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
 import ScoreCommentForm from '../../components/student/ScoreCommentForm.vue'
 import UserHeader from '../../components/common/UserHeader.vue'
-import WeekStatus from '../../components/student/WeekStatus.vue'
+import WeekStatus from '../../components/student/WeekStatus.vue' // 导入周记状态查看组件
+import WordReportManagement from '../../components/student/WordReportManagement.vue' // 导入Word报告管理组件
 import axios from '@/utils/request'
 import { ElMessage } from 'element-plus'
 
@@ -117,7 +121,6 @@ onMounted(() => {
   border-right: none;
   background-color: #f8f9fa;
 }
-
 .el-menu-item.is-active {
   color: #409eff;
   background-color: #e7f3ff;

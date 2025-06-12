@@ -5,6 +5,7 @@ import com.bcu.admin.service.AdminService;
 import com.bcu.common.result.Result;
 
 import com.bcu.common.util.*;
+import com.bcu.common.util.StudentWordDataUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -40,99 +41,81 @@ public class AdminController {
 
     @GetMapping("/stinfo")
     public Result getStInfo(){
-        return adminService.getStInfo();
+        return adminService.getAllStInfo();
+    }
+    @GetMapping("/wordoutput/{id}")
+    public Result WordOutput(@PathVariable String id) throws IOException {
+        Result result = adminService.getStInfo(id);
+        
+        if (result.getData() == null) {
+            return Result.error("获取学生信息失败");
+        }
+        
+        StudentDetailDTO data = (StudentDetailDTO) result.getData();
+        
+        // 检查必要的对象是否为null
+        if (data.getStudent() == null) {
+            return Result.error("学生信息不存在");
+        }
+        
+        try {
+            // 使用工具类生成Word文档
+            String outputPath = StudentWordDataUtil.generateStudentWordDocument(data, "D:/templates/模板/模板.docx");
+            
+            if (outputPath == null) {
+                return Result.error("Word文档生成失败");
+            }
+            
+            // 返回成功状态，包含文件路径信息
+            return Result.success(outputPath, "Word文档生成成功");
+        } catch (Exception e) {
+            return Result.error("Word文档生成过程中发生错误: " + e.getMessage());
+        }
     }
 
     @PostMapping("/allwordoutput")
-    public ResponseEntity<byte[]> wordOutput() throws IOException {
-        Result result = adminService.getStInfo();
-        if (result.getData() instanceof List<?> dataList) {
-            for (Object obj : dataList) {
-                if (obj instanceof StudentDetailDTO data) {
-                    // 检查必要的对象是否为null
-                    if (data.getStudent() == null) {
-                        continue; // 跳过没有学生信息的记录
-                    }
-
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("sId", data.getStudent().getS_id());
-                    map.put("sName", data.getStudent().getStudent_name());
-                    map.put("sNumber", data.getStudent().getStudent_number());
-                    map.put("sGender", data.getStudent().getGender());
-                    map.put("sClass", data.getStudent().getStu_class());
-                    map.put("sMajor", data.getStudent().getMajor());
-                    map.put("sDepartment", data.getStudent().getDepartment());
-                    map.put("sPhone", data.getStudent().getPhone());
-                    map.put("sParentPhone", data.getStudent().getParent_phone());
-                    map.put("sEnrollmentYear", data.getStudent().getEnrollment_year());
-                    map.put("sCounselor", data.getStudent().getCounselor());
-                    map.put("sCounselorPhone", data.getStudent().getCounselor_phone());
-
-                    // 安全地处理学术导师信息
-                    if (data.getAcademicAdvisor() != null) {
-                        map.put("sAcademicAdvisorName", data.getAcademicAdvisor().getTeacher_name());
-                        map.put("sAcademicAdvisorPhone", data.getAcademicAdvisor().getPhone());
-                    } else {
-                        map.put("sAcademicAdvisorName", "");
-                        map.put("sAcademicAdvisorPhone", "");
-                    }
-
-                    // 安全地处理行业导师信息
-                    if (data.getIndustryAdvisor() != null) {
-                        map.put("sIndustryAdvisorName", data.getIndustryAdvisor().getTeacher_name());
-                        map.put("sIndustryAdvisorPhone", data.getIndustryAdvisor().getPhone());
-                    } else {
-                        map.put("sIndustryAdvisorName", "");
-                        map.put("sIndustryAdvisorPhone", "");
-                    }
-
-                    // 安全地处理实习信息
-                    if (data.getInternship() != null) {
-                        map.put("sInternshipCompanyName", data.getInternship().getCompany_name());
-                        map.put("sInternshipPracticeBaseName", data.getInternship().getPractice_base_name());
-                        map.put("sInternshipIsPracticeBase", data.getInternship().getIs_practice_base());
-                        map.put("sInternshipCreditCode", data.getInternship().getCredit_code());
-                        map.put("sInternshipPracticeRegion", data.getInternship().getPractice_region());
-                        map.put("sInternshipApprovalStatus", data.getInternship().getApproval_status());
-                        map.put("sInternshipStartDate", data.getInternship().getStart_date());
-                        map.put("sInternshipEndDate", data.getInternship().getEnd_date());
-                    } else {
-                        map.put("sInternshipCompanyName", "");
-                        map.put("sInternshipPracticeBaseName", "");
-                        map.put("sInternshipIsPracticeBase", "");
-                        map.put("sInternshipCreditCode", "");
-                        map.put("sInternshipPracticeRegion", "");
-                        map.put("sInternshipApprovalStatus", "");
-                        map.put("sInternshipStartDate", "");
-                        map.put("sInternshipEndDate", "");
-                    }
-
-                    // 创建班级文件夹路径
-                    String className = data.getStudent().getStu_class();
-                    String studentName = data.getStudent().getStudent_name();
-
-                    // 检查班级和姓名是否为空
-                    if (className == null || className.trim().isEmpty()) {
-                        className = "未分配班级";
-                    }
-                    if (studentName == null || studentName.trim().isEmpty()) {
-                        studentName = "未知学生";
-                    }
-
-                    String classDir = "D:/templates/" + className;
-
-                    // 创建班级文件夹
-                    java.io.File dir = new java.io.File(classDir);
-                    if (!dir.exists()) {
-                        dir.mkdirs();
-                    }
-
-                    // 生成文件路径：班级文件夹/班级+姓名.docx
-                    String outputPath = classDir + "/" + className + "+" + studentName + ".docx";
-                    WordUtil.generateWord(map, "D:/templates/模板.docx", outputPath);
+    public Result allWordOutput() throws IOException {
+        Result result = adminService.getAllStInfo();
+        
+        if (result.getData() == null) {
+            return Result.error("获取学生信息失败");
+        }
+        
+        List<StudentDetailDTO> studentList;
+        try {
+            studentList = (List<StudentDetailDTO>) result.getData();
+        } catch (ClassCastException e) {
+            return Result.error("学生信息数据格式错误");
+        }
+        
+        int successCount = 0;
+        int failCount = 0;
+        
+        for (StudentDetailDTO data : studentList) {
+            try {
+                // 检查必要的对象是否为null
+                if (data.getStudent() == null) {
+                    failCount++;
+                    continue;
                 }
+                
+                // 使用工具类生成Word文档
+                String outputPath = StudentWordDataUtil.generateStudentWordDocument(data, "D:/templates/模板/模板.docx");
+                
+                if (outputPath != null) {
+                    successCount++;
+                } else {
+                    failCount++;
+                }
+                
+            } catch (Exception e) {
+                failCount++;
+                // 可以记录日志，但继续处理下一个学生
+                System.err.println("生成学生 " + (data.getStudent() != null ? data.getStudent().getStudent_name() : "未知") + " 的Word文档时发生错误: " + e.getMessage());
             }
         }
-        return null;
+        
+        String message = String.format("批量生成完成，成功: %d 个，失败: %d 个", successCount, failCount);
+        return Result.success(message);
     }
 }
