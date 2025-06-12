@@ -11,6 +11,19 @@
             <el-menu-item index="diary" @click="handleMenuClick(studentView, 'diary')">周记管理</el-menu-item>
             <el-menu-item index="enterprise" @click="handleMenuClick(studentView, 'enterprise')">企业信息管理</el-menu-item>
           </el-sub-menu>
+          
+          <!-- 下载所有学生报告按钮 -->
+          <div class="download-button-container">
+            <el-button 
+              type="primary" 
+              :loading="downloading" 
+              @click="downloadAllReports"
+              class="download-all-btn"
+              :icon="Download"
+            >
+              下载所有学生报告
+            </el-button>
+          </div>
         </el-menu>
       </el-aside>
 
@@ -50,6 +63,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from '@/utils/request'
+import { ElMessage } from 'element-plus'
+import { Download } from '@element-plus/icons-vue'
 import UserHeader from '@/components/common/UserHeader.vue'
 import StudentDetailPanel from '@/components/teacher/StudentDetailPanel.vue'
 import StudentAssessmentPanel from '@/components/teacher/StudentAssessmentPanel.vue'
@@ -60,6 +75,7 @@ const teacherInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 const studentList = ref([])
 const selectedStudentView = ref(null)
 const currentView = ref('diary')
+const downloading = ref(false)
 
 const selectedStudentId = computed(() => {
   return selectedStudentView.value?.student.s_id.toString() || ''
@@ -78,6 +94,47 @@ const fetchStudents = async () => {
 const handleMenuClick = (studentView, view) => {
   selectedStudentView.value = studentView
   currentView.value = view
+}
+
+const downloadAllReports = async () => {
+  try {
+    downloading.value = true
+    
+    // 先通过教师用户名获取教师信息，获取t_id
+    const teacherResponse = await axios.get(`/teacher/${teacherInfo.username}`)
+    const teacherId = teacherResponse.data.data.t_id
+    
+    if (!teacherId) {
+      ElMessage.error('无法获取教师ID')
+      return
+    }
+    
+    const response = await axios.get(`/teacher/download-reports/${teacherId}`, {
+      responseType: 'blob'
+    })
+    
+    // 创建下载链接
+    const blob = new Blob([response.data], { type: 'application/zip' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `学生报告_${new Date().toLocaleDateString()}.zip`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    ElMessage.success('下载成功')
+  } catch (error) {
+    console.error('下载失败:', error)
+    if (error.response?.status === 404) {
+      ElMessage.error('未找到学生报告文件')
+    } else {
+      ElMessage.error('下载失败，请稍后重试')
+    }
+  } finally {
+    downloading.value = false
+  }
 }
 
 onMounted(fetchStudents)
@@ -110,5 +167,16 @@ onMounted(fetchStudents)
 :deep(.el-sub-menu .el-menu-item) {
   min-width: 0;
   padding-left: 40px !important;
+}
+
+.download-button-container {
+  padding: 20px 10px;
+  border-top: 1px solid #e6e6e6;
+  margin-top: auto;
+}
+
+.download-all-btn {
+  width: 100%;
+  font-size: 14px;
 }
 </style>
