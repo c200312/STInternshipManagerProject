@@ -17,18 +17,23 @@
 
       <el-container>
         <el-main>
-          <DiaryForm v-if="currentTab === 'diary'" :userName="userName" />
+          <DiaryForm
+              v-if="currentTab === 'diary' && loaded"
+              :userName="userName"
+              :initialWeek="editingWeek"
+              @submit="handleSubmit"
+          />
           <BasicInfoForm v-else-if="currentTab === 'info'" :s_id="s_id" />
           <InternshipInfoForm v-else-if="currentTab === 'internship'" :s_id="s_id" />
           <!-- 评分评语组件 -->
           <ScoreCommentForm
               v-else-if="currentTab === 'evaluation'"
-              :assessmentData="{ s_id: s_id }"
+              :s_id="s_id"
               :isReadOnly="false"
               @save-success="handleEvaluationSave"
           />
           <!-- 周记状态查看组件 -->
-          <WeekStatus v-else-if="currentTab === 'status'" :username="userName" />
+          <WeekStatus v-else-if="currentTab === 'status'" :username="userName" @edit-diary="handleEditDiary" />
         </el-main>
       </el-container>
     </el-container>
@@ -36,7 +41,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import DiaryForm from '../../components/student/DiaryForm.vue'
 import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
 import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
@@ -44,12 +49,14 @@ import ScoreCommentForm from '../../components/student/ScoreCommentForm.vue' // 
 import UserHeader from '../../components/common/UserHeader.vue'
 import WeekStatus from '../../components/student/WeekStatus.vue' // 导入周记状态查看组件
 import axios from '@/utils/request'
+import {ElMessage} from 'element-plus'
 
 // 用户信息
 const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 const userName = userInfo.username
 const userId = userInfo.user_id
 const currentTab = ref('diary') // 当前标签页，默认为基本信息
+const editingWeek = ref(null) // 要编辑的周数
 const s_id = ref()
 const loaded = ref(false) // 添加加载状态
 
@@ -71,6 +78,26 @@ const handleEvaluationSave = (data) => {
   // 可添加后续逻辑
 }
 
+// 处理编辑周记事件
+const handleEditDiary = (week) => {
+  // 设置要编辑的周数，总结周记统一设为17
+  if (week === 'achievement' || week === 'practice') {
+    editingWeek.value = 17
+  } else {
+    editingWeek.value = parseInt(week)
+  }
+  // 切换到周记编辑标签页
+  currentTab.value = 'diary'
+  console.log('编辑周记:', week, '-> 设置为:', editingWeek.value)
+}
+
+// 处理周记提交事件
+const handleSubmit = (content) => {
+  console.log('周记提交成功:', content)
+  // 清除编辑状态
+  editingWeek.value = null
+}
+
 onMounted(() => {
   loadS_id()
 })
@@ -85,6 +112,7 @@ onMounted(() => {
   border-right: none;
   background-color: #f8f9fa;
 }
+
 .el-menu-item.is-active {
   color: #409eff;
   background-color: #e7f3ff;
