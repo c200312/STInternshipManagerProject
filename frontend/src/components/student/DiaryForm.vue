@@ -365,7 +365,7 @@ const beforeSignatureUpload = (file) => {
 
 // 上传成功处理
 const handleSignatureSuccess = (response) => {
-  if (response.code === 200) {
+  if (response.code === "200") {
     signatureUrl.value = response.data.signatureUrl
     ElMessage.success('电子签名上传成功')
   } else {
