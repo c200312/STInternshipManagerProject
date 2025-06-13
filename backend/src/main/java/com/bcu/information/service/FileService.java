@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import jakarta.annotation.PostConstruct;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -32,36 +30,11 @@ public class FileService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    // 项目根目录（关键修改：获取项目根目录）
-    private final String projectBaseDir = new File("").getAbsolutePath();
-
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(
             "jpg", "jpeg", "png", "gif", "pdf", "doc", "docx", "xls", "xlsx"
     );
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-    @PostConstruct
-    public void init() {
-        try {
-            // 组合项目根目录和相对路径
-            String absoluteUploadDir = projectBaseDir + File.separator + uploadDir;
-            File directory = new File(absoluteUploadDir);
-
-            if (!directory.exists()) {
-                boolean created = directory.mkdirs();
-                if (created) {
-                    log.info("项目根目录文件上传目录已创建: {}", directory.getAbsolutePath());
-                } else {
-                    log.error("无法创建项目根目录文件上传目录: {}", directory.getAbsolutePath());
-                }
-            } else {
-                log.info("项目根目录文件上传目录已存在: {}", directory.getAbsolutePath());
-            }
-        } catch (Exception e) {
-            log.error("初始化项目根目录文件上传目录失败: {}", e.getMessage(), e);
-        }
-    }
 
     public String getUploadDir() {
         return uploadDir;
@@ -71,18 +44,16 @@ public class FileService {
         // 验证文件
         validateFile(file);
 
-        // 组合项目根目录、相对路径和学生ID
-        String absoluteUploadDir = projectBaseDir + File.separator + uploadDir;
-        String studentDir = absoluteUploadDir + File.separator + studentId;
+        // 创建学生目录
+        String studentDir = uploadDir + File.separator + studentId;
         File dir = new File(studentDir);
-
         if (!dir.exists()) {
             boolean created = dir.mkdirs();
             if (!created) {
-                log.error("无法创建学生目录: {}", dir.getAbsolutePath());
-                throw new IOException("无法创建学生目录: " + dir.getAbsolutePath());
+                log.error("无法创建目录: {}", studentDir);
+                throw new IOException("无法创建目录: " + studentDir);
             }
-            log.info("创建学生目录成功: {}", dir.getAbsolutePath());
+            log.info("创建目录成功: {}", studentDir);
         }
 
         // 使用原始文件名
@@ -104,13 +75,23 @@ public class FileService {
         // 保存文件
         File destFile = new File(dir, filename);
         try {
-            log.info("文件将保存至: {}", destFile.getAbsolutePath());
+            // 确保父目录存在
+            File parentDir = destFile.getParentFile();
+            if (!parentDir.exists()) {
+                boolean created = parentDir.mkdirs();
+                if (!created) {
+                    log.error("无法创建父目录: {}", parentDir.getAbsolutePath());
+                    throw new IOException("无法创建父目录: " + parentDir.getAbsolutePath());
+                }
+            }
+
+            // 使用 transferTo 方法保存文件
             file.transferTo(destFile);
             log.info("文件保存成功: {}", destFile.getAbsolutePath());
             return filename;
         } catch (IOException e) {
             log.error("文件保存失败: {}", e.getMessage(), e);
-            throw new IOException("文件保存失败: " + e.getMessage());
+            throw new IOException("文件保存失败: " + destFile.getAbsolutePath(), e);
         }
     }
 
