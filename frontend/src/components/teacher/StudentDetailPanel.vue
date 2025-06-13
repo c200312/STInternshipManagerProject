@@ -284,20 +284,23 @@ const reviewForm = ref({
 
 // 快速审核意见选项
 const quickComments = [
-  { value: 'good', label: '表现良好' },
+  { value: 'good', label: '表现良好，继续保持' },
+  { value: 'count', label: '字数不符合要求' },
   { value: 'ontime', label: '注意按时提交' },
-  { value: 'improve', label: '需要完善' },
+  { value: 'language', label: '未使用专业规范语言' },
   { value: 'custom', label: '自定义意见' }
 ]
 
 // 监听审核意见类型变化
 watch(() => reviewForm.value.reviewCommentType, (val) => {
-  if (val === 'good') {
-    reviewForm.value.reviewComment = '表现良好，继续保持。'
+  if (val === 'count') {
+    reviewForm.value.reviewComment = '字数不符合要求。'
   } else if (val === 'ontime') {
-    reviewForm.value.reviewComment = '请注意按时提交周记。'
-  } else if (val === 'improve') {
-    reviewForm.value.reviewComment = '周记内容需进一步完善。'
+    reviewForm.value.reviewComment = '注意按时提交周记。'
+  } else if (val === 'language') {
+    reviewForm.value.reviewComment = '周记未使用专业规范语言，缺乏工作具体内容。'
+  } else if (val === 'good') {
+    reviewForm.value.reviewComment = '表现良好，继续保持。'
   } else if (val === 'custom') {
     reviewForm.value.reviewComment = ''
   } else {
