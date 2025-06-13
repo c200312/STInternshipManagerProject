@@ -5,13 +5,13 @@
       <h4>电子签名</h4>
       <div class="signature-container">
         <el-upload
-            class="signature-uploader"
-            :action="`/api/student/signature/${userName}`"
-            :show-file-list="false"
-            :on-success="handleSignatureSuccess"
-            :on-error="handleSignatureError"
-            :before-upload="beforeSignatureUpload"
-            accept="image/*"
+          class="signature-uploader"
+          :action="`/api/student/signature/${userName}`"
+          :show-file-list="false"
+          :on-success="handleSignatureSuccess"
+          :on-error="handleSignatureError"
+          :before-upload="beforeSignatureUpload"
+          accept="image/*"
         >
           <img v-if="signatureUrl" :src="signatureUrl" class="signature-image" />
           <el-icon v-else class="signature-uploader-icon"><Plus /></el-icon>
@@ -167,18 +167,18 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button
-            type="primary"
-            @click="handleSubmit"
-            :disabled="!canEdit()"
+        <el-button 
+          type="primary" 
+          @click="handleSubmit"
+          :disabled="!canEdit()"
         >
           保存
         </el-button>
-        <el-button
-            type="success"
-            @click="submitForReview"
-            :disabled="!canSubmitForReview()"
-            style="margin-left: 10px;"
+        <el-button 
+          type="success" 
+          @click="submitForReview"
+          :disabled="!canSubmitForReview()"
+          style="margin-left: 10px;"
         >
           提交审核
         </el-button>
@@ -247,18 +247,19 @@ const saveDiary = async () => {
   try {
     if (selectedWeek.value !== 17) {
       await axios.patch(`/duser/${props.userName}`, {
-        diary: [{
-          week: selectedWeek.value,
+        diary: [{ 
+          week: selectedWeek.value, 
           content: content.value,
-          diaryDate: diaryDate.value
+          diaryDate: diaryDate.value,
+          submitTime: diaryDate.value // 同步提交日期为填写日期
         }]
       })
     } else {
       // 总结周，保存成果和实践内容
       await axios.patch(`/duser/${props.userName}`, {
         diary: [
-          { week: 'achievement', content: achievementContent.value },
-          { week: 'practice', content: practiceContent.value }
+          { week: 'achievement', content: achievementContent.value, diaryDate: diaryDate.value, submitTime: diaryDate.value },
+          { week: 'practice', content: practiceContent.value, diaryDate: diaryDate.value, submitTime: diaryDate.value }
         ]
       })
     }
@@ -364,7 +365,7 @@ const beforeSignatureUpload = (file) => {
 
 // 上传成功处理
 const handleSignatureSuccess = (response) => {
-  if (response.code === "200") {
+  if (response.code === 200) {
     signatureUrl.value = response.data.signatureUrl
     ElMessage.success('电子签名上传成功')
   } else {
