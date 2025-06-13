@@ -13,4 +13,6 @@ public class DDiary {
     private String reviewComment; // 审核意见
     private String reviewTime; // 审核时间
     private String reviewer; // 审核人
+    private String diaryDate; // 填写日期
+    private String submitTime; // 提交日期
 }
