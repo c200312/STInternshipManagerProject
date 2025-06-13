@@ -1,6 +1,6 @@
 package com.bcu.student.controller;
 
-import com.bcu.common.Result;
+import com.bcu.common.result.Result;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -101,7 +101,7 @@ public class SignatureController {
     }
 
     @DeleteMapping("/{username}")
-    public Result<Void> deleteSignature(@PathVariable String username) {
+    public Result deleteSignature(@PathVariable String username) {
         try {
             String userDir = signatureDir + File.separator + username;
             File dir = new File(userDir);
@@ -122,4 +122,4 @@ public class SignatureController {
             return Result.error("删除签名失败：" + e.getMessage());
         }
     }
-} 
+}
