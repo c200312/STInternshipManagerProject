@@ -63,72 +63,93 @@ public class DUserService {
 
     // 按id部分更新(按输入的信息进行覆盖，仅覆盖输入的部分)
     public Result patchUpdate(String id, DUser partial) {
-        Optional<DUser> optionalUser = repository.findById(id);
-        if (optionalUser.isEmpty()) {
-            return Result.error("学生不存在");
-        }
+        try {
+            // 数据验证
+            if (id == null || id.trim().isEmpty()) {
+                return Result.error("学生ID不能为空");
+            }
 
-        DUser user = optionalUser.get();
+            // 获取或创建用户
+            DUser user = repository.findById(id).orElseGet(() -> {
+                DUser newUser = new DUser();
+                newUser.setId(id);
+                newUser.setCompany(new ArrayList<>());
+                newUser.setDiary(new ArrayList<>());
+                newUser.setComment(new ArrayList<>());
+                return newUser;
+            });
 
-        user.setPracticeComment(partial.getPracticeComment());
-        user.setTeachingUnitComment(partial.getTeachingUnitComment());
-        user.setPracticeContent(partial.getPracticeContent());
+            // 更新评语相关字段
+            if (partial.getPracticeComment() != null) {
+                user.setPracticeComment(partial.getPracticeComment());
+            }
+            if (partial.getTeachingUnitComment() != null) {
+                user.setTeachingUnitComment(partial.getTeachingUnitComment());
+            }
+            if (partial.getPracticeContent() != null) {
+                user.setPracticeContent(partial.getPracticeContent());
+            }
 
-        if (partial.getCompany() != null) {
-            for (DCompany c : partial.getCompany()) {
-                boolean updated = false;
-                for (DCompany existing : user.getCompany()) {
-                    if (existing.getName().equals(c.getName())) {
-                        existing.setIntroduction(c.getIntroduction());
-                        updated = true;
-                        break;
+            // 更新公司信息
+            if (partial.getCompany() != null) {
+                for (DCompany c : partial.getCompany()) {
+                    boolean updated = false;
+                    for (DCompany existing : user.getCompany()) {
+                        if (existing.getName().equals(c.getName())) {
+                            existing.setIntroduction(c.getIntroduction());
+                            updated = true;
+                            break;
+                        }
+                    }
+                    if (!updated) {
+                        user.getCompany().add(c);
                     }
                 }
-                if (!updated) {
-                    user.getCompany().add(c);
-                }
             }
-        }
 
-        // 周记：按 week 唯一 → 替换内容或添加（检查审核状态）
-        if (partial.getDiary() != null) {
-            for (DDiary d : partial.getDiary()) {
-                // 检查是否存在已审核通过的周记
-                DDiary existingDiary = user.getDiary().stream()
-                        .filter(existing -> existing.getWeek().equals(d.getWeek()))
-                        .findFirst()
-                        .orElse(null);
-                
-                if (existingDiary != null && "APPROVED".equals(existingDiary.getStatus())) {
-                    // 已审核通过的周记不允许修改内容，只能修改审核相关字段
-                    if (d.getStatus() != null) existingDiary.setStatus(d.getStatus());
-                    if (d.getReviewComment() != null) existingDiary.setReviewComment(d.getReviewComment());
-                    if (d.getReviewTime() != null) existingDiary.setReviewTime(d.getReviewTime());
-                    if (d.getReviewer() != null) existingDiary.setReviewer(d.getReviewer());
-                } else {
-                    // 未审核通过的可以正常更新
-                    user.getDiary().removeIf(existing -> existing.getWeek().equals(d.getWeek()));
-                    // 如果状态为空，默认设置为草稿
-                    if (d.getStatus() == null) {
-                        d.setStatus("DRAFT");
+            // 更新周记
+            if (partial.getDiary() != null) {
+                for (DDiary d : partial.getDiary()) {
+                    DDiary existingDiary = user.getDiary().stream()
+                            .filter(existing -> existing.getWeek().equals(d.getWeek()))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (existingDiary != null && "APPROVED".equals(existingDiary.getStatus())) {
+                        if (d.getStatus() != null) existingDiary.setStatus(d.getStatus());
+                        if (d.getReviewComment() != null) existingDiary.setReviewComment(d.getReviewComment());
+                        if (d.getReviewTime() != null) existingDiary.setReviewTime(d.getReviewTime());
+                        if (d.getReviewer() != null) existingDiary.setReviewer(d.getReviewer());
+                    } else {
+                        user.getDiary().removeIf(existing -> existing.getWeek().equals(d.getWeek()));
+                        if (d.getStatus() == null) {
+                            d.setStatus("DRAFT");
+                        }
+                        user.getDiary().add(d);
                     }
-                    user.getDiary().add(d);
                 }
             }
-        }
 
-        // 评语：按 week + teacher 唯一 → 替换或添加
-        if (partial.getComment() != null) {
-            for (DComment c : partial.getComment()) {
-                user.getComment().removeIf(existing ->
-                        existing.getWeek().equals(c.getWeek()) &&
-                                existing.getTeachername().equals(c.getTeachername())
-                );
-                user.getComment().add(c);
+            // 更新评语
+            if (partial.getComment() != null) {
+                for (DComment c : partial.getComment()) {
+                    user.getComment().removeIf(existing ->
+                            existing.getWeek().equals(c.getWeek()) &&
+                                    existing.getTeachername().equals(c.getTeachername())
+                    );
+                    user.getComment().add(c);
+                }
             }
-        }
 
-        return Result.success(repository.save(user), "任意部分更新");
+            // 保存更新
+            DUser savedUser = repository.save(user);
+            return Result.success(savedUser, "更新成功");
+        } catch (Exception e) {
+            // 记录错误日志
+            System.err.println("更新用户信息失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("更新失败: " + e.getMessage());
+        }
     }
 
     public Result selectByTNumber(String tNumber) {
@@ -191,6 +212,7 @@ public class DUserService {
         }
 
         diary.setStatus("SUBMITTED");
+        diary.setSubmitTime(java.time.LocalDateTime.now().toString());
         repository.save(user);
         return Result.success(diary, "周记提交审核成功");
     }
