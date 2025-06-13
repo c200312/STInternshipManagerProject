@@ -23,69 +23,67 @@
       <el-button type="primary" style="margin-top: 20px;" @click="editMode = true">编辑</el-button>
     </template>
     <template v-else>
-      <div class="scroll-form-wrapper">
-        <el-form :model="enterpriseInfo" label-width="140px" style="max-width: 700px;">
-          <el-form-item label="实习单位名称">
-            <el-input v-model="enterpriseInfo.company_name" placeholder="请输入实习单位全称" />
-          </el-form-item>
-          <el-form-item label="是否校外实践基地">
-            <el-switch v-model="enterpriseInfo.is_practice_base" active-text="是" inactive-text="否" />
-          </el-form-item>
-          <el-form-item label="所属实践基地名称">
-            <el-input v-model="enterpriseInfo.practice_base_name" placeholder="请输入实践基地名称" />
-          </el-form-item>
-          <el-form-item label="统一社会信用代码">
-            <el-input v-model="enterpriseInfo.credit_code" placeholder="请输入18位统一社会信用代码" />
-          </el-form-item>
-          <el-form-item label="实习地区">
-            <el-input v-model="enterpriseInfo.practice_region" placeholder="例：北京市-朝阳区" />
-          </el-form-item>
-          <el-form-item label="实习时间范围">
-            <el-date-picker v-model="enterpriseInfo.start_date" type="date" placeholder="开始日期" style="width: 48%" />
-            <span class="date-separator">-</span>
-            <el-date-picker v-model="enterpriseInfo.end_date" type="date" placeholder="结束日期" style="width: 48%" />
-          </el-form-item>
-          <el-form-item label="实际实习天数">
-            <el-input v-model="enterpriseInfo.actual_days" type="number" placeholder="自动计算" min="0" />
-          </el-form-item>
-          <el-form-item label="实习岗位">
-            <el-input v-model="enterpriseInfo.position" placeholder="例：软件测试实习生" />
-          </el-form-item>
-          <el-form-item label="实习方式">
-            <el-select v-model="enterpriseInfo.internship_mode" placeholder="请选择实习方式">
-              <el-option label="集中实习" value="集中实习" />
-              <el-option label="分散实习" value="分散实习" />
-              <el-option label="跟岗实习" value="跟岗实习" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="实习类型">
-            <el-select v-model="enterpriseInfo.internship_type" placeholder="请选择实习类型">
-              <el-option label="专业实习" value="专业实习" />
-              <el-option label="毕业实习" value="毕业实习" />
-              <el-option label="认知实习" value="认知实习" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="企业指导人员姓名">
-            <el-input v-model="enterpriseInfo.company_advisor_name" placeholder="请输入指导人员姓名" />
-          </el-form-item>
-          <el-form-item label="企业指导人员职务">
-            <el-input v-model="enterpriseInfo.company_advisor_position" placeholder="例：技术主管" />
-          </el-form-item>
-          <el-form-item label="实习单位地址">
-            <el-input v-model="enterpriseInfo.address" type="textarea" rows="2" placeholder="请输入详细地址" />
-          </el-form-item>
-          <el-form-item label="单位联系人">
-            <el-input v-model="enterpriseInfo.contact_person" placeholder="请输入联系人姓名" />
-          </el-form-item>
-          <el-form-item label="联系电话">
-            <el-input v-model="enterpriseInfo.company_phone" placeholder="请输入联系电话" maxlength="13" show-word-limit />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="saveEnterpriseInfo" :loading="saving">保存</el-button>
-            <el-button @click="cancelEdit">取消</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
+      <el-form :model="enterpriseInfo" label-width="140px" style="max-width: 700px;">
+        <el-form-item label="实习单位名称">
+          <el-input v-model="enterpriseInfo.company_name" placeholder="请输入实习单位全称" />
+        </el-form-item>
+        <el-form-item label="是否校外实践基地">
+          <el-switch v-model="enterpriseInfo.is_practice_base" active-text="是" inactive-text="否" />
+        </el-form-item>
+        <el-form-item label="所属实践基地名称">
+          <el-input v-model="enterpriseInfo.practice_base_name" placeholder="请输入实践基地名称" />
+        </el-form-item>
+        <el-form-item label="统一社会信用代码">
+          <el-input v-model="enterpriseInfo.credit_code" placeholder="请输入18位统一社会信用代码" />
+        </el-form-item>
+        <el-form-item label="实习地区">
+          <el-input v-model="enterpriseInfo.practice_region" placeholder="例：北京市-朝阳区" />
+        </el-form-item>
+        <el-form-item label="实习时间范围">
+          <el-date-picker v-model="enterpriseInfo.start_date" type="date" placeholder="开始日期" style="width: 48%" />
+          <span class="date-separator">-</span>
+          <el-date-picker v-model="enterpriseInfo.end_date" type="date" placeholder="结束日期" style="width: 48%" />
+        </el-form-item>
+        <el-form-item label="实际实习天数">
+          <el-input v-model="enterpriseInfo.actual_days" type="number" placeholder="自动计算" min="0" />
+        </el-form-item>
+        <el-form-item label="实习岗位">
+          <el-input v-model="enterpriseInfo.position" placeholder="例：软件测试实习生" />
+        </el-form-item>
+        <el-form-item label="实习方式">
+          <el-select v-model="enterpriseInfo.internship_mode" placeholder="请选择实习方式">
+            <el-option label="集中实习" value="集中实习" />
+            <el-option label="分散实习" value="分散实习" />
+            <el-option label="跟岗实习" value="跟岗实习" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="实习类型">
+          <el-select v-model="enterpriseInfo.internship_type" placeholder="请选择实习类型">
+            <el-option label="专业实习" value="专业实习" />
+            <el-option label="毕业实习" value="毕业实习" />
+            <el-option label="认知实习" value="认知实习" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="企业指导人员姓名">
+          <el-input v-model="enterpriseInfo.company_advisor_name" placeholder="请输入指导人员姓名" />
+        </el-form-item>
+        <el-form-item label="企业指导人员职务">
+          <el-input v-model="enterpriseInfo.company_advisor_position" placeholder="例：技术主管" />
+        </el-form-item>
+        <el-form-item label="实习单位地址">
+          <el-input v-model="enterpriseInfo.address" type="textarea" rows="2" placeholder="请输入详细地址" />
+        </el-form-item>
+        <el-form-item label="单位联系人">
+          <el-input v-model="enterpriseInfo.contact_person" placeholder="请输入联系人姓名" />
+        </el-form-item>
+        <el-form-item label="联系电话">
+          <el-input v-model="enterpriseInfo.company_phone" placeholder="请输入联系电话" maxlength="13" show-word-limit />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="saveEnterpriseInfo" :loading="saving">保存</el-button>
+          <el-button @click="cancelEdit">取消</el-button>
+        </el-form-item>
+      </el-form>
     </template>
   </el-card>
 </template>
@@ -110,7 +108,7 @@ const enterpriseInfo = ref({})
 const hasInfo = computed(() => {
   // 只要有一个主要字段有值就算有信息
   return enterpriseInfo.value && Object.keys(enterpriseInfo.value).length > 0 && (
-    enterpriseInfo.value.company_name || enterpriseInfo.value.address || enterpriseInfo.value.contact_person || enterpriseInfo.value.company_phone
+      enterpriseInfo.value.company_name || enterpriseInfo.value.address || enterpriseInfo.value.contact_person || enterpriseInfo.value.company_phone
   )
 })
 
@@ -144,12 +142,12 @@ const loadEnterpriseInfo = () => {
 }
 
 watch(
-  () => props.student,
-  () => {
-    loadEnterpriseInfo()
-    editMode.value = false
-  },
-  { immediate: true }
+    () => props.student,
+    () => {
+      loadEnterpriseInfo()
+      editMode.value = false
+    },
+    { immediate: true }
 )
 
 const saveEnterpriseInfo = async () => {
@@ -207,11 +205,5 @@ const cancelEdit = () => {
   display: inline-block;
   width: 4%;
   text-align: center;
-}
-/* 编辑模式表单滚动条样式 */
-.scroll-form-wrapper {
-  max-height: 700px;
-  overflow: auto;
-  padding-right: 8px;
 }
 </style> 
