@@ -28,7 +28,7 @@
           </div>
 
           <!-- 常规周记 -->
-          <div v-for="week in 12" :key="week" class="diary-item">
+          <div v-for="week in 16" :key="week" class="diary-item">
             <div class="diary-item-content">
               <div class="content-cell week">
                 <span class="week-label">第 {{ week }} 周</span>
@@ -317,7 +317,9 @@ const weekPeriodOptions = [
   { label: '第7-8周', weeks: [7, 8] },
   { label: '第9-10周', weeks: [9, 10] },
   { label: '第11-12周', weeks: [11, 12] },
-  { label: '实习总结（第13周）', weeks: ["achievement","practice"] }
+  { label: '第13-14周', weeks: [13, 14] },
+  { label: '第15-16周', weeks: [15, 16] },
+  { label: '实习总结（第17周）', weeks: ["achievement","practice"] }
 ]
 
 // 计算周记状态列表
