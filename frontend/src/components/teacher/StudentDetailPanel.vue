@@ -1,11 +1,6 @@
 <template>
   <el-main class="right-main">
     <el-card v-if="studentView">
-      <h2>{{ studentView.student.student_name}} 的信息</h2>
-      <p>学号: {{ studentView.student.student_number }}</p>
-      <p>班级: {{ studentView.student.stu_class}}</p>
-      <p>实习单位: {{ studentView.duser?.company?.[0]?.name || '无' }}</p>
-      
       <!-- 周记状态总览列表 -->
       <el-card style="margin: 20px 0;">
         <template #header>

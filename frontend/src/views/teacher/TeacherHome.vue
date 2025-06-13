@@ -7,9 +7,9 @@
         <el-menu :default-active="selectedStudentId" class="menu-container">
           <el-sub-menu v-for="studentView in studentList" :key="studentView.student.s_id" :index="studentView.student.s_id.toString()">
             <template #title>{{ studentView.student.student_name }}</template>
-            <el-menu-item index="assessment" @click="handleMenuClick(studentView, 'assessment')">评分管理</el-menu-item>
-            <el-menu-item index="diary" @click="handleMenuClick(studentView, 'diary')">周记管理</el-menu-item>
-            <el-menu-item index="enterprise" @click="handleMenuClick(studentView, 'enterprise')">企业信息管理</el-menu-item>
+            <el-menu-item :index="`${studentView.student.s_id}-assessment`" @click="handleMenuClick(studentView, 'assessment')">评分管理</el-menu-item>
+            <el-menu-item :index="`${studentView.student.s_id}-diary`" @click="handleMenuClick(studentView, 'diary')">周记管理</el-menu-item>
+            <el-menu-item :index="`${studentView.student.s_id}-enterprise`" @click="handleMenuClick(studentView, 'enterprise')">企业信息管理</el-menu-item>
           </el-sub-menu>
           
           <!-- 下载所有学生报告按钮 -->
@@ -35,7 +35,7 @@
             <el-descriptions-item label="姓名">{{ selectedStudentView.student.student_name }}</el-descriptions-item>
             <el-descriptions-item label="学号">{{ selectedStudentView.student.student_number }}</el-descriptions-item>
             <el-descriptions-item label="班级">{{ selectedStudentView.student.stu_class }}</el-descriptions-item>
-            <el-descriptions-item label="实习单位">{{ selectedStudentView.duser?.company?.[0]?.name || '无' }}</el-descriptions-item>
+            <el-descriptions-item label="实习单位">{{ enterpriseInfo.company_name || '无' }}</el-descriptions-item>
           </el-descriptions>
         </el-card>
 
@@ -76,9 +76,11 @@ const studentList = ref([])
 const selectedStudentView = ref(null)
 const currentView = ref('diary')
 const downloading = ref(false)
+const enterpriseInfo = ref({})
 
 const selectedStudentId = computed(() => {
-  return selectedStudentView.value?.student.s_id.toString() || ''
+  if (!selectedStudentView.value) return ''
+  return `${selectedStudentView.value.student.s_id}-${currentView.value}`
 })
 
 const fetchStudents = async () => {
@@ -88,12 +90,27 @@ const fetchStudents = async () => {
   // 默认选中第一个学生
   if (studentList.value.length > 0) {
     selectedStudentView.value = studentList.value[0]
+    // 获取企业信息
+    await fetchEnterpriseInfo(selectedStudentView.value.student.s_id)
   }
 }
 
-const handleMenuClick = (studentView, view) => {
+const fetchEnterpriseInfo = async (studentId) => {
+  try {
+    const res = await axios.get(`/internship/${studentId}`)
+    if (res.data?.data?.[0]) {
+      enterpriseInfo.value = res.data.data[0]
+    }
+  } catch (error) {
+    console.error('获取企业信息失败:', error)
+  }
+}
+
+const handleMenuClick = async (studentView, view) => {
   selectedStudentView.value = studentView
   currentView.value = view
+  // 获取企业信息
+  await fetchEnterpriseInfo(studentView.student.s_id)
 }
 
 const downloadAllReports = async () => {
