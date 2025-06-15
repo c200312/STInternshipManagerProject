@@ -40,6 +40,9 @@ public class StudentWordDataUtil {
         if (data.getAcademicAdvisor() != null) {
             map.put("sAcademicAdvisorName", data.getAcademicAdvisor().getTeacher_name());
             map.put("sAcademicAdvisorPhone", data.getAcademicAdvisor().getPhone());
+            map.put("sAcademicAdvisorGender", data.getAcademicAdvisor().getGender());
+            map.put("sAcademicAdvisorAge", data.getAcademicAdvisor().getAge());
+
         } else {
             map.put("sAcademicAdvisorName", "");
             map.put("sAcademicAdvisorPhone", "");

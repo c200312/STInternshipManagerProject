@@ -416,12 +416,11 @@ const handleSave = async () => {
       internshipData.value.approval_status = 0;
     }
 
-    const isUpdate = !!internshipData.value.internship_id;
-    const response = isUpdate 
-      ? await axios.put('/internship', internshipData.value)
-      : await axios.post('/internship', internshipData.value);
+    // 始终使用PUT方法，后端会验证并新建数据行
+    const response = await axios.put('/internship', internshipData.value);
 
-    if (!isUpdate) {
+    // 如果是新建的数据，更新internship_id
+    if (!internshipData.value.internship_id && response.data.data?.internship_id) {
       internshipData.value.internship_id = response.data.data.internship_id;
     }
 

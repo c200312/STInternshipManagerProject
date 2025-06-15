@@ -51,7 +51,7 @@ public class InternshipService {
 
         // 否则更新
         int updateResult = internshipMapper.updateByPrimaryKeySelective(internship);
-        return updateResult > 0 ? Result.success("更新成功") : Result.error("更新失败");
+        return updateResult > 0 ? Result.success(internship,"更新成功") : Result.error("更新失败");
     }
 
     // 查询所有实习信息
