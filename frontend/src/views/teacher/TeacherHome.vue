@@ -1,35 +1,43 @@
 <template>
   <div>
-    <UserHeader :username="teacherInfo.username" />
+    <UserHeader :username="teacherInfo.username"/>
 
     <el-container class="main-container">
       <el-aside width="200px">
         <el-menu :default-active="currentView" class="menu-container">
           <el-menu-item index="assessment" @click="handleViewChange('assessment')">
-            <el-icon><Star /></el-icon>
+            <el-icon>
+              <Star/>
+            </el-icon>
             <span>评分管理</span>
           </el-menu-item>
           <el-menu-item index="diary" @click="handleViewChange('diary')">
-            <el-icon><Document /></el-icon>
+            <el-icon>
+              <Document/>
+            </el-icon>
             <span>周记管理</span>
           </el-menu-item>
           <el-menu-item index="enterprise" @click="handleViewChange('enterprise')">
-            <el-icon><OfficeBuilding /></el-icon>
+            <el-icon>
+              <OfficeBuilding/>
+            </el-icon>
             <span>企业信息管理</span>
           </el-menu-item>
           <el-menu-item index="report" @click="handleViewChange('report')">
-            <el-icon><Document /></el-icon>
+            <el-icon>
+              <Document/>
+            </el-icon>
             <span>下载报告</span>
           </el-menu-item>
-          
+
           <!-- 下载所有学生报告按钮 -->
           <div class="download-button-container">
-            <el-button 
-              type="primary" 
-              :loading="downloading" 
-              @click="downloadAllReports"
-              class="download-all-btn"
-              :icon="Download"
+            <el-button
+                type="primary"
+                :loading="downloading"
+                @click="downloadAllReports"
+                class="download-all-btn"
+                :icon="Download"
             >
               下载所有学生报告
             </el-button>
@@ -37,15 +45,16 @@
 
           <!-- 电子签名按钮 -->
           <div class="signature-button-container">
-            <el-button 
-              type="primary" 
-              @click="openSignatureDialog"
-              class="signature-btn"
-              :icon="Edit"
+            <el-button
+                type="success"
+                @click="openSignatureDialog"
+                class="signature-btn"
+                :icon="Edit"
             >
-              电子签名
+              电子签名管理
             </el-button>
           </div>
+
         </el-menu>
       </el-aside>
 
@@ -55,15 +64,15 @@
           <div class="student-list-header">
             <h3>学生列表</h3>
           </div>
-          <el-menu 
-            :default-active="selectedStudentId"
-            class="student-menu"
+          <el-menu
+              :default-active="selectedStudentId"
+              class="student-menu"
           >
             <el-menu-item
-              v-for="studentView in studentList"
-              :key="studentView.student.s_id"
-              :index="studentView.student.s_id.toString()"
-              @click="handleStudentSelect(studentView)"
+                v-for="studentView in studentList"
+                :key="studentView.student.s_id"
+                :index="studentView.student.s_id.toString()"
+                @click="handleStudentSelect(studentView)"
             >
               {{ studentView.student.student_name }}
             </el-menu-item>
@@ -85,18 +94,18 @@
 
           <!-- 功能面板区域 -->
           <div class="panel-container">
-            <StudentDetailPanel 
-              v-if="currentView === 'diary' && selectedStudentView"
-              :studentView="selectedStudentView" 
+            <StudentDetailPanel
+                v-if="currentView === 'diary' && selectedStudentView"
+                :studentView="selectedStudentView"
             />
-            <StudentAssessmentPanel 
-              v-else-if="currentView === 'assessment' && selectedStudentView"
-              :students="studentList"
-              :selectedStudent="selectedStudentView"
+            <StudentAssessmentPanel
+                v-else-if="currentView === 'assessment' && selectedStudentView"
+                :students="studentList"
+                :selectedStudent="selectedStudentView"
             />
             <EnterpriseInfoPanel
-              v-else-if="currentView === 'enterprise' && selectedStudentView"
-              :student="selectedStudentView?.student"
+                v-else-if="currentView === 'enterprise' && selectedStudentView"
+                :student="selectedStudentView?.student"
             />
             <div v-else-if="currentView === 'report' && selectedStudentView" class="report-panel">
               <el-card>
@@ -105,31 +114,31 @@
                     <span>Word报告管理</span>
                   </div>
                 </template>
-                
+
                 <div class="report-content">
                   <!-- 文档状态检查 -->
                   <el-row :gutter="20" class="status-section">
                     <el-col :span="24">
                       <el-alert
-                        v-if="documentStatus === 'exists'"
-                        title="文档状态：存在Word报告文档 可下载"
-                        type="success"
-                        :closable="false"
-                        show-icon>
+                          v-if="documentStatus === 'exists'"
+                          title="文档状态：存在Word报告文档 可下载"
+                          type="success"
+                          :closable="false"
+                          show-icon>
                       </el-alert>
                       <el-alert
-                        v-else-if="documentStatus === 'not-found'"
-                        title="文档状态：不存在Word报告文档"
-                        type="warning"
-                        :closable="false"
-                        show-icon>
+                          v-else-if="documentStatus === 'not-found'"
+                          title="文档状态：不存在Word报告文档"
+                          type="warning"
+                          :closable="false"
+                          show-icon>
                       </el-alert>
                       <el-alert
-                        v-else-if="documentStatus === 'error'"
-                        :title="`文档状态：检查失败 - ${errorMessage}`"
-                        type="error"
-                        :closable="false"
-                        show-icon>
+                          v-else-if="documentStatus === 'error'"
+                          :title="`文档状态：检查失败 - ${errorMessage}`"
+                          type="error"
+                          :closable="false"
+                          show-icon>
                       </el-alert>
                     </el-col>
                   </el-row>
@@ -137,12 +146,12 @@
                   <!-- 操作按钮区域 -->
                   <el-row :gutter="20" class="action-section">
                     <el-col :span="24">
-                      <el-button 
-                        type="success" 
-                        @click="downloadStudentReport" 
-                        :disabled="documentStatus !== 'exists'"
-                        :loading="downloading"
-                        :icon="Download">
+                      <el-button
+                          type="success"
+                          @click="downloadStudentReport"
+                          :disabled="documentStatus !== 'exists'"
+                          :loading="downloading"
+                          :icon="Download">
                         下载Word报告
                       </el-button>
                     </el-col>
@@ -160,68 +169,63 @@
 
     <!-- 电子签名对话框 -->
     <el-dialog
-      v-model="signatureDialogVisible"
-      title="电子签名"
-      width="500px"
-      :close-on-click-modal="false"
+        v-model="signatureDialogVisible"
+        title="电子签名管理"
+        width="600px"
+        :close-on-click-modal="false"
     >
       <div class="signature-container">
-        <!-- 显示当前签名 -->
-        <div v-if="hasSignature" class="current-signature">
+        <!-- 当前签名显示 -->
+        <div v-if="currentSignatureUrl" class="current-signature">
           <h4>当前签名</h4>
-          <img :src="currentSignature" alt="当前签名" class="signature-image" />
+          <img :src="currentSignatureUrl" alt="当前签名" class="signature-image"/>
         </div>
 
-        <!-- 上传区域 -->
+        <!-- 上传新签名 -->
         <div class="upload-area">
+          <h4>{{ currentSignatureUrl ? '更新签名' : '上传签名' }}</h4>
           <el-upload
-            class="signature-uploader"
-            :action="`/api/teacher/signature/${teacherInfo.username}`"
-            :show-file-list="false"
-            :on-success="handleUploadSuccess"
-            :on-error="handleUploadError"
-            :before-upload="beforeUpload"
-            :data="{ t_id: teacherInfo.username }"
-            accept="image/*"
+              class="signature-uploader"
+              :action="uploadUrl"
+              :headers="uploadHeaders"
+              :before-upload="beforeSignatureUpload"
+              :on-success="handleSignatureSuccess"
+              :on-error="handleSignatureError"
+              :show-file-list="false"
+              accept="image/*"
+              drag
           >
-            <el-button type="primary" :icon="Upload">上传签名图片</el-button>
-            <template #tip>
-              <div class="el-upload__tip">
-                请上传PNG或JPG格式的签名图片，建议使用透明背景
-              </div>
-            </template>
+            <el-icon class="el-icon--upload">
+              <Upload/>
+            </el-icon>
+            <div class="el-upload__text">将签名图片拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip">只能上传jpg/png文件，且不超过2MB</div>
           </el-upload>
         </div>
 
         <!-- 操作按钮 -->
         <div class="signature-actions">
-          <el-button 
-            type="success" 
-            @click="downloadSignature" 
-            :disabled="!hasSignature"
-            :icon="Download"
-          >
-            下载签名
-          </el-button>
-          <el-button 
-            type="danger" 
-            @click="deleteSignature" 
-            :disabled="!hasSignature"
-            :icon="Delete"
+          <el-button @click="signatureDialogVisible = false">取消</el-button>
+          <el-button
+              v-if="currentSignatureUrl"
+              type="danger"
+              @click="deleteSignature"
+              :loading="deleting"
           >
             删除签名
           </el-button>
         </div>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue'
+import {ref, onMounted, computed} from 'vue'
 import axios from '@/utils/request'
-import { ElMessage } from 'element-plus'
-import { Download, Star, Document, OfficeBuilding, Edit, Upload, Delete } from '@element-plus/icons-vue'
+import {ElMessage} from 'element-plus'
+import {Download, Star, Document, OfficeBuilding, Edit, Upload} from '@element-plus/icons-vue'
 import UserHeader from '@/components/common/UserHeader.vue'
 import StudentDetailPanel from '@/components/teacher/StudentDetailPanel.vue'
 import StudentAssessmentPanel from '@/components/teacher/StudentAssessmentPanel.vue'
@@ -236,6 +240,15 @@ const downloading = ref(false)
 const enterpriseInfo = ref({})
 const documentStatus = ref('')
 const errorMessage = ref('')
+
+// 电子签名相关
+const signatureDialogVisible = ref(false)
+const currentSignatureUrl = ref('')
+const deleting = ref(false)
+const uploadUrl = `/api/teacher/signature/${teacherInfo.username}`
+const uploadHeaders = {
+  'Authorization': localStorage.getItem('token') || ''
+}
 
 const selectedStudentId = computed(() => {
   return selectedStudentView.value?.student?.s_id?.toString() || ''
@@ -279,20 +292,20 @@ const handleStudentSelect = async (studentView) => {
 const downloadAllReports = async () => {
   try {
     downloading.value = true
-    
+
     const teacherResponse = await axios.get(`/teacher/${teacherInfo.username}`)
     const teacherId = teacherResponse.data.data.t_id
-    
+
     if (!teacherId) {
       ElMessage.error('无法获取教师ID')
       return
     }
-    
+
     const response = await axios.get(`/teacher/download-reports/${teacherId}`, {
       responseType: 'blob'
     })
-    
-    const blob = new Blob([response.data], { type: 'application/zip' })
+
+    const blob = new Blob([response.data], {type: 'application/zip'})
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -301,7 +314,7 @@ const downloadAllReports = async () => {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    
+
     ElMessage.success('下载成功')
   } catch (error) {
     console.error('下载失败:', error)
@@ -340,19 +353,19 @@ const downloadStudentReport = async () => {
     ElMessage.warning('请先检查文档状态')
     return
   }
-  
+
   downloading.value = true
   try {
     const response = await axios.get(`/student/download/${selectedStudentView.value.student.student_number}`, {
       responseType: 'blob',
       timeout: 30000
     })
-    
+
     const blob = new Blob([response.data])
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    
+
     const contentDisposition = response.headers['content-disposition']
     let filename = `${selectedStudentView.value.student.student_number}_实习报告.docx`
     if (contentDisposition) {
@@ -361,13 +374,13 @@ const downloadStudentReport = async () => {
         filename = filenameMatch[1]
       }
     }
-    
+
     link.download = filename
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    
+
     ElMessage.success('文档下载成功')
   } catch (error) {
     console.error('下载错误详情:', error)
@@ -382,40 +395,29 @@ const downloadStudentReport = async () => {
   }
 }
 
-// 电子签名相关
-const signatureDialogVisible = ref(false)
-const currentSignature = ref('')
-const hasSignature = ref(false)
-const signatureUrl = ref('')
-
-// 打开签名对话框
+// 电子签名相关方法
 const openSignatureDialog = async () => {
   signatureDialogVisible.value = true
-  await checkSignature()
+  await loadCurrentSignature()
 }
 
-// 检查签名
-const checkSignature = async () => {
+const loadCurrentSignature = async () => {
   try {
     const response = await axios.get(`/teacher/signature/${teacherInfo.username}`)
-    if (response.data.code === 200) {
-      if (response.data.data && response.data.data.signatureUrl) {
-        hasSignature.value = true
-        signatureUrl.value = response.data.data.signatureUrl
-        currentSignature.value = response.data.data.signatureUrl
-      } else {
-        hasSignature.value = false
-        signatureUrl.value = ''
-        currentSignature.value = ''
-      }
+    if (response.data.code === '200' && response.data.data?.signatureUrl) {
+      // 添加时间戳参数避免浏览器缓存
+      const timestamp = new Date().getTime()
+      currentSignatureUrl.value = `${response.data.data.signatureUrl}?t=${timestamp}`
+    } else {
+      currentSignatureUrl.value = ''
     }
   } catch (error) {
-    console.error('检查签名失败:', error)
+    console.error('获取签名失败:', error)
+    currentSignatureUrl.value = ''
   }
 }
 
-// 上传前检查
-const beforeUpload = (file) => {
+const beforeSignatureUpload = (file) => {
   const isImage = file.type.startsWith('image/')
   const isLt2M = file.size / 1024 / 1024 < 2
 
@@ -424,77 +426,45 @@ const beforeUpload = (file) => {
     return false
   }
   if (!isLt2M) {
-    ElMessage.error('图片大小不能超过 2MB!')
+    ElMessage.error('上传图片大小不能超过 2MB!')
     return false
   }
   return true
 }
 
-// 上传成功处理
-const handleUploadSuccess = (response) => {
+const handleSignatureSuccess = async (response) => {
   if (response.code === '200') {
     ElMessage.success('签名上传成功')
-    currentSignature.value = response.data
-    hasSignature.value = true
+    // 使用上传响应中的signatureUrl 更新currentSignatureUrl
+    if (response.data?.signatureUrl) {
+      const timestamp = new Date().getTime()
+      currentSignatureUrl.value = `${response.data.signatureUrl}?t=${timestamp}`
+    }
   } else {
     ElMessage.error(response.message || '上传失败')
   }
 }
 
-// 上传失败处理
-const handleUploadError = (error) => {
-  console.error('上传失败:', error)
-  ElMessage.error('签名上传失败')
+const handleSignatureError = (error) => {
+  console.error('上传错误:', error)
+  ElMessage.error('上传失败，请重试')
 }
 
-// 上传签名
-const uploadSignature = async (file) => {
-  try {
-    const formData = new FormData()
-    formData.append('file', file)
-    const response = await axios.post(`/teacher/signature/${teacherInfo.username}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-    if (response.data.code === 200) {
-      ElMessage.success('签名上传成功')
-      checkSignature()
-    } else {
-      ElMessage.error(response.data.message || '上传失败')
-    }
-  } catch (error) {
-    console.error('上传签名失败:', error)
-    ElMessage.error('上传失败')
-  }
-}
-
-// 下载签名
-const downloadSignature = () => {
-  if (signatureUrl.value) {
-    const link = document.createElement('a')
-    link.href = signatureUrl.value
-    link.download = `signature_${teacherInfo.username}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-}
-
-// 删除签名
 const deleteSignature = async () => {
+  deleting.value = true
   try {
     const response = await axios.delete(`/teacher/signature/${teacherInfo.username}`)
-    if (response.data.code === 200) {
+    if (response.data.code === '200') {
       ElMessage.success('签名删除成功')
-      hasSignature.value = false
-      signatureUrl.value = ''
+      currentSignatureUrl.value = ''
     } else {
       ElMessage.error(response.data.message || '删除失败')
     }
   } catch (error) {
     console.error('删除签名失败:', error)
-    ElMessage.error('删除失败')
+    ElMessage.error('删除失败，请重试')
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -545,10 +515,6 @@ onMounted(async () => {
 
 .panel-container {
   margin-top: 20px;
-}
-
-:deep(.el-menu) {
-  border-right: none;
 }
 
 .download-button-container {
