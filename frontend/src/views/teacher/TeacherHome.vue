@@ -133,13 +133,6 @@
                           :closable="false"
                           show-icon>
                       </el-alert>
-                      <el-alert
-                          v-else-if="documentStatus === 'error'"
-                          :title="`文档状态：检查失败 - ${errorMessage}`"
-                          type="error"
-                          :closable="false"
-                          show-icon>
-                      </el-alert>
                     </el-col>
                   </el-row>
 
@@ -205,7 +198,6 @@
 
         <!-- 操作按钮 -->
         <div class="signature-actions">
-          <el-button @click="signatureDialogVisible = false">取消</el-button>
           <el-button
               v-if="currentSignatureUrl"
               type="danger"
@@ -241,7 +233,7 @@ const enterpriseInfo = ref({})
 const documentStatus = ref('')
 const errorMessage = ref('')
 
-// 电子签名相关
+// 电子签名相关参数
 const signatureDialogVisible = ref(false)
 const currentSignatureUrl = ref('')
 const deleting = ref(false)
@@ -400,7 +392,7 @@ const openSignatureDialog = async () => {
   signatureDialogVisible.value = true
   await loadCurrentSignature()
 }
-
+// 加载当前签名
 const loadCurrentSignature = async () => {
   try {
     const response = await axios.get(`/teacher/signature/${teacherInfo.username}`)
@@ -416,7 +408,7 @@ const loadCurrentSignature = async () => {
     currentSignatureUrl.value = ''
   }
 }
-
+// 签名上传前检查
 const beforeSignatureUpload = (file) => {
   const isImage = file.type.startsWith('image/')
   const isLt2M = file.size / 1024 / 1024 < 2
@@ -431,7 +423,7 @@ const beforeSignatureUpload = (file) => {
   }
   return true
 }
-
+// 签名上传成功
 const handleSignatureSuccess = async (response) => {
   if (response.code === '200') {
     ElMessage.success('签名上传成功')
@@ -444,12 +436,12 @@ const handleSignatureSuccess = async (response) => {
     ElMessage.error(response.message || '上传失败')
   }
 }
-
+// 签名上传错误
 const handleSignatureError = (error) => {
   console.error('上传错误:', error)
   ElMessage.error('上传失败，请重试')
 }
-
+// 删除签名
 const deleteSignature = async () => {
   deleting.value = true
   try {
@@ -467,7 +459,7 @@ const deleteSignature = async () => {
     deleting.value = false
   }
 }
-
+// 页面加载时获取学生列表 并选择默认显示学生
 onMounted(async () => {
   await fetchStudents()
   // 如果有学生，选择第一个学生

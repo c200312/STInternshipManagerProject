@@ -28,14 +28,18 @@ public class SignatureController {
             String userDir = signatureDir + File.separator + username;
             File dir = new File(userDir);
             if (!dir.exists()) {
-                dir.mkdirs();
+                if (!dir.mkdirs()) {
+                    return Result.error("Failed to create signature directory");
+                }
             }
 
             // 删除旧签名（如果存在）
             File[] oldFiles = dir.listFiles();
             if (oldFiles != null) {
                 for (File oldFile : oldFiles) {
-                    oldFile.delete();
+                    if (!oldFile.delete()) {
+                        System.err.println("Failed to delete old signature file: " + oldFile.getPath());
+                    }
                 }
             }
 
@@ -112,10 +116,14 @@ public class SignatureController {
             File[] files = dir.listFiles();
             if (files != null) {
                 for (File file : files) {
-                    file.delete();
+                    if (!file.delete()) {
+                        System.err.println("Failed to delete signature file: " + file.getPath());
+                    }
                 }
             }
-            dir.delete();
+            if (!dir.delete()) {
+                System.err.println("Failed to delete signature directory: " + dir.getPath());
+            }
 
             return Result.success(null);
         } catch (Exception e) {

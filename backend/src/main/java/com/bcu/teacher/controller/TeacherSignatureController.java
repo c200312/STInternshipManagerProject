@@ -31,7 +31,9 @@ public class TeacherSignatureController {
         File[] files = dir.listFiles();
         if (files != null) {
             for (File file : files) {
-                file.delete();
+                if (!file.delete()) {
+                    System.err.println("Failed to delete signature file: " + file.getPath());
+                }
             }
         }
     }
@@ -40,7 +42,9 @@ public class TeacherSignatureController {
     public Result uploadSignature(@PathVariable String username, @RequestParam("file") MultipartFile file) {
         try {
             File dir = getSignatureDir(username);
-            dir.mkdirs();
+            if (!dir.exists() && !dir.mkdirs()) {
+                return Result.error("Failed to create signature directory");
+            }
             clearDirectory(dir);
             
             Files.write(Paths.get(dir.getPath(), "signature.png"), file.getBytes());
@@ -92,7 +96,9 @@ public class TeacherSignatureController {
             File dir = getSignatureDir(username);
             if (dir.exists()) {
                 clearDirectory(dir);
-                dir.delete();
+                if (!dir.delete()) {
+                    System.err.println("Failed to delete signature directory: " + dir.getPath());
+                }
             }
             return Result.success(null);
         } catch (Exception e) {

@@ -35,26 +35,29 @@ public class StudentWordDataUtil {
         map.put("sEnrollmentYear", data.getStudent().getEnrollment_year());
         map.put("sCounselor", data.getStudent().getCounselor());
         map.put("sCounselorPhone", data.getStudent().getCounselor_phone());
-        
+
+
         // 安全地处理学术导师信息
         if (data.getAcademicAdvisor() != null) {
             map.put("sAcademicAdvisorName", data.getAcademicAdvisor().getTeacher_name());
             map.put("sAcademicAdvisorPhone", data.getAcademicAdvisor().getPhone());
             map.put("sAcademicAdvisorGender", data.getAcademicAdvisor().getGender());
             map.put("sAcademicAdvisorAge", data.getAcademicAdvisor().getAge());
+            map.put("sAcademicAdvisorEducation", data.getAcademicAdvisor().getEducation());
+            map.put("sAcademicAdvisorPosition",data.getAcademicAdvisor().getPosition());
+            map.put("sAcademicAdvisorEmail", data.getAcademicAdvisor().getEmail());
 
-        } else {
-            map.put("sAcademicAdvisorName", "");
-            map.put("sAcademicAdvisorPhone", "");
         }
         
         // 安全地处理行业导师信息
         if (data.getIndustryAdvisor() != null) {
             map.put("sIndustryAdvisorName", data.getIndustryAdvisor().getTeacher_name());
             map.put("sIndustryAdvisorPhone", data.getIndustryAdvisor().getPhone());
-        } else {
-            map.put("sIndustryAdvisorName", "");
-            map.put("sIndustryAdvisorPhone", "");
+            map.put("sIndustryAdvisorGender", data.getIndustryAdvisor().getGender());
+            map.put("sIndustryAdvisorAge", data.getIndustryAdvisor().getAge());
+            map.put("sIndustryAdvisorEducation", data.getIndustryAdvisor().getEducation());
+            map.put("sIndustryAdvisorPosition",data.getIndustryAdvisor().getPosition());
+            map.put("sIndustryAdvisorEmail", data.getIndustryAdvisor().getEmail());
         }
         
         // 安全地处理实习信息
@@ -67,15 +70,89 @@ public class StudentWordDataUtil {
             map.put("sInternshipApprovalStatus", data.getInternship().getApproval_status());
             map.put("sInternshipStartDate", data.getInternship().getStart_date());
             map.put("sInternshipEndDate", data.getInternship().getEnd_date());
-        } else {
-            map.put("sInternshipCompanyName", "");
-            map.put("sInternshipPracticeBaseName", "");
-            map.put("sInternshipIsPracticeBase", "");
-            map.put("sInternshipCreditCode", "");
-            map.put("sInternshipPracticeRegion", "");
-            map.put("sInternshipApprovalStatus", "");
-            map.put("sInternshipStartDate", "");
-            map.put("sInternshipEndDate", "");
+        }
+
+        // 安全地处理评价信息
+        if (data.getAssessment() != null) {
+            map.put("sAssessmentAttendanceScore", data.getAssessment().getAttendance_score());
+            map.put("sAssessmentCompanyScore", data.getAssessment().getCompany_score());
+            map.put("sAssessmentPerformanceScore", data.getAssessment().getPerformance_score());
+            map.put("sAssessmentPracticeResultScore", data.getAssessment().getPractice_result_score());
+            map.put("sAssessmentSchoolScore", data.getAssessment().getSchool_score());
+            map.put("sAssessmentSummaryScore", data.getAssessment().getSummary_score());
+            map.put("sAssessmentTotalScore", data.getAssessment().getTotal_score());
+            map.put("sAssessmentProfessionalismScore", data.getAssessment().getProfessionalism_score());
+            map.put("sAssessmentTaskScore", data.getAssessment().getTask_score());
+        }
+
+        // 处理周记信息
+        if (data.getDuser() != null) {
+            System.out.println(data.getDuser());
+            map.put("sPracticeComment", data.getDuser().getPracticeComment());
+            map.put("sTeachingUnitComment", data.getDuser().getTeachingUnitComment());
+            map.put("sPracticeContent", data.getDuser().getPracticeContent());
+            
+            // 处理周记列表 - 使用循环处理1-16周
+            if (data.getDuser().getDiary() != null && !data.getDuser().getDiary().isEmpty()) {
+                for (int week = 1; week <= 16; week++) {
+                    final int finalWeek = week;
+                    final String weekStr = String.valueOf(week);
+                    data.getDuser().getDiary().stream()
+                        .filter(diary -> weekStr.equals(diary.getWeek()))
+                        .findFirst()
+                        .ifPresent(diary -> {
+                            map.put("sDiaryWeek" + finalWeek, diary.getWeek());
+                            map.put("sDiaryContent" + finalWeek, diary.getContent());
+                            map.put("sDiaryStatus" + finalWeek, diary.getStatus());
+                            map.put("sDiaryDate" + finalWeek, diary.getDiaryDate());
+                        });
+                }
+            }
+            
+            // 处理教师评语 - 使用循环处理week为1,3,5,7,9,11对应1-6周记教师评语
+            if (data.getDuser().getComment() != null && !data.getDuser().getComment().isEmpty()) {
+                // week值和对应的key映射
+                Integer[] weekValues = {1, 3, 5, 7, 9, 11};
+                String[] keyNames = {"sTeacherComment1", "sTeacherComment2", "sTeacherComment3", 
+                                   "sTeacherComment4", "sTeacherComment5", "sTeacherComment6"};
+                
+                // 循环处理1-6周记教师评语
+                for (int i = 0; i < weekValues.length; i++) {
+                    final Integer weekValue = weekValues[i];
+                    final String keyName = keyNames[i];
+                    data.getDuser().getComment().stream()
+                        .filter(comment -> weekValue.equals(comment.getWeek()))
+                        .findFirst()
+                        .ifPresent(comment -> map.put(keyName, comment.getContent()));
+                }
+                
+                // week 13对应总结教师评语
+                data.getDuser().getComment().stream()
+                    .filter(comment -> Integer.valueOf(13).equals(comment.getWeek()))
+                    .findFirst()
+                    .ifPresent(comment -> map.put("sSummaryTeacherComment", comment.getContent()));
+            }
+            
+            // 处理总结（第17周）
+            if (data.getDuser().getDiary() != null) {
+                data.getDuser().getDiary().stream()
+                    .filter(diary -> "achievement".equals(diary.getWeek()))
+                    .findFirst()
+                    .ifPresent(summary -> {
+                        map.put("sAchievementContent", summary.getContent());
+                        map.put("sAchievementDate", summary.getDiaryDate());
+                        map.put("sAchievementStatus", summary.getStatus());
+                    });
+                    
+                data.getDuser().getDiary().stream()
+                    .filter(diary -> "practice".equals(diary.getWeek()))
+                    .findFirst()
+                    .ifPresent(summary -> {
+                        map.put("sPracticeContent", summary.getContent());
+                        map.put("sPracticeDate", summary.getDiaryDate());
+                        map.put("sPracticeStatus", summary.getStatus());
+                    });
+            }
         }
         
         return map;
@@ -98,7 +175,9 @@ public class StudentWordDataUtil {
         // 创建文件夹
         File dir = new File(studentDir);
         if (!dir.exists()) {
-            dir.mkdirs();
+            if (!dir.mkdirs()) {
+                throw new RuntimeException("Failed to create directory: " + studentDir);
+            }
         }
         
         // 生成文件路径：文件夹/班级+负责教师+姓名+学号+.docx
