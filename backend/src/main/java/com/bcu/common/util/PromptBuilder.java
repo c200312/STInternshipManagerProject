@@ -26,10 +26,9 @@ public class PromptBuilder {
                 .sorted(Comparator.comparing(DDiary::getWeek))
                 .map(d -> "第" + d.getWeek() + "周周记：" + d.getContent())
                 .collect(Collectors.toList());
-        String p = String.format(
+        return String.format(
                 "根据学生实习内容周记，撰写指导教师意见，要指出建议，字数200字，使用第三人称撰写：\n学生实习公司：%s\n以下是学生的实习周记：\n%s",
                 companyName, String.join("\n", selectedDiaries)
         );
-        return p;
     }
 }

@@ -19,14 +19,15 @@ public class StudentDetailDataUtil {
 
     /**
      * 构建各种数据的映射关系
-     * @param teachers 教师列表
+     *
+     * @param teachers    教师列表
      * @param internships 实习列表
      * @param assessments 评估列表
-     * @param dUsers 用户列表
+     * @param dUsers      用户列表
      * @return 包含所有映射关系的DataMaps对象
      */
-    public static DataMaps buildDataMaps(List<Teacher> teachers, List<Internship> internships, 
-                                        List<Assessment> assessments, List<DUser> dUsers) {
+    public static DataMaps buildDataMaps(List<Teacher> teachers, List<Internship> internships,
+                                         List<Assessment> assessments, List<DUser> dUsers) {
         Map<Integer, List<Internship>> internshipMap = internships.stream()
                 .collect(Collectors.groupingBy(Internship::getS_id));
         Map<Integer, List<Assessment>> assessmentMap = assessments.stream()
@@ -35,13 +36,14 @@ public class StudentDetailDataUtil {
                 .collect(Collectors.groupingBy(DUser::getId));
         Map<Integer, List<Teacher>> teacherMap = teachers.stream()
                 .collect(Collectors.groupingBy(Teacher::getT_id));
-        
+
         return new DataMaps(internshipMap, assessmentMap, dUserMap, teacherMap);
     }
 
     /**
      * 为单个学生构建StudentDetailDTO
-     * @param student 学生信息
+     *
+     * @param student  学生信息
      * @param dataMaps 数据映射关系
      * @return 构建完成的StudentDetailDTO
      */
@@ -85,20 +87,7 @@ public class StudentDetailDataUtil {
     /**
      * 数据映射关系的容器类
      */
-    public static class DataMaps {
-        public final Map<Integer, List<Internship>> internshipMap;
-        public final Map<Integer, List<Assessment>> assessmentMap;
-        public final Map<String, List<DUser>> dUserMap;
-        public final Map<Integer, List<Teacher>> teacherMap;
-
-        public DataMaps(Map<Integer, List<Internship>> internshipMap,
-                       Map<Integer, List<Assessment>> assessmentMap,
-                       Map<String, List<DUser>> dUserMap,
-                       Map<Integer, List<Teacher>> teacherMap) {
-            this.internshipMap = internshipMap;
-            this.assessmentMap = assessmentMap;
-            this.dUserMap = dUserMap;
-            this.teacherMap = teacherMap;
-        }
+    public record DataMaps(Map<Integer, List<Internship>> internshipMap, Map<Integer, List<Assessment>> assessmentMap,
+                           Map<String, List<DUser>> dUserMap, Map<Integer, List<Teacher>> teacherMap) {
     }
 }

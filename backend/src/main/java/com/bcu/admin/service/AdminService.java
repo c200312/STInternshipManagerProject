@@ -29,9 +29,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
+/**
+ * 管理员服务类
+ * 提供Excel导入、学生信息查询等功能
+ * 
+ * @author System
+ * @since 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -43,6 +48,14 @@ public class AdminService {
     private final AssessmentMapper assessmentMapper;
     private final DUserRepository  dUserRepository;
 
+    /**
+     * 导入Excel文件
+     * 支持导入学生、教师、用户信息
+     * 
+     * @param file 上传的Excel文件，支持.xlsx和.xls格式
+     * @return Result 导入结果，包含成功和失败的记录信息
+     * @throws IOException 文件读取异常
+     */
     public Result importExcel(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         if (fileName == null || (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls"))) {
@@ -67,6 +80,16 @@ public class AdminService {
         }
     }
 
+    /**
+     * 通用数据导入方法
+     * 使用泛型处理不同类型的数据导入
+     * 
+     * @param <T> 数据类型
+     * @param sheet Excel工作表
+     * @param mapper 行数据映射器
+     * @param inserter 数据插入器
+     * @return Result 导入结果
+     */
     private <T> Result importData(Sheet sheet, RowMapper<T> mapper, DataInserter<T> inserter) {
         List<T> successList = new ArrayList<>();
         List<T> errorList = new ArrayList<>();
@@ -87,6 +110,12 @@ public class AdminService {
         else return Result.error(errorList, "该部分导入失败请检查后重新导入");
     }
 
+    /**
+     * 将Excel行数据映射为User对象
+     * 
+     * @param row Excel行数据
+     * @return User 用户对象
+     */
     private User mapUserRow(Row row) {
         User user = new User();
         user.setUsername(ExcelCellUtil.getString(row, 0));
@@ -95,6 +124,12 @@ public class AdminService {
         return user;
     }
 
+    /**
+     * 将Excel行数据映射为Teacher对象
+     * 
+     * @param row Excel行数据
+     * @return Teacher 教师对象
+     */
     private Teacher mapTeacherRow(Row row) {
         Teacher teacher = new Teacher();
         teacher.setT_number(ExcelCellUtil.getString(row, 0));
@@ -109,6 +144,12 @@ public class AdminService {
         return teacher;
     }
 
+    /**
+     * 将Excel行数据映射为Student对象
+     * 
+     * @param row Excel行数据
+     * @return Student 学生对象
+     */
     private Student mapStudentRow(Row row) {
         Student student = new Student();
         student.setStudent_number(ExcelCellUtil.getString(row, 0));
@@ -125,6 +166,13 @@ public class AdminService {
         return student;
     }
 
+    /**
+     * 检测Excel文件类型
+     * 根据表头第一列的内容判断是学生、教师还是用户数据
+     * 
+     * @param header Excel表头行
+     * @return String 文件类型："student"、"teacher"、"user"或"unknown"
+     */
     private String detectType(Row header) {
         String firstCell = header.getCell(0).getStringCellValue();
         if (firstCell.contains("学号")) return "student";
@@ -133,15 +181,28 @@ public class AdminService {
         return "unknown";
     }
 
-    public Result getAllStInfo(){
-        List<Student> students = studentMapper.selectByExample(null);
+    /**
+     * 获取并构建数据映射
+     * @return 包含所有相关数据的映射对象
+     */
+    private StudentDetailDataUtil.DataMaps buildDataMaps() {
         List<Teacher> teachers = teacherMapper.selectByExample(null);
         List<Internship> internships = internshipMapper.selectByExample(null);
         List<Assessment> assessments = assessmentMapper.selectByExample(null);
         List<DUser> dUsers = dUserRepository.findAll();
 
-        // 使用工具类构建数据映射
-        StudentDetailDataUtil.DataMaps dataMaps = StudentDetailDataUtil.buildDataMaps(teachers, internships, assessments, dUsers);
+        return StudentDetailDataUtil.buildDataMaps(teachers, internships, assessments, dUsers);
+    }
+
+    /**
+     * 获取所有学生的详细信息
+     * 包含学生基本信息、实习信息、评估信息等
+     * 
+     * @return Result 包含所有学生详细信息列表的结果
+     */
+    public Result getAllStInfo(){
+        List<Student> students = studentMapper.selectByExample(null);
+        StudentDetailDataUtil.DataMaps dataMaps = buildDataMaps();
 
         List<StudentDetailDTO> result = new ArrayList<>();
 
@@ -154,6 +215,13 @@ public class AdminService {
         return Result.success(result);
     }
 
+    /**
+     * 根据学生ID获取单个学生的详细信息
+     * 包含学生基本信息、实习信息、评估信息等
+     * 
+     * @param id 学生ID
+     * @return Result 包含学生详细信息的结果，如果学生不存在则返回错误信息
+     */
     public Result getStInfo(String id) {
         // 根据学生ID获取学生信息
         Student student = studentMapper.selectByPrimaryKey(Integer.parseInt(id));
@@ -161,14 +229,7 @@ public class AdminService {
             return Result.error("学生不存在");
         }
 
-        // 获取所有相关数据
-        List<Teacher> teachers = teacherMapper.selectByExample(null);
-        List<Internship> internships = internshipMapper.selectByExample(null);
-        List<Assessment> assessments = assessmentMapper.selectByExample(null);
-        List<DUser> dUsers = dUserRepository.findAll();
-
-        // 使用工具类构建数据映射
-        StudentDetailDataUtil.DataMaps dataMaps = StudentDetailDataUtil.buildDataMaps(teachers, internships, assessments, dUsers);
+        StudentDetailDataUtil.DataMaps dataMaps = buildDataMaps();
 
         // 使用工具类构建StudentDetailDTO
         StudentDetailDTO dto = StudentDetailDataUtil.buildStudentDetailDTO(student, dataMaps);
@@ -176,13 +237,38 @@ public class AdminService {
         return Result.success(dto);
     }
 
+    /**
+     * 行数据映射器函数式接口
+     * 用于将Excel行数据映射为指定类型的对象
+     * 
+     * @param <T> 目标对象类型
+     */
     @FunctionalInterface
     interface RowMapper<T> {
+        /**
+         * 将Excel行数据映射为对象
+         * 
+         * @param row Excel行数据
+         * @return T 映射后的对象
+         * @throws Exception 映射过程中的异常
+         */
         T map(Row row) throws Exception;
     }
 
+    /**
+     * 数据插入器函数式接口
+     * 用于将对象插入到数据库中
+     * 
+     * @param <T> 数据对象类型
+     */
     @FunctionalInterface
     interface DataInserter<T> {
+        /**
+         * 插入数据到数据库
+         * 
+         * @param t 要插入的数据对象
+         * @return int 插入影响的行数
+         */
         int insert(T t);
     }
 }
