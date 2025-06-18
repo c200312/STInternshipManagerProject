@@ -49,4 +49,9 @@ public class TeacherController {
     public ResponseEntity<byte[]> downloadStudentsReportsZip(@PathVariable Integer t_id) {
         return service.downloadStudentsReportsZip(t_id);
     }
+
+    @GetMapping("/export-score-table/{t_id}")
+    public ResponseEntity<byte[]> exportScoreTable(@PathVariable Integer t_id) {
+        return service.exportScoreTable(t_id);
+    }
 }

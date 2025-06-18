@@ -43,6 +43,19 @@
             </el-button>
           </div>
 
+          <!-- 新增：导出评分表按钮 -->
+          <div class="download-button-container">
+            <el-button
+                type="warning"
+                :loading="exportingScoreTable"
+                @click="exportScoreTable"
+                class="download-all-btn"
+                :icon="Download"
+            >
+              导出评分表
+            </el-button>
+          </div>
+
           <!-- 电子签名按钮 -->
           <div class="signature-button-container">
             <el-button
@@ -241,6 +254,8 @@ const uploadUrl = `/api/teacher/signature/${teacherInfo.username}`
 const uploadHeaders = {
   'Authorization': localStorage.getItem('token') || ''
 }
+
+const exportingScoreTable = ref(false)
 
 const selectedStudentId = computed(() => {
   return selectedStudentView.value?.student?.s_id?.toString() || ''
@@ -459,6 +474,37 @@ const deleteSignature = async () => {
     deleting.value = false
   }
 }
+
+const exportScoreTable = async () => {
+  try {
+    exportingScoreTable.value = true
+    const teacherResponse = await axios.get(`/teacher/${teacherInfo.username}`)
+    const teacherId = teacherResponse.data.data.t_id
+    if (!teacherId) {
+      ElMessage.error('无法获取教师ID')
+      return
+    }
+    const response = await axios.get(`/teacher/export-score-table/${teacherId}`, {
+      responseType: 'blob'
+    })
+    const blob = new Blob([response.data], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `评分表_${new Date().toLocaleDateString()}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    ElMessage.success('评分表下载成功')
+  } catch (error) {
+    console.error('评分表下载失败:', error)
+    ElMessage.error('评分表下载失败，请稍后重试')
+  } finally {
+    exportingScoreTable.value = false
+  }
+}
+
 // 页面加载时获取学生列表 并选择默认显示学生
 onMounted(async () => {
   await fetchStudents()
