@@ -17,6 +17,7 @@ public class StudentWordDataUtil {
 
     /**
      * 将学生详细信息转换为Word模板所需的数据映射
+     * 如需要将签名图片同样加入映射 可阅读https://deepoove.com/poi-tl/#_%E5%9B%BE%E7%89%87进行添加
      *
      * @param data 学生详细信息DTO
      * @return 包含所有学生信息的Map，用于Word模板填充
