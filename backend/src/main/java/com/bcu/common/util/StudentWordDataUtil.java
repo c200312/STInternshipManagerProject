@@ -4,6 +4,8 @@ import com.bcu.admin.bean.StudentDetailDTO;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public class StudentWordDataUtil {
         map.put("sCounselorPhone", data.getStudent().getCounselor_phone());
 
 
-        // 安全地处理学术导师信息
+        // 处理学术导师信息
         if (data.getAcademicAdvisor() != null) {
             map.put("sAcademicAdvisorName", data.getAcademicAdvisor().getTeacher_name());
             map.put("sAcademicAdvisorPhone", data.getAcademicAdvisor().getPhone());
@@ -49,7 +51,7 @@ public class StudentWordDataUtil {
 
         }
         
-        // 安全地处理行业导师信息
+        // 处理行业导师信息
         if (data.getIndustryAdvisor() != null) {
             map.put("sIndustryAdvisorName", data.getIndustryAdvisor().getTeacher_name());
             map.put("sIndustryAdvisorPhone", data.getIndustryAdvisor().getPhone());
@@ -60,7 +62,7 @@ public class StudentWordDataUtil {
             map.put("sIndustryAdvisorEmail", data.getIndustryAdvisor().getEmail());
         }
         
-        // 安全地处理实习信息
+        // 处理实习信息
         if (data.getInternship() != null) {
             map.put("sInternshipCompanyName", data.getInternship().getCompany_name());
             map.put("sInternshipPracticeBaseName", data.getInternship().getPractice_base_name());
@@ -68,11 +70,12 @@ public class StudentWordDataUtil {
             map.put("sInternshipCreditCode", data.getInternship().getCredit_code());
             map.put("sInternshipPracticeRegion", data.getInternship().getPractice_region());
             map.put("sInternshipApprovalStatus", data.getInternship().getApproval_status());
-            map.put("sInternshipStartDate", data.getInternship().getStart_date());
-            map.put("sInternshipEndDate", data.getInternship().getEnd_date());
+            map.put("sInternshipStartDate", formatDateToChinese(data.getInternship().getStart_date()));
+            map.put("sInternshipEndDate", formatDateToChinese(data.getInternship().getEnd_date()));
+            data.getDuser().getCompany().stream().findFirst().ifPresent(company -> map.put("CompanyIntroduction", company.getIntroduction()));
         }
 
-        // 安全地处理评价信息
+        // 处理评价信息
         if (data.getAssessment() != null) {
             map.put("sAssessmentAttendanceScore", data.getAssessment().getAttendance_score());
             map.put("sAssessmentCompanyScore", data.getAssessment().getCompany_score());
@@ -101,15 +104,14 @@ public class StudentWordDataUtil {
                         .filter(diary -> weekStr.equals(diary.getWeek()))
                         .findFirst()
                         .ifPresent(diary -> {
-                            map.put("sDiaryWeek" + finalWeek, diary.getWeek());
+                        
                             map.put("sDiaryContent" + finalWeek, diary.getContent());
-                            map.put("sDiaryStatus" + finalWeek, diary.getStatus());
-                            map.put("sDiaryDate" + finalWeek, diary.getDiaryDate());
+                            map.put("sDiaryDate" + finalWeek, formatDateRangeToChinese(diary.getDiaryDate()));
                         });
                 }
             }
             
-            // 处理教师评语 - 使用循环处理week为1,3,5,7,9,11对应1-6周记教师评语
+            // 处理教师评语 - 使用循环处理week为1,3,5,7,9,11对应1-6教师评语
             if (data.getDuser().getComment() != null && !data.getDuser().getComment().isEmpty()) {
                 // week值和对应的key映射
                 Integer[] weekValues = {1, 3, 5, 7, 9, 11};
@@ -133,7 +135,7 @@ public class StudentWordDataUtil {
                     .ifPresent(comment -> map.put("sSummaryTeacherComment", comment.getContent()));
             }
             
-            // 处理总结（第17周）
+            // 处理总结
             if (data.getDuser().getDiary() != null) {
                 data.getDuser().getDiary().stream()
                     .filter(diary -> "achievement".equals(diary.getWeek()))
@@ -141,7 +143,6 @@ public class StudentWordDataUtil {
                     .ifPresent(summary -> {
                         map.put("sAchievementContent", summary.getContent());
                         map.put("sAchievementDate", summary.getDiaryDate());
-                        map.put("sAchievementStatus", summary.getStatus());
                     });
                     
                 data.getDuser().getDiary().stream()
@@ -150,12 +151,64 @@ public class StudentWordDataUtil {
                     .ifPresent(summary -> {
                         map.put("sPracticeContent", summary.getContent());
                         map.put("sPracticeDate", summary.getDiaryDate());
-                        map.put("sPracticeStatus", summary.getStatus());
                     });
             }
         }
         
         return map;
+    }
+    
+    /**
+     * 将日期对象转换为中文格式字符串（xxxx年xx月xx日）
+     *
+     * @param date 日期对象
+     * @return 格式化后的中文日期字符串，如果日期为null则返回空字符串
+     */
+    private static String formatDateToChinese(Date date) {
+        if (date == null) {
+            return "";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+        return sdf.format(date);
+    }
+    
+    /**
+     * 将日期对象转换为中文格式的日期范围字符串（xxxx年xx月xx日--xxxx年xx月xx+7日）
+     *
+     * @param startDate 开始日期对象
+     * @return 格式化后的中文日期范围字符串，如果日期为null则返回空字符串
+     */
+    private static String formatDateRangeToChinese(Date startDate) {
+        if (startDate == null) {
+            return "";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+        
+        // 计算结束日期（开始日期+7天）
+        long endTime = startDate.getTime() + 7 * 24 * 60 * 60 * 1000L;
+        Date endDate = new Date(endTime);
+        
+        return sdf.format(startDate) + "--" + sdf.format(endDate);
+    }
+    
+    /**
+     * 将日期字符串转换为中文格式的日期范围字符串（xxxx年xx月xx日--xxxx年xx月xx+7日）
+     *
+     * @param dateStr 日期字符串
+     * @return 格式化后的中文日期范围字符串，如果日期为null或空则返回空字符串
+     */
+    private static String formatDateRangeToChinese(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return "";
+        }
+        try {
+            SimpleDateFormat inputSdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date startDate = inputSdf.parse(dateStr);
+            return formatDateRangeToChinese(startDate);
+        } catch (Exception e) {
+            // 如果解析失败，返回原字符串
+            return dateStr;
+        }
     }
     
     /**
