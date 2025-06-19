@@ -264,7 +264,7 @@ const openDiaryManagement = (diary) => {
   // 加载评语
   const teacherName = JSON.parse(localStorage.getItem('userInfo') || '{}').username
   const allComments = props.studentView.duser.comment || []
-  // 对于成果总结和实践总结，查找时使用week值17
+  // 对于成果总结和实践总结，使用week值17
   const originalWeek = period.weeks[0]
   const searchWeek = (originalWeek === 'achievement' || originalWeek === 'practice') ? 17 : originalWeek
   const match = allComments.find(c => c.week === searchWeek && c.teachername === teacherName)
@@ -470,9 +470,7 @@ const getDiaryStatus = (week) => {
   background-color: #fff;
 }
 
-.el-card {
-  margin-bottom: 20px;
-}
+
 
 .diary-list {
   display: flex;
