@@ -279,9 +279,12 @@ const fetchEnterpriseInfo = async (studentId) => {
 
 const handleViewChange = async (view) => {
   currentView.value = view
-  // 如果有学生列表，选择第一个学生
+  // 如果有学生列表，且当前已选学生还在列表中，则保持不变，否则选第一个学生
   if (studentList.value.length > 0) {
-    await handleStudentSelect(studentList.value[0])
+    if (!selectedStudentView.value || !studentList.value.some(s => s.student.s_id === selectedStudentView.value.student.s_id)) {
+      await handleStudentSelect(studentList.value[0])
+    }
+    // 否则什么都不做，保持当前学生
   } else {
     selectedStudentView.value = null
   }
