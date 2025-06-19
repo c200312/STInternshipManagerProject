@@ -65,6 +65,9 @@
               style="width: 100%"
               :disabled="!canEdit()"
           />
+          <div class="word-count" :class="{ 'warning': content.length < 300 }">
+            当前字数：{{ content.length }} / 最少300字
+          </div>
         </el-form-item>
       </template>
 
@@ -79,6 +82,9 @@
                 style="flex: 1; min-height: 200px; resize: none; width: 1000px"
                 :disabled="!canEdit()"
             />
+            <div class="word-count" :class="{ 'warning': achievementContent.split('\n').filter(line => line.trim()).length < 5 }">
+              当前条目数：{{ achievementContent.split('\n').filter(line => line.trim()).length }} / 最少5条
+            </div>
             <el-tooltip
                 effect="light"
                 placement="right"
@@ -111,6 +117,9 @@
                 style="flex: 1; min-height: 200px; resize: none; width: 1000px"
                 :disabled="!canEdit()"
             />
+            <div class="word-count" :class="{ 'warning': practiceContent.length < 3000 }">
+              当前字数：{{ practiceContent.length }} / 最少3000字
+            </div>
             <el-tooltip
                 effect="light"
                 placement="right"
@@ -188,7 +197,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from '../../utils/request'
 import { ElMessage } from 'element-plus'
 import { QuestionFilled, Plus } from '@element-plus/icons-vue'
@@ -211,6 +220,18 @@ const practiceContent = ref('')
 const currentDiaryStatus = ref('')
 // 周记日期
 const diaryDate = ref('')
+// 是否已修改
+const isModified = ref(false)
+// 是否已保存
+const isSaved = ref(false)
+
+// 监听内容变化
+watch([content, achievementContent, practiceContent], () => {
+  if (currentDiaryStatus.value !== 'APPROVED' && currentDiaryStatus.value !== 'SUBMITTED') {
+    isModified.value = true
+    isSaved.value = false
+  }
+})
 
 // 电子签名相关
 const signatureUrl = ref('')
@@ -236,6 +257,8 @@ const loadDiary = async () => {
       const practiceStatus = practiceFound ? practiceFound.status || 'DRAFT' : 'DRAFT'
       currentDiaryStatus.value = getHigherStatus(achievementStatus, practiceStatus)
     }
+    isModified.value = false
+    isSaved.value = true
   } catch (error) {
     console.error('加载周记数据失败:', error)
     ElMessage.error('加载周记数据失败，请稍后重试')
@@ -264,10 +287,9 @@ const saveDiary = async () => {
       })
     }
 
-    ElMessage.success(selectedWeek.value !== 17 ? '周记保存成功' : '总结保存成功')
-    emit('submit', selectedWeek.value !== 17
-        ? content.value
-        : `${achievementContent.value}\n\n${practiceContent.value}`)
+    ElMessage.success('周记保存成功')
+    isModified.value = false
+    isSaved.value = true
   } catch (error) {
     console.error('保存周记失败:', error)
     ElMessage.error('保存失败，请稍后重试')
@@ -285,6 +307,8 @@ const submitForReview = async () => {
       await axios.post(`/duser/${props.userName}/diary/practice/submit`)
     }
     ElMessage.success('提交审核成功')
+    isModified.value = false
+    isSaved.value = false
     loadDiary() // 重新加载数据以更新状态
   } catch (error) {
     console.error('提交审核失败:', error)
@@ -322,12 +346,25 @@ const getStatusType = (status) => {
 
 // 检查是否可以编辑
 const canEdit = () => {
-  return currentDiaryStatus.value === 'DRAFT' || currentDiaryStatus.value === 'REJECTED'
+  return currentDiaryStatus.value !== 'APPROVED' && currentDiaryStatus.value !== 'SUBMITTED'
 }
 
 // 检查是否可以提交审核
 const canSubmitForReview = () => {
-  return currentDiaryStatus.value === 'DRAFT' || currentDiaryStatus.value === 'REJECTED'
+  if (!canEdit()) return false;
+  if (!isSaved.value) return false;
+  
+  if (selectedWeek.value !== 17) {
+    // 普通周记至少300字
+    return content.value.length >= 300;
+  } else {
+    // 成果总结至少5条
+    const achievementCount = achievementContent.value.split('\n').filter(line => line.trim()).length;
+    // 实习总结至少3000字
+    const practiceLength = practiceContent.value.length;
+    
+    return achievementCount >= 5 && practiceLength >= 3000;
+  }
 }
 
 // 提交处理函数
@@ -464,5 +501,15 @@ onMounted(() => {
 .signature-actions {
   display: flex;
   gap: 10px;
+}
+
+.word-count {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.word-count.warning {
+  color: #f56c6c;
 }
 </style>

@@ -11,9 +11,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration(proxyBeanMethods = false)
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @EnableTransactionManagement
-@ServletComponentScan("com.bcu.config")
+@ServletComponentScan(basePackages = "com.bcu.config")
 @EnableMongoRepositories(basePackages = "com.bcu.information.dao")
-
 public class DemoApplication {
 
     public static void main(String[] args) {
