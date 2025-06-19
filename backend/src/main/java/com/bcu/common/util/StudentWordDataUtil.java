@@ -112,14 +112,15 @@ public class StudentWordDataUtil {
                 }
             }
             
-            // 处理教师评语 - 使用循环处理week为1,3,5,7,9,11对应1-6教师评语
+            // 处理教师评语 - 使用循环处理week为1,3,5,7,9,11,13,15对应1-8教师评语
             if (data.getDuser().getComment() != null && !data.getDuser().getComment().isEmpty()) {
                 // week值和对应的key映射
-                Integer[] weekValues = {1, 3, 5, 7, 9, 11};
+                Integer[] weekValues = {1, 3, 5, 7, 9, 11, 13, 15};
                 String[] keyNames = {"sTeacherComment1", "sTeacherComment2", "sTeacherComment3", 
-                                   "sTeacherComment4", "sTeacherComment5", "sTeacherComment6"};
+                                     "sTeacherComment4", "sTeacherComment5", "sTeacherComment6",
+                                    "sTeacherComment7", "sTeacherComment8"};
                 
-                // 循环处理1-6周记教师评语
+                // 循环处理1-8周记教师评语
                 for (int i = 0; i < weekValues.length; i++) {
                     final Integer weekValue = weekValues[i];
                     final String keyName = keyNames[i];
@@ -129,9 +130,9 @@ public class StudentWordDataUtil {
                         .ifPresent(comment -> map.put(keyName, comment.getContent()));
                 }
                 
-                // week 13对应总结教师评语
+                // week 17对应总结教师评语
                 data.getDuser().getComment().stream()
-                    .filter(comment -> Integer.valueOf(13).equals(comment.getWeek()))
+                    .filter(comment -> Integer.valueOf(17).equals(comment.getWeek()))
                     .findFirst()
                     .ifPresent(comment -> map.put("sSummaryTeacherComment", comment.getContent()));
             }

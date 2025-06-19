@@ -8,7 +8,7 @@
         <el-descriptions-item label="所属实践基地名称">{{ enterpriseInfo.practice_base_name }}</el-descriptions-item>
         <el-descriptions-item label="统一社会信用代码">{{ enterpriseInfo.credit_code }}</el-descriptions-item>
         <el-descriptions-item label="实习地区">{{ enterpriseInfo.practice_region }}</el-descriptions-item>
-        <el-descriptions-item label="实习时间范围">{{ enterpriseInfo.start_date }} - {{ enterpriseInfo.end_date }}</el-descriptions-item>
+        <el-descriptions-item label="实习时间范围">{{ formattedDateRange }}</el-descriptions-item>
         <el-descriptions-item label="实际实习天数">{{ enterpriseInfo.actual_days }}</el-descriptions-item>
         <el-descriptions-item label="实习岗位">{{ enterpriseInfo.position }}</el-descriptions-item>
         <el-descriptions-item label="实习方式">{{ enterpriseInfo.internship_mode }}</el-descriptions-item>
@@ -112,6 +112,29 @@ const hasInfo = computed(() => {
   )
 })
 
+// 格式化日期显示
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${year}年${month}月${day}日`
+}
+
+const formattedDateRange = computed(() => {
+  const startDate = formatDate(enterpriseInfo.value.start_date)
+  const endDate = formatDate(enterpriseInfo.value.end_date)
+  if (startDate && endDate) {
+    return `${startDate} - ${endDate}`
+  } else if (startDate) {
+    return startDate
+  } else if (endDate) {
+    return endDate
+  }
+  return ''
+})
+
 const loadEnterpriseInfo = () => {
   if (props.student && props.student.s_id) {
     axios.get(`/internship/${props.student.s_id}`).then(res => {
@@ -206,4 +229,4 @@ const cancelEdit = () => {
   width: 4%;
   text-align: center;
 }
-</style> 
+</style>
