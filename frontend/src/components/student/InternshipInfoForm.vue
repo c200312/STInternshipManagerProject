@@ -39,6 +39,22 @@
       />
     </el-form-item>
 
+    <el-form-item label="企业简介" required>
+      <el-input
+          v-model="internshipData.company_introduction"
+          type="textarea"
+          :rows="6"
+          placeholder="请输入企业简介，不少于300字"
+          :disabled="isReadOnly"
+          show-word-limit
+          maxlength="2000"
+      />
+      <div v-if="internshipData.company_introduction && internshipData.company_introduction.length < 300" 
+           style="color: #f56c6c; font-size: 12px; margin-top: 5px;">
+        企业简介不少于300字，当前已输入{{ internshipData.company_introduction.length }}字
+      </div>
+    </el-form-item>
+
     <el-form-item label="是否校外实践基地">
       <el-switch
           v-model="internshipData.is_practice_base"
@@ -224,7 +240,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import axios from '@/utils/request';
 
 // 定义组件属性和事件
-const props = defineProps(['s_id'])
+const props = defineProps(['s_id', 'username'])
 const emit = defineEmits(['submit']);
 
 // 缓存节假日数据，避免重复请求
@@ -250,6 +266,7 @@ const STATUS_CONFIG = {
 const createInitialData = () => ({
   internship_id: null,
   company_name: '',
+  company_introduction: '',
   practice_base_name: '',
   is_practice_base: false,
   base_notes: '',
@@ -320,22 +337,33 @@ const statusTagType = computed(() => {
 
 const loadInternshipData = async () => {
   try {
-    const res = await axios.get(`/internship/${props.s_id}`);
+    // 并行请求实习信息和用户信息
+    const [internshipRes, duserRes] = await Promise.all([
+      axios.get(`/internship/${props.s_id}`),
+      axios.get(`/duser/${props.username}`).catch(() => ({ data: { data: null } })) // 如果duser请求失败，返回空数据
+    ]);
     
-    if (!res.data.data[0]) {
-      // 如果没有数据，使用初始化数据
+    if (!internshipRes.data.data[0]) {
+      // 如果没有实习数据，使用初始化数据
       internshipData.value = createInitialData();
-      return;
+    } else {
+      // 合并后端数据和默认值
+      internshipData.value = {
+        ...createInitialData(),
+        ...internshipRes.data.data[0],
+        approval_status: internshipRes.data.data[0].approval_status ?? 0,
+        modification_status: internshipRes.data.data[0].modification_status ?? 0,
+        modification_reason: internshipRes.data.data[0].modification_reason ?? ''
+      };
     }
 
-    // 合并后端数据和默认值
-    internshipData.value = {
-      ...createInitialData(),
-      ...res.data.data[0],
-      approval_status: res.data.data[0].approval_status ?? 0,
-      modification_status: res.data.data[0].modification_status ?? 0,
-      modification_reason: res.data.data[0].modification_reason ?? ''
-    };
+    // 如果有duser数据，提取企业简介
+    if (duserRes.data.data && duserRes.data.data.company && duserRes.data.data.company.length > 0) {
+      const company = duserRes.data.data.company.find(c => c.name === internshipData.value.company_name);
+      if (company && company.introduction) {
+        internshipData.value.company_introduction = company.introduction;
+      }
+    }
 
     // 计算实习天数
     await calculateActualDays();
@@ -410,18 +438,40 @@ const calculateActualDays = async () => {
 
 const handleSave = async () => {
   try {
+    // 验证企业简介字数
+    if (internshipData.value.company_introduction && internshipData.value.company_introduction.length < 300) {
+      ElMessage.error('企业简介不能少于300字');
+      return;
+    }
+
     // 保存时设置为草稿状态（如果是可编辑状态）
     const editableStatuses = [undefined, 0, 3, 5];
     if (editableStatuses.includes(internshipData.value.approval_status)) {
       internshipData.value.approval_status = 0;
     }
 
-    // 始终使用PUT方法，后端会验证并新建数据行
-    const response = await axios.put('/internship', internshipData.value);
+    // 第一个请求：使用DUser接口保存公司信息
+    const duserData = {
+      company: [{
+        name: internshipData.value.company_name,
+        introduction: internshipData.value.company_introduction
+      }]
+    };
+
+    const duserResponse = await axios.patch(`/duser/${props.username}`, duserData);
+    
+    if (!(duserResponse.data.code === '200' )) {
+      ElMessage.error(duserResponse.data.msg || '保存公司信息失败');
+      return;
+    }
+
+    // 第二个请求：使用原本的internship接口保存实习信息（排除企业简介字段）
+    const { company_introduction, ...internshipDataWithoutIntroduction } = internshipData.value;
+    const internshipResponse = await axios.put('/internship', internshipDataWithoutIntroduction);
 
     // 如果是新建的数据，更新internship_id
-    if (!internshipData.value.internship_id && response.data.data?.internship_id) {
-      internshipData.value.internship_id = response.data.data.internship_id;
+    if (!internshipData.value.internship_id && internshipResponse.data.data?.internship_id) {
+      internshipData.value.internship_id = internshipResponse.data.data.internship_id;
     }
 
     ElMessage.success('保存成功');

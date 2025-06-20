@@ -76,6 +76,7 @@ public class DUserService {
                 newUser.setCompany(new ArrayList<>());
                 newUser.setDiary(new ArrayList<>());
                 newUser.setComment(new ArrayList<>());
+                newUser.setPlan(new ArrayList<>());
                 return newUser;
             });
 
@@ -107,7 +108,7 @@ public class DUserService {
                 }
             }
 
-            // 更新周记
+            // 周记：按 week 唯一 → 替换内容或添加（检查审核状态）
             if (partial.getDiary() != null) {
                 for (DDiary d : partial.getDiary()) {
                     DDiary existingDiary = user.getDiary().stream()
@@ -130,15 +131,20 @@ public class DUserService {
                 }
             }
 
-            // 更新评语
+            // 评语：按 week唯一 → 替换或添加
             if (partial.getComment() != null) {
                 for (DComment c : partial.getComment()) {
                     user.getComment().removeIf(existing ->
-                            existing.getWeek().equals(c.getWeek()) &&
-                                    existing.getTeachername().equals(c.getTeachername())
+                            existing.getWeek().equals(c.getWeek())
                     );
                     user.getComment().add(c);
                 }
+            }
+            // 更新校外实习实践计划（基于用户ID，只保留一条记录）
+            if (partial.getPlan() != null && !partial.getPlan().isEmpty()) {
+                // 每个用户(基于id)只保留一条实习计划记录
+                user.setPlan(new ArrayList<>());
+                user.getPlan().add(partial.getPlan().get(0));
             }
 
             // 保存更新

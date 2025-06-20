@@ -9,6 +9,7 @@
         <el-menu @select="currentTab = $event" :default-active="currentTab">
           <el-menu-item index="info">填写基本信息</el-menu-item>
           <el-menu-item index="internship">填写实习信息</el-menu-item>
+          <el-menu-item index="plan">填写实习计划</el-menu-item>
           <el-menu-item index="diary">填写周记</el-menu-item>
           <el-menu-item index="status">周记状态查看</el-menu-item>
           <el-menu-item index="evaluation">实习单位鉴定</el-menu-item>
@@ -26,7 +27,8 @@
               @submit="handleSubmit"
           />
           <BasicInfoForm v-else-if="currentTab === 'info'" :s_id="s_id" />
-          <InternshipInfoForm v-else-if="currentTab === 'internship'" :s_id="s_id" />
+          <InternshipInfoForm v-else-if="currentTab === 'internship'" :s_id="s_id" :username="userName" />
+          <DPlanForm v-else-if="currentTab === 'plan'" :username="userName" @submit="handlePlanSubmit" />
           <!-- 评分评语组件 -->
           <ScoreCommentForm
               v-else-if="currentTab === 'evaluation'"
@@ -53,6 +55,7 @@ import { onMounted, ref } from 'vue'
 import DiaryForm from '../../components/student/DiaryForm.vue'
 import BasicInfoForm from '../../components/student/BasicInfoForm.vue'
 import InternshipInfoForm from '../../components/student/InternshipInfoForm.vue'
+import DPlanForm from '../../components/student/DPlanForm.vue'
 import ScoreCommentForm from '../../components/student/ScoreCommentForm.vue'
 import UserHeader from '../../components/common/UserHeader.vue'
 import WeekStatus from '../../components/student/WeekStatus.vue' // 导入周记状态查看组件
@@ -84,6 +87,12 @@ const loadS_id = async () => {
 const handleEvaluationSave = (data) => {
   console.log('评分与评语保存成功，数据：', data)
   ElMessage.success('评估数据保存成功')
+}
+
+// 处理实习计划提交事件
+const handlePlanSubmit = (data) => {
+  console.log('实习计划提交成功，数据：', data)
+  ElMessage.success('实习计划保存成功')
 }
 
 // 处理编辑周记事件
