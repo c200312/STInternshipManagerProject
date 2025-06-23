@@ -1,156 +1,148 @@
 <template>
   <el-main class="right-main">
-    <el-card v-if="studentView">
-      <!-- 周记状态总览列表 -->
-      <el-card style="margin: 20px 0;">
-        <template #header>
-          <h3>周记状态总览</h3>
-        </template>
-        
-        <!-- 周记状态列表 -->
-        <div class="diary-list">
-          <!-- 表头 -->
-          <div class="diary-item header">
-            <div class="diary-item-content">
-              <div class="header-cell week">周次</div>
-              <div class="header-cell time">审核时间</div>
-              <div class="header-cell reviewer">审核人</div>
-              <div class="header-cell comment">审核原因</div>
-              <div class="header-cell action">操作</div>
-            </div>
+    <!-- 周记状态总览列表 -->
+    <el-card v-if="studentView" style="margin: 20px 0;">
+      <template #header>
+        <h3>周记状态总览</h3>
+      </template>
+      
+      <!-- 周记状态列表 -->
+      <div class="diary-list">
+        <!-- 表头 -->
+        <div class="diary-item header">
+          <div class="diary-item-content">
+            <div class="header-cell week">周次</div>
+            <div class="header-cell status">状态</div>
+            <div class="header-cell time">审核时间</div>
+            <div class="header-cell comment">审核原因</div>
+            <div class="header-cell action">操作</div>
           </div>
+        </div>
 
-          <!-- 周记项目 -->
-          <div v-for="item in allDiaryItems" :key="item.key" class="diary-item">
-            <div class="diary-item-content">
-              <div class="content-cell week">
-                <span class="week-label">{{ item.label }}</span>
-                <el-tag :type="getStatusType(getDiaryStatus(item.week))" size="small">
-                  {{ getStatusText(getDiaryStatus(item.week)) }}
-                </el-tag>
-              </div>
-              <div class="content-cell time">
-                <span class="info-text">
-                  {{ getDiaryInfo(item.week, 'reviewTime') || '-' }}
-                </span>
-              </div>
-              <div class="content-cell reviewer">
-                <span class="info-text">
-                  {{ getDiaryInfo(item.week, 'reviewer') || '-' }}
-                </span>
-              </div>
-              <div class="content-cell comment">
-                <span class="info-text">
-                  {{ getDiaryInfo(item.week, 'reviewComment') || '-' }}
-                </span>
-              </div>
-              <div class="content-cell action">
-                <el-button 
-                  type="primary" 
-                  size="small" 
-                  @click="openDiaryManagement(getDiaryByWeek(item.week))"
-                  :disabled="!getDiaryByWeek(item.week)"
-                >
-                  查看周记
-                </el-button>
-              </div>
+        <!-- 周记项目 -->
+        <div v-for="item in allDiaryItems" :key="item.key" class="diary-item">
+          <div class="diary-item-content">
+            <div class="content-cell week">
+              <span class="week-label">{{ item.label }}</span>
+            </div>
+            <div class="content-cell status">
+              <el-tag :type="getStatusType(getDiaryStatus(item.week))" size="small">
+                {{ getStatusText(getDiaryStatus(item.week)) }}
+              </el-tag>
+            </div>
+            <div class="content-cell time">
+              <span class="info-text">
+                {{ getDiaryInfo(item.week, 'reviewTime') || '-' }}
+              </span>
+            </div>
+            <div class="content-cell comment">
+              <span class="info-text">
+                {{ getDiaryInfo(item.week, 'reviewComment') || '-' }}
+              </span>
+            </div>
+            <div class="content-cell action">
+              <template v-if="item.week === 'achievement' || item.week === 'practice'">
+                <template v-if="isShowViewCommentBtnSingle(item.week)">
+                  <el-button type="primary" size="small" @click="openDiaryManagement(getDiaryByWeek(item.week))" :disabled="!getDiaryByWeek(item.week)">查看周记/评语</el-button>
+                </template>
+                <template v-else-if="isShowReReviewBtn(item.week)">
+                  <el-button type="warning" size="small" @click="openReviewDialog(getDiaryByWeek(item.week))" :disabled="!getDiaryByWeek(item.week)">重新审核</el-button>
+                </template>
+                <template v-else-if="isShowReviewBtn(item.week)">
+                  <el-button type="warning" size="small" @click="openReviewDialog(getDiaryByWeek(item.week))" :disabled="!getDiaryByWeek(item.week)">去审核</el-button>
+                </template>
+                <template v-else>
+                  -
+                </template>
+              </template>
+              <template v-else>
+                <template v-if="isShowViewCommentBtn(item.week)">
+                  <el-button type="primary" size="small" @click="openDiaryManagement(getDiaryByWeek(item.week))" :disabled="!getDiaryByWeek(item.week)">查看周记/评语</el-button>
+                </template>
+                <template v-else-if="isShowReReviewBtn(item.week)">
+                  <el-button type="warning" size="small" @click="openReviewDialog(getDiaryByWeek(item.week))" :disabled="!getDiaryByWeek(item.week)">重新审核</el-button>
+                </template>
+                <template v-else-if="isShowReviewBtn(item.week)">
+                  <el-button type="warning" size="small" @click="openReviewDialog(getDiaryByWeek(item.week))" :disabled="!getDiaryByWeek(item.week)">去审核</el-button>
+                </template>
+                <template v-else>
+                  -
+                </template>
+              </template>
             </div>
           </div>
         </div>
-      </el-card>
-
-      <!-- 周记管理对话框 -->
-      <el-dialog 
-        v-model="diaryManagementVisible" 
-        title="周记管理" 
-        width="800px"
-        :destroy-on-close="true"
-      >
-        <div v-if="currentDiaryPeriod">
-          <h4>{{ getWeekLabel(currentDiaryPeriod.weeks[0]) }} - {{ getWeekLabel(currentDiaryPeriod.weeks[1]) }}</h4>
-          
-          <!-- 周记列表 -->
-          <el-card v-if="currentPeriodDiaries.length" style="margin: 10px 0;">
-            <div v-for="item in currentPeriodDiaries" :key="item.week" class="diary-detail-item">
-              <div class="diary-detail-header">
-                <strong>{{ getWeekLabel(item.week) }}：</strong>
-                <div class="diary-detail-actions">
-                  <el-tag :type="getStatusType(item.status)">{{ getStatusText(item.status) }}</el-tag>
-                  <el-button 
-                    v-if="item.status === 'SUBMITTED'"
-                    type="primary" 
-                    size="small" 
-                    @click="openReviewDialog(item)"
-                  >
-                    审核
-                  </el-button>
-                </div>
-              </div>
-              <p class="diary-content">{{ item.content }}</p>
-              <div v-if="item.reviewComment" class="review-comment">
-                <strong>审核意见：</strong>{{ item.reviewComment }}
-                <div class="review-meta">
-                  审核人：{{ item.reviewer }} | 审核时间：{{ formatDate(item.reviewTime) }}
-                </div>
-              </div>
-            </div>
-          </el-card>
-
-          <!-- 评语部分 -->
-          <div class="comment-section">
-            <el-button type="primary" @click="generateComment" :disabled="!currentDiaryPeriod || currentPeriodDiaries.length === 0">
-              生成评语
-            </el-button>
-
-            <el-input
-              type="textarea"
-              v-model="comment"
-              rows="10"
-              class="comment-textarea"
-              placeholder="生成的评语将显示在这里"
-            />
-            <el-button
-              type="success"
-              class="save-comment-btn"
-              @click="saveComment"
-            >
-              保存评语
-            </el-button>
-          </div>
-        </div>
-      </el-dialog>
-
-      <!-- 审核对话框 -->
-      <el-dialog v-model="reviewDialogVisible" title="审核周记" width="500px">
-        <h4>第 {{ currentReviewDiary?.week }} 周周记</h4>
-        <p class="review-diary-content">{{ currentReviewDiary?.content }}</p>
-
-        <el-form :model="reviewForm" label-width="80px">
-          <el-form-item label="审核结果">
-            <el-radio-group v-model="reviewForm.status">
-              <el-radio label="APPROVED">通过</el-radio>
-              <el-radio label="REJECTED">拒绝</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="审核意见">
-            <el-select v-model="reviewForm.reviewCommentType" placeholder="请选择审核意见" style="width: 100%;">
-              <el-option v-for="item in quickComments" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-            <el-input
-                v-model="reviewForm.reviewComment"
-                type="textarea"
-                rows="4"
-                class="review-comment-input"
-                placeholder="请输入审核意见"
-            />
-          </el-form-item>
-        </el-form>
-        <template #footer>
-          <el-button @click="reviewDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitReview">提交审核</el-button>
-        </template>
-      </el-dialog>
+      </div>
     </el-card>
+
+    <!-- 周记管理对话框 -->
+    <el-dialog 
+      v-model="diaryManagementVisible" 
+      title="周记管理" 
+      width="1000px"
+      :destroy-on-close="true"
+      top="5vh"
+    >
+      <div v-if="currentDiaryPeriod" class="diary-manage-flex">
+        <div class="diary-manage-left">
+          <div class="student-info">
+            <span>学生：{{ props.studentView?.student?.student_name || '-' }}</span>
+            <span style="margin-left: 32px;">学号：{{ props.studentView?.student?.student_number || '-' }}</span>
+          </div>
+          <div v-for="item in currentPeriodDiaries" :key="item.week" class="diary-content-box">
+            <div class="diary-title">{{ getWeekLabel(item.week) }}</div>
+            <el-scrollbar height="120">
+              <div class="diary-content-text">{{ item.content || '暂无内容' }}</div>
+            </el-scrollbar>
+          </div>
+        </div>
+        <div class="diary-manage-right">
+          <div class="comment-title">评语</div>
+          <el-input
+            type="textarea"
+            v-model="comment"
+            rows="10"
+            class="comment-input"
+            placeholder="生成的评语将显示在这里"
+          />
+          <div class="comment-btns">
+            <el-button type="primary" @click="generateComment" :disabled="isGenerateCommentDisabled">生成评语</el-button>
+            <el-button type="success" @click="saveComment" style="margin-left: 16px;">保存评语</el-button>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
+
+    <!-- 审核对话框 -->
+    <el-dialog v-model="reviewDialogVisible" title="审核周记" width="500px">
+      <h4>第 {{ currentReviewDiary?.week }} 周周记</h4>
+      <p class="review-diary-content">{{ currentReviewDiary?.content }}</p>
+
+      <el-form :model="reviewForm" label-width="80px">
+        <el-form-item label="审核结果">
+          <el-radio-group v-model="reviewForm.status">
+            <el-radio label="APPROVED">通过</el-radio>
+            <el-radio label="REJECTED">拒绝</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="审核意见">
+          <el-select v-model="reviewForm.reviewCommentType" placeholder="请选择审核意见" style="width: 100%;">
+            <el-option v-for="item in quickComments" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <el-input
+              v-model="reviewForm.reviewComment"
+              type="textarea"
+              rows="4"
+              class="review-comment-input"
+              placeholder="请输入审核意见"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="reviewDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitReview">提交审核</el-button>
+      </template>
+    </el-dialog>
   </el-main>
 </template>
 
@@ -287,14 +279,14 @@ const getWeekLabel = (week) => {
 
 // 状态配置
 const statusConfig = {
-  DRAFT: { text: '草稿', type: 'info' },
-  SUBMITTED: { text: '已提交', type: 'warning' },
+  DRAFT: { text: '未完成', type: 'info' },
+  SUBMITTED: { text: '待审核', type: 'warning' },
   APPROVED: { text: '已通过', type: 'success' },
   REJECTED: { text: '已拒绝', type: 'danger' }
 }
 
 // 获取状态显示文本
-const getStatusText = (status) => statusConfig[status]?.text || '草稿'
+const getStatusText = (status) => statusConfig[status]?.text || '未完成'
 
 // 获取状态标签类型
 const getStatusType = (status) => statusConfig[status]?.type || 'info'
@@ -461,6 +453,40 @@ const getDiaryStatus = (week) => {
   const diary = getDiaryByWeek(week)
   return diary?.status || 'DRAFT'
 }
+
+// 生成评语按钮禁用逻辑
+const isGenerateCommentDisabled = computed(() => {
+  if (!currentDiaryPeriod.value || !currentPeriodDiaries.value.length) return true;
+  const weeks = currentDiaryPeriod.value.weeks;
+  // 只有两周都为已通过才可用
+  return !weeks.every(w => getDiaryStatus(w) === 'APPROVED');
+});
+
+// 操作按钮显示逻辑（两周都已审核才显示"查看周记/评语"，否则为"-"）
+const isShowViewCommentBtn = (week) => {
+  // 找到当前周所在的周期
+  const period = weekPeriodOptions.find(p => p.weeks.includes(Number(week)) || p.weeks.includes(week));
+  if (!period) return false;
+  // 两周都已审核（已通过或已拒绝）
+  const bothReviewed = period.weeks.every(w => {
+    const status = getDiaryStatus(w);
+    return status === 'APPROVED' || status === 'REJECTED';
+  });
+  return bothReviewed;
+};
+const isShowReReviewBtn = (week) => {
+  return getDiaryStatus(week) === 'REJECTED';
+};
+const isShowReviewBtn = (week) => {
+  return getDiaryStatus(week) === 'SUBMITTED';
+};
+
+// 新增单独判断总结类的按钮逻辑
+const isShowViewCommentBtnSingle = (week) => {
+  // 只判断自身状态
+  const status = getDiaryStatus(week);
+  return status === 'APPROVED' || status === 'REJECTED';
+};
 </script>
 
 <style scoped>
@@ -469,8 +495,6 @@ const getDiaryStatus = (week) => {
   overflow-y: auto;
   background-color: #fff;
 }
-
-
 
 .diary-list {
   display: flex;
@@ -498,7 +522,7 @@ const getDiaryStatus = (week) => {
 
 .diary-item-content {
   display: grid;
-  grid-template-columns: 180px 160px 120px 240px 100px;
+  grid-template-columns: 80px 70px 160px 180px 120px;
   gap: 16px;
   align-items: center;
 }
@@ -508,6 +532,11 @@ const getDiaryStatus = (week) => {
   color: #606266;
   font-weight: 500;
   padding: 0 8px;
+}
+
+.header-cell.status,
+.header-cell.action {
+  text-align: center;
 }
 
 .content-cell {
@@ -529,6 +558,11 @@ const getDiaryStatus = (week) => {
   width: 80px;
 }
 
+.content-cell.status,
+.content-cell.action {
+  justify-content: center;
+}
+
 .content-cell.time,
 .content-cell.reviewer,
 .content-cell.comment {
@@ -546,6 +580,7 @@ const getDiaryStatus = (week) => {
 .content-cell.action {
   display: flex;
   justify-content: flex-end;
+  margin-top: 8px;
 }
 
 .diary-detail-item {
@@ -607,5 +642,79 @@ const getDiaryStatus = (week) => {
 
 .review-comment-input {
   margin-top: 8px;
+}
+
+.content-cell.comment {
+  color: #606266;
+  font-size: 13px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.diary-manage-flex {
+  display: flex;
+  flex-direction: row;
+  min-height: 600px;
+  max-height: 80vh;
+  gap: 32px;
+}
+.diary-manage-left {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  max-width: 480px;
+  overflow-y: auto;
+}
+.student-info {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.diary-content-box {
+  background: #fafbfc;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  min-height: 150px;
+  max-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+.diary-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.diary-content-text {
+  font-size: 14px;
+  color: #333;
+  white-space: pre-line;
+}
+.diary-manage-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  max-width: 400px;
+  height: 100%;
+}
+.comment-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.comment-input {
+  width: 100%;
+  min-height: 220px;
+  margin-bottom: 24px;
+}
+.comment-btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 16px;
 }
 </style>
