@@ -279,10 +279,11 @@ const fetchEnterpriseInfo = async (studentId) => {
 
 const handleViewChange = async (view) => {
   currentView.value = view
+  localStorage.setItem('teacher_current_menu', view)
   // 如果有学生列表，且当前已选学生还在列表中，则保持不变，否则选第一个学生
   if (studentList.value.length > 0) {
     if (!selectedStudentView.value || !studentList.value.some(s => s.student.s_id === selectedStudentView.value.student.s_id)) {
-    await handleStudentSelect(studentList.value[0])
+      await handleStudentSelect(studentList.value[0])
     }
     // 否则什么都不做，保持当前学生
   } else {
@@ -292,6 +293,7 @@ const handleViewChange = async (view) => {
 
 const handleStudentSelect = async (studentView) => {
   selectedStudentView.value = studentView
+  localStorage.setItem('teacher_current_student', studentView.student.s_id.toString())
   await fetchEnterpriseInfo(studentView.student.s_id)
   // 如果当前是报告视图，检查文档状态
   if (currentView.value === 'report') {
@@ -511,9 +513,19 @@ const exportScoreTable = async () => {
 // 页面加载时获取学生列表 并选择默认显示学生
 onMounted(async () => {
   await fetchStudents()
-  // 如果有学生，选择第一个学生
+  // 优先从localStorage恢复菜单和学生
+  const savedView = localStorage.getItem('teacher_current_menu')
+  const savedStudentId = localStorage.getItem('teacher_current_student')
+  if (savedView) {
+    currentView.value = savedView
+  }
   if (studentList.value.length > 0) {
-    await handleStudentSelect(studentList.value[0])
+    let studentToSelect = studentList.value[0]
+    if (savedStudentId) {
+      const found = studentList.value.find(s => s.student.s_id.toString() === savedStudentId)
+      if (found) studentToSelect = found
+    }
+    await handleStudentSelect(studentToSelect)
   }
 })
 </script>
