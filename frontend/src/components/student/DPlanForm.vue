@@ -95,19 +95,15 @@ const planData = reactive({
 });
 
 // 表单验证规则
+const createFieldRules = (fieldName) => [
+  { required: true, message: `请填写${fieldName}`, trigger: 'blur' },
+  { min: 10, message: `${fieldName}至少需要10个字符`, trigger: 'blur' }
+];
+
 const rules = {
-  goals: [
-    { required: true, message: '请填写实习目标和期望', trigger: 'blur' },
-    { min: 10, message: '实习目标和期望至少需要10个字符', trigger: 'blur' }
-  ],
-  jobResponsibilities: [
-    { required: true, message: '请填写岗位职责', trigger: 'blur' },
-    { min: 10, message: '岗位职责至少需要10个字符', trigger: 'blur' }
-  ],
-  task: [
-    { required: true, message: '请填写实习内容与任务', trigger: 'blur' },
-    { min: 10, message: '实习内容与任务至少需要10个字符', trigger: 'blur' }
-  ]
+  goals: createFieldRules('实习目标和期望'),
+  jobResponsibilities: createFieldRules('岗位职责'),
+  task: createFieldRules('实习内容与任务')
 };
 
 // 加载现有的实习计划数据
@@ -116,14 +112,13 @@ const loadPlanData = async () => {
 
   try {
     const response = await axios.get(`/duser/${props.username}`);
-    if ((response.data.code === "200" || response.data.code === 200) &&
-        response.data.data &&
-        response.data.data.plan &&
-        response.data.data.plan.length > 0) {
-      const plan = response.data.data.plan[0];
-      planData.goals = plan.goals || '';
-      planData.jobResponsibilities = plan.jobResponsibilities || '';
-      planData.task = plan.task || '';
+    const plan = response.data?.data?.plan?.[0];
+    if (plan) {
+      Object.assign(planData, {
+        goals: plan.goals || '',
+        jobResponsibilities: plan.jobResponsibilities || '',
+        task: plan.task || ''
+      });
     }
   } catch (error) {
     console.error('加载实习计划数据失败:', error);
@@ -133,50 +128,29 @@ const loadPlanData = async () => {
 
 // 提交表单
 const handleSubmit = async () => {
-  if (!planFormRef.value) return;
-
   try {
-    // 表单验证
-    await planFormRef.value.validate();
-
+    await planFormRef.value?.validate();
     loading.value = true;
 
-    // 构造提交数据
-    const submitData = {
-      plan: [{
-        goals: planData.goals,
-        jobResponsibilities: planData.jobResponsibilities,
-        task: planData.task
-      }]
-    };
-
-    // 提交到后端
+    const submitData = { plan: [planData] };
     const response = await axios.patch(`/duser/${props.username}`, submitData);
 
-    if (response.data.code === "200" || response.data.code === 200) {
+    if (response.data.code === "200") {
       ElMessage.success('实习计划保存成功！');
       emit('submit', planData);
     } else {
-      ElMessage.error(response.data.msg || '保存失败，请重试');
+      ElMessage.error(response.data.msg);
     }
   } catch (error) {
     console.error('提交实习计划失败:', error);
-    if (error.message) {
-      ElMessage.error('表单验证失败，请检查输入内容');
-    } else {
-      ElMessage.error('保存失败，请检查网络连接后重试');
-    }
+    ElMessage.error("请按要求填写");
   } finally {
     loading.value = false;
   }
 };
 
 // 重置表单
-const resetForm = () => {
-  if (planFormRef.value) {
-    planFormRef.value.resetFields();
-  }
-};
+const resetForm = () => planFormRef.value?.resetFields();
 
 // 组件挂载时加载数据
 onMounted(() => {
@@ -217,11 +191,6 @@ onMounted(() => {
 .el-form-item {
   margin-bottom: 0;
 }
-
-.el-textarea {
-  width: 100%;
-}
-
 
 .button-group {
   text-align: center;

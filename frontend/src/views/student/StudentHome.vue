@@ -19,24 +19,23 @@
 
       <el-container>
         <el-main>
-          <!-- 周记表单组件，添加initialWeek和submit事件 -->
+          <!-- 周记表单组件-->
           <DiaryForm
               v-if="currentTab === 'diary' && loaded"
               :userName="userName"
               :initialWeek="editingWeek"
-              @submit="handleSubmit"
           />
           <BasicInfoForm v-else-if="currentTab === 'info'" :s_id="s_id" />
           <InternshipInfoForm v-else-if="currentTab === 'internship'" :s_id="s_id" :username="userName" />
-          <DPlanForm v-else-if="currentTab === 'plan'" :username="userName" @submit="handlePlanSubmit" />
+          <DPlanForm v-else-if="currentTab === 'plan'" :username="userName" />
           <!-- 评分评语组件 -->
           <ScoreCommentForm
               v-else-if="currentTab === 'evaluation'"
               :assessmentData="{ s_id: s_id }"
               :isReadOnly="false"
-              @save-success="handleEvaluationSave"
+
           />
-          <!-- 周记状态查看组件，添加edit-diary事件 -->
+          <!-- 周记状态查看组件 -->
           <WeekStatus
               v-else-if="currentTab === 'status'"
               :username="userName"
@@ -83,17 +82,6 @@ const loadS_id = async () => {
   }
 }
 
-// 处理评分保存事件
-const handleEvaluationSave = (data) => {
-  console.log('评分与评语保存成功，数据：', data)
-  ElMessage.success('评估数据保存成功')
-}
-
-// 处理实习计划提交事件
-const handlePlanSubmit = (data) => {
-  console.log('实习计划提交成功，数据：', data)
-  ElMessage.success('实习计划保存成功')
-}
 
 // 处理编辑周记事件
 const handleEditDiary = (week) => {
@@ -108,13 +96,6 @@ const handleEditDiary = (week) => {
   console.log('编辑周记:', week, '-> 设置为:', editingWeek.value)
 }
 
-// 处理周记提交事件
-const handleSubmit = (content) => {
-  console.log('周记提交成功:', content)
-  // 清除编辑状态
-  editingWeek.value = null
-  ElMessage.success('周记提交成功')
-}
 
 onMounted(() => {
   loadS_id()
