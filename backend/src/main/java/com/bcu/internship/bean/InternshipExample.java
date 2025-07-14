@@ -1511,6 +1511,206 @@ public class InternshipExample {
             addCriterion("company_phone not between", value1, value2, "company_phone");
             return (Criteria) this;
         }
+
+        public Criteria andReview_commentsIsNull() {
+            addCriterion("review_comments is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsIsNotNull() {
+            addCriterion("review_comments is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsEqualTo(String value) {
+            addCriterion("review_comments =", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsNotEqualTo(String value) {
+            addCriterion("review_comments <>", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsGreaterThan(String value) {
+            addCriterion("review_comments >", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsGreaterThanOrEqualTo(String value) {
+            addCriterion("review_comments >=", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsLessThan(String value) {
+            addCriterion("review_comments <", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsLessThanOrEqualTo(String value) {
+            addCriterion("review_comments <=", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsLike(String value) {
+            addCriterion("review_comments like", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsNotLike(String value) {
+            addCriterion("review_comments not like", value, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsIn(List<String> values) {
+            addCriterion("review_comments in", values, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsNotIn(List<String> values) {
+            addCriterion("review_comments not in", values, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsBetween(String value1, String value2) {
+            addCriterion("review_comments between", value1, value2, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_commentsNotBetween(String value1, String value2) {
+            addCriterion("review_comments not between", value1, value2, "review_comments");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameIsNull() {
+            addCriterion("reviewer_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameIsNotNull() {
+            addCriterion("reviewer_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameEqualTo(String value) {
+            addCriterion("reviewer_name =", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameNotEqualTo(String value) {
+            addCriterion("reviewer_name <>", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameGreaterThan(String value) {
+            addCriterion("reviewer_name >", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameGreaterThanOrEqualTo(String value) {
+            addCriterion("reviewer_name >=", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameLessThan(String value) {
+            addCriterion("reviewer_name <", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameLessThanOrEqualTo(String value) {
+            addCriterion("reviewer_name <=", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameLike(String value) {
+            addCriterion("reviewer_name like", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameNotLike(String value) {
+            addCriterion("reviewer_name not like", value, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameIn(List<String> values) {
+            addCriterion("reviewer_name in", values, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameNotIn(List<String> values) {
+            addCriterion("reviewer_name not in", values, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameBetween(String value1, String value2) {
+            addCriterion("reviewer_name between", value1, value2, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewer_nameNotBetween(String value1, String value2) {
+            addCriterion("reviewer_name not between", value1, value2, "reviewer_name");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeIsNull() {
+            addCriterion("review_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeIsNotNull() {
+            addCriterion("review_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeEqualTo(Date value) {
+            addCriterion("review_time =", value, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeNotEqualTo(Date value) {
+            addCriterion("review_time <>", value, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeGreaterThan(Date value) {
+            addCriterion("review_time >", value, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeGreaterThanOrEqualTo(Date value) {
+            addCriterion("review_time >=", value, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeLessThan(Date value) {
+            addCriterion("review_time <", value, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeLessThanOrEqualTo(Date value) {
+            addCriterion("review_time <=", value, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeIn(List<Date> values) {
+            addCriterion("review_time in", values, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeNotIn(List<Date> values) {
+            addCriterion("review_time not in", values, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeBetween(Date value1, Date value2) {
+            addCriterion("review_time between", value1, value2, "review_time");
+            return (Criteria) this;
+        }
+
+        public Criteria andReview_timeNotBetween(Date value1, Date value2) {
+            addCriterion("review_time not between", value1, value2, "review_time");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

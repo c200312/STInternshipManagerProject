@@ -4,6 +4,7 @@ import com.bcu.common.result.Result;
 import com.bcu.teacher.bean.Teacher;
 import com.bcu.teacher.service.TeacherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,5 +38,20 @@ public class TeacherController {
     @DeleteMapping("{id}")
     public Result deleteTeacher(@PathVariable Integer id) {
         return service.deleteTeacher(id);
+    }
+
+    @GetMapping("/students/{t_id}")
+    public Result getStudentsByTeacherId(@PathVariable Integer t_id) {
+        return service.getStudentsByTeacherId(t_id);
+    }
+
+    @GetMapping("/download-reports/{t_id}")
+    public ResponseEntity<byte[]> downloadStudentsReportsZip(@PathVariable Integer t_id) {
+        return service.downloadStudentsReportsZip(t_id);
+    }
+
+    @GetMapping("/export-score-table/{t_id}")
+    public ResponseEntity<byte[]> exportScoreTable(@PathVariable Integer t_id) {
+        return service.exportScoreTable(t_id);
     }
 }

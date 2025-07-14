@@ -5,6 +5,8 @@ import com.bcu.student.bean.Student;
 import com.bcu.student.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +22,7 @@ public class StudentController {
         return studentService.getStudentById(id);
     }
 
-    @GetMapping("/getbyusernumber/{userNumber}")
+    @GetMapping("/getbyusername/{userNumber}")
     public Result getByUsername(@PathVariable Integer userNumber) {
         return studentService.getStudentByUserNumber(userNumber);
     }
@@ -47,5 +49,20 @@ public class StudentController {
     @DeleteMapping("/{id}")
     public Result deleteStudent(@PathVariable Integer id) {
         return studentService.deleteStudent(id);
+    }
+
+    @GetMapping("/checkdocument/{studentNumber}")
+    public Result checkWordDocumentExists(@PathVariable String studentNumber) {
+        return studentService.checkWordDocumentExists(studentNumber);
+    }
+
+    @GetMapping("/download/{studentNumber}")
+    public ResponseEntity<Resource> downloadWordDocument(@PathVariable String studentNumber) {
+        try {
+            return studentService.downloadWordDocument(studentNumber);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

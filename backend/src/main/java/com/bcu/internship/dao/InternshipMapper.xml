@@ -23,6 +23,9 @@
     <result column="address" property="address" jdbcType="VARCHAR" />
     <result column="contact_person" property="contact_person" jdbcType="VARCHAR" />
     <result column="company_phone" property="company_phone" jdbcType="VARCHAR" />
+    <result column="review_comments" property="review_comments" jdbcType="VARCHAR" />
+    <result column="reviewer_name" property="reviewer_name" jdbcType="VARCHAR" />
+    <result column="review_time" property="review_time" jdbcType="TIMESTAMP" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.bcu.internship.bean.Internship" extends="BaseResultMap" >
     <result column="base_notes" property="base_notes" jdbcType="LONGVARCHAR" />
@@ -89,7 +92,7 @@
     internship_id, s_id, company_name, practice_base_name, is_practice_base, credit_code, 
     practice_region, approval_status, start_date, end_date, actual_days, company_count, 
     position, salary, internship_mode, internship_type, company_advisor_name, company_advisor_position, 
-    address, contact_person, company_phone
+    address, contact_person, company_phone, review_comments, reviewer_name, review_time
   </sql>
   <sql id="Blob_Column_List" >
     base_notes
@@ -150,7 +153,8 @@
       position, salary, internship_mode, 
       internship_type, company_advisor_name, 
       company_advisor_position, address, contact_person, 
-      company_phone, base_notes)
+      company_phone, review_comments, reviewer_name, 
+      review_time, base_notes)
     values (#{internship_id,jdbcType=INTEGER}, #{s_id,jdbcType=INTEGER}, #{company_name,jdbcType=VARCHAR}, 
       #{practice_base_name,jdbcType=VARCHAR}, #{is_practice_base,jdbcType=BIT}, #{credit_code,jdbcType=VARCHAR}, 
       #{practice_region,jdbcType=VARCHAR}, #{approval_status,jdbcType=TINYINT}, #{start_date,jdbcType=DATE}, 
@@ -158,7 +162,8 @@
       #{position,jdbcType=VARCHAR}, #{salary,jdbcType=INTEGER}, #{internship_mode,jdbcType=VARCHAR}, 
       #{internship_type,jdbcType=VARCHAR}, #{company_advisor_name,jdbcType=VARCHAR}, 
       #{company_advisor_position,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{contact_person,jdbcType=VARCHAR}, 
-      #{company_phone,jdbcType=VARCHAR}, #{base_notes,jdbcType=LONGVARCHAR})
+      #{company_phone,jdbcType=VARCHAR}, #{review_comments,jdbcType=VARCHAR}, #{reviewer_name,jdbcType=VARCHAR}, 
+      #{review_time,jdbcType=TIMESTAMP}, #{base_notes,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bcu.internship.bean.Internship" >
     insert into sx.internship
@@ -225,6 +230,15 @@
       </if>
       <if test="company_phone != null" >
         company_phone,
+      </if>
+      <if test="review_comments != null" >
+        review_comments,
+      </if>
+      <if test="reviewer_name != null" >
+        reviewer_name,
+      </if>
+      <if test="review_time != null" >
+        review_time,
       </if>
       <if test="base_notes != null" >
         base_notes,
@@ -293,6 +307,15 @@
       </if>
       <if test="company_phone != null" >
         #{company_phone,jdbcType=VARCHAR},
+      </if>
+      <if test="review_comments != null" >
+        #{review_comments,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewer_name != null" >
+        #{reviewer_name,jdbcType=VARCHAR},
+      </if>
+      <if test="review_time != null" >
+        #{review_time,jdbcType=TIMESTAMP},
       </if>
       <if test="base_notes != null" >
         #{base_notes,jdbcType=LONGVARCHAR},
@@ -371,6 +394,15 @@
       <if test="record.company_phone != null" >
         company_phone = #{record.company_phone,jdbcType=VARCHAR},
       </if>
+      <if test="record.review_comments != null" >
+        review_comments = #{record.review_comments,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reviewer_name != null" >
+        reviewer_name = #{record.reviewer_name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.review_time != null" >
+        review_time = #{record.review_time,jdbcType=TIMESTAMP},
+      </if>
       <if test="record.base_notes != null" >
         base_notes = #{record.base_notes,jdbcType=LONGVARCHAR},
       </if>
@@ -402,6 +434,9 @@
       address = #{record.address,jdbcType=VARCHAR},
       contact_person = #{record.contact_person,jdbcType=VARCHAR},
       company_phone = #{record.company_phone,jdbcType=VARCHAR},
+      review_comments = #{record.review_comments,jdbcType=VARCHAR},
+      reviewer_name = #{record.reviewer_name,jdbcType=VARCHAR},
+      review_time = #{record.review_time,jdbcType=TIMESTAMP},
       base_notes = #{record.base_notes,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -429,7 +464,10 @@
       company_advisor_position = #{record.company_advisor_position,jdbcType=VARCHAR},
       address = #{record.address,jdbcType=VARCHAR},
       contact_person = #{record.contact_person,jdbcType=VARCHAR},
-      company_phone = #{record.company_phone,jdbcType=VARCHAR}
+      company_phone = #{record.company_phone,jdbcType=VARCHAR},
+      review_comments = #{record.review_comments,jdbcType=VARCHAR},
+      reviewer_name = #{record.reviewer_name,jdbcType=VARCHAR},
+      review_time = #{record.review_time,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -497,6 +535,15 @@
       <if test="company_phone != null" >
         company_phone = #{company_phone,jdbcType=VARCHAR},
       </if>
+      <if test="review_comments != null" >
+        review_comments = #{review_comments,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewer_name != null" >
+        reviewer_name = #{reviewer_name,jdbcType=VARCHAR},
+      </if>
+      <if test="review_time != null" >
+        review_time = #{review_time,jdbcType=TIMESTAMP},
+      </if>
       <if test="base_notes != null" >
         base_notes = #{base_notes,jdbcType=LONGVARCHAR},
       </if>
@@ -525,6 +572,9 @@
       address = #{address,jdbcType=VARCHAR},
       contact_person = #{contact_person,jdbcType=VARCHAR},
       company_phone = #{company_phone,jdbcType=VARCHAR},
+      review_comments = #{review_comments,jdbcType=VARCHAR},
+      reviewer_name = #{reviewer_name,jdbcType=VARCHAR},
+      review_time = #{review_time,jdbcType=TIMESTAMP},
       base_notes = #{base_notes,jdbcType=LONGVARCHAR}
     where internship_id = #{internship_id,jdbcType=INTEGER}
   </update>
@@ -549,7 +599,10 @@
       company_advisor_position = #{company_advisor_position,jdbcType=VARCHAR},
       address = #{address,jdbcType=VARCHAR},
       contact_person = #{contact_person,jdbcType=VARCHAR},
-      company_phone = #{company_phone,jdbcType=VARCHAR}
+      company_phone = #{company_phone,jdbcType=VARCHAR},
+      review_comments = #{review_comments,jdbcType=VARCHAR},
+      reviewer_name = #{reviewer_name,jdbcType=VARCHAR},
+      review_time = #{review_time,jdbcType=TIMESTAMP}
     where internship_id = #{internship_id,jdbcType=INTEGER}
   </update>
 </mapper>

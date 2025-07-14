@@ -21,4 +21,8 @@ public class DUser {
     private List<DCompany> company = new ArrayList<>(); //实习公司
     private List<DDiary> diary = new ArrayList<>(); //周记
     private List<DComment> comment = new ArrayList<>(); //教师评语
+    private List<DPlan> plan = new ArrayList<>();//实习计划
+    private String practiceComment; //实习实践单位评语
+    private String teachingUnitComment; //教学单位评语
+    private String practiceContent; //校外实习实践内容
 }

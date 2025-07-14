@@ -35,4 +35,5 @@ public interface InternshipMapper {
     int updateByPrimaryKeyWithBLOBs(Internship record);
 
     int updateByPrimaryKey(Internship record);
+
 }

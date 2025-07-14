@@ -10,8 +10,10 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:8080") // 前端地址
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(true)
+                .exposedHeaders("Content-Disposition", "Content-Type") // 暴露必要的响应头
+                .maxAge(3600); // 预检请求的缓存时间
     }
 }

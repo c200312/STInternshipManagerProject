@@ -2,6 +2,7 @@ package com.bcu.information.controller;
 
 import com.bcu.common.result.Result;
 import com.bcu.information.bean.DUser;
+import com.bcu.information.bean.DiaryReviewRequest;
 import com.bcu.information.service.DUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +46,24 @@ public class DUserController {
     @PatchMapping("/{id}")
     public Result patchUpdate(@PathVariable String id, @RequestBody DUser partialUser) {
         return service.patchUpdate(id, partialUser);
+    }
+
+    // 提交周记审核
+    @PostMapping("/{id}/diary/{week}/submit")
+    public Result submitDiaryForReview(@PathVariable String id, @PathVariable String week) {
+        return service.submitDiaryForReview(id, week);
+    }
+
+    // 审核周记
+    @PostMapping("/{id}/diary/{week}/review")
+    public Result reviewDiary(@PathVariable String id, @PathVariable String week, 
+                             @RequestBody DiaryReviewRequest request) {
+        return service.reviewDiary(id, week, request.getStatus(), request.getReviewComment(), request.getReviewer());
+    }
+
+    // 获取待审核的周记列表
+    @GetMapping("/diary/pending")
+    public Result getPendingDiaries() {
+        return service.getPendingDiaries();
     }
 }
