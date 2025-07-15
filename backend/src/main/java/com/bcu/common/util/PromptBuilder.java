@@ -1,6 +1,5 @@
 package com.bcu.common.util;
 
-import com.bcu.information.bean.DCompany;
 import com.bcu.information.bean.DDiary;
 import com.bcu.information.bean.DUser;
 
@@ -22,9 +21,14 @@ public class PromptBuilder {
                 .map(d -> "第" + d.getWeek() + "周周记：" + d.getContent())
                 .collect(Collectors.toList());
         System.out.println(selectedDiaries);
-        return String.format(
+
+        String prompt = String.format(
                 "根据学生实习内容周记，撰写指导教师意见，要指出建议，字数200字，使用第三人称撰写：\n以下是学生的实习周记：\n%s"
                 , String.join("\n", selectedDiaries)
         );
+
+        System.out.println("构建的提示词: " + prompt);
+
+        return prompt;
     }
 }

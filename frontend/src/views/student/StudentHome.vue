@@ -14,6 +14,7 @@
           <el-menu-item index="status">周记状态查看</el-menu-item>
           <el-menu-item index="evaluation">实习单位鉴定</el-menu-item>
           <el-menu-item index="wordreport">Word报告管理</el-menu-item> <!-- 添加Word报告管理菜单项 -->
+          <el-menu-item index="RichEditor">RichEditor</el-menu-item>
         </el-menu>
       </el-aside>
 
@@ -43,6 +44,7 @@
           />
           <!-- Word报告管理组件 -->
           <WordReportManagement v-else-if="currentTab === 'wordreport'" :studentNumber="userName" :s_id="s_id" />
+          <RichEditor v-else-if="currentTab === 'RichEditor'" />
         </el-main>
       </el-container>
     </el-container>
@@ -59,6 +61,7 @@ import ScoreCommentForm from '../../components/student/ScoreCommentForm.vue'
 import UserHeader from '../../components/common/UserHeader.vue'
 import WeekStatus from '../../components/student/WeekStatus.vue' // 导入周记状态查看组件
 import WordReportManagement from '../../components/student/WordReportManagement.vue' // 导入Word报告管理组件
+import RichEditor from '@/components/student/RichEditor.vue'
 import axios from '@/utils/request'
 import { ElMessage } from 'element-plus'
 

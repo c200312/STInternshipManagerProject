@@ -98,16 +98,44 @@
         </div>
         <div class="diary-manage-right">
           <div class="comment-title">评语</div>
-          <el-input
-            type="textarea"
-            v-model="comment"
-            rows="10"
-            class="comment-input"
-            placeholder="生成的评语将显示在这里"
-          />
+          <div class="rich-editor-container">
+            <QuillEditor
+              ref="quillEditor"
+              v-model:content="comment"
+              content-type="text"
+              :options="quillOptions"
+              :class="['comment-rich-editor', { 'generating': isGenerating }]"
+              placeholder="生成的评语将显示在这里"
+            />
+          </div>
           <div class="comment-btns">
-            <el-button type="primary" @click="generateComment" :disabled="isGenerateCommentDisabled">生成评语</el-button>
-            <el-button type="success" @click="saveComment" style="margin-left: 16px;">保存评语</el-button>
+            <div class="generate-btns">
+              <el-button 
+                type="primary" 
+                @click="generateCommentStream" 
+                :disabled="isGenerateCommentDisabled || isGenerating"
+                :loading="isGenerating"
+                icon="el-icon-magic-stick"
+              >
+                {{ isGenerating ? '生成中...' : '流式生成' }}
+              </el-button>
+              <el-button 
+                type="info" 
+                @click="generateComment" 
+                :disabled="isGenerateCommentDisabled || isGenerating"
+                icon="el-icon-document"
+              >
+                同步生成
+              </el-button>
+            </div>
+            <el-button 
+              type="success" 
+              @click="saveComment" 
+              :disabled="!comment || isGenerating"
+              icon="el-icon-check"
+            >
+              保存评语
+            </el-button>
           </div>
         </div>
       </div>
@@ -147,9 +175,11 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import axios from '@/utils/request'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 const props = defineProps({
   studentView: Object
@@ -162,6 +192,8 @@ const currentPeriodDiaries = ref([])
 
 // 评语相关
 const comment = ref('')
+const quillEditor = ref(null)
+const isGenerating = ref(false)
 
 // 审核相关
 const reviewDialogVisible = ref(false)
@@ -309,7 +341,250 @@ const openReviewDialog = (diary) => {
   reviewDialogVisible.value = true
 }
 
-// 生成评语
+// Quill编辑器配置
+const quillOptions = {
+  theme: 'snow',
+  modules: {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ 'header': 1 }, { 'header': 2 }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+      ['clean']
+    ]
+  },
+  placeholder: '生成的评语将显示在这里...'
+}
+
+// 流式生成评语
+const generateCommentStream = async () => {
+  if (!props.studentView?.student || !currentDiaryPeriod.value) {
+    ElMessage.warning('请选择学生和周期')
+    return
+  }
+
+  isGenerating.value = true
+  comment.value = '' // 清空现有内容
+  
+  // 等待下一个tick确保编辑器已更新
+  await nextTick()
+  
+  // 等待Vue更新DOM
+  await nextTick()
+  
+  // 验证编辑器已清空
+  if (quillEditor.value) {
+    try {
+      const quill = quillEditor.value.getQuill()
+      const currentText = quill.getText()
+      console.log('编辑器当前内容:', JSON.stringify(currentText))
+      console.log('编辑器已准备接收流数据')
+    } catch (error) {
+      console.error('检查编辑器状态失败:', error)
+    }
+  }
+
+  let controller = new AbortController()
+  let timeoutId = null
+
+  try {
+    console.log('开始流式生成评语请求...')
+    
+    // 设置请求超时
+    timeoutId = setTimeout(() => {
+      controller.abort()
+      console.log('请求超时，已中止连接')
+    }, 60000) // 60秒超时
+
+    const response = await fetch('/api/dteacher/generate-comment-stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      },
+      body: JSON.stringify({
+        studentId: props.studentView.student.student_number,
+        weeks: currentDiaryPeriod.value.weeks
+      }),
+      signal: controller.signal
+    })
+
+    // 清除超时定时器
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      timeoutId = null
+    }
+
+    console.log('响应状态:', response.status, response.statusText)
+    console.log('响应头:', Object.fromEntries(response.headers.entries()))
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`)
+    }
+
+    // 检查响应类型
+    const contentType = response.headers.get('content-type')
+    console.log('Content-Type:', contentType)
+    
+    if (!contentType || !contentType.includes('text/event-stream')) {
+      console.warn('警告: 响应不是 text/event-stream 类型')
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+    let buffer = ''
+    let accumulatedText = '' // 累积的文本内容
+    let receivedDataCount = 0
+
+    console.log('开始读取流数据...')
+
+    while (true) {
+      const { done, value } = await reader.read()
+      
+      if (done) {
+        console.log('流读取完成，共接收数据块:', receivedDataCount)
+        break
+      }
+
+      receivedDataCount++
+      const chunk = decoder.decode(value, { stream: true })
+      console.log(`接收到数据块 ${receivedDataCount}:`, JSON.stringify(chunk))
+      
+      buffer += chunk
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || '' // 保留不完整的行
+
+      for (const line of lines) {
+        console.log('处理行:', JSON.stringify(line))
+        
+        // 处理空行（SSE心跳）
+        if (line.trim() === '') {
+          console.log('收到心跳包')
+          continue
+        }
+        
+        // 处理SSE数据行
+        if (line.startsWith('data:')) {
+          let data = line.slice(5) // 移除 'data:' 前缀
+          
+          // 处理后端发送的重复data:前缀问题
+          if (data.startsWith('data: ')) {
+            data = data.slice(6) // 再次移除 'data: ' 前缀
+          }
+          
+          console.log('解析到数据:', JSON.stringify(data))
+          
+          if (data === '[DONE]') {
+            console.log('收到完成信号')
+            isGenerating.value = false
+            ElMessage.success('评语生成完成')
+            return
+          } else if (data.startsWith('[ERROR]')) {
+            const errorMsg = data.slice(8) // 移除 '[ERROR] ' 前缀
+            console.error('收到错误信号:', errorMsg)
+            throw new Error(errorMsg)
+          } else if (data.trim()) {
+            // 累积文本内容
+            accumulatedText += data
+            console.log('累积文本长度:', accumulatedText.length)
+            console.log('新增内容:', JSON.stringify(data))
+            
+            // 使用增量追加模式更新编辑器，避免全文本替换
+            if (quillEditor.value) {
+              try {
+                const quill = quillEditor.value.getQuill()
+                
+                // 获取当前编辑器长度
+                const currentLength = quill.getLength()
+                
+                // 在末尾插入新内容（增量追加）
+                quill.insertText(currentLength - 1, data, 'silent')
+                
+                // 不更新Vue绑定数据，避免触发v-model重新渲染导致光标重置
+                // comment.value = accumulatedText
+                
+                // 获取当前用户选择状态
+                const currentSelection = quill.getSelection()
+                
+                // 只有在用户没有选择文本时才自动滚动到底部
+                if (!currentSelection || currentSelection.length === 0) {
+                  // 滚动到底部
+                  if (quill.scrollingContainer) {
+                    quill.scrollingContainer.scrollTop = quill.scrollingContainer.scrollHeight
+                  }
+                }
+                // 不再强制设置光标位置，保持用户当前的选择状态
+                
+                console.log('增量追加完成，当前长度:', quill.getLength())
+              } catch (editorError) {
+                console.error('增量追加失败:', editorError)
+                // 备用方案：保持当前状态，避免触发v-model重新渲染
+                // comment.value = accumulatedText
+              }
+            } else {
+              // 如果编辑器未就绪，暂时不更新数据，等待编辑器就绪
+              console.log('编辑器未就绪，跳过此次更新')
+            }
+            
+            // 添加延迟以实现流式效果
+            await new Promise(resolve => setTimeout(resolve, 50))
+          }
+        } else if (line.startsWith('event: ') || line.startsWith('id: ') || line.startsWith('retry: ')) {
+          // 处理其他SSE字段
+          console.log('SSE元数据:', line)
+        } else if (line.trim()) {
+          // 处理其他非空行
+          console.log('未识别的行:', JSON.stringify(line))
+        }
+      }
+    }
+    
+    // 如果循环正常结束但没有收到[DONE]信号
+    if (isGenerating.value) {
+      console.log('流结束但未收到完成信号')
+      isGenerating.value = false
+      
+      // 流式生成完成后，同步最终数据到Vue绑定
+      if (accumulatedText) {
+        comment.value = accumulatedText
+        ElMessage.success('评语生成完成')
+      } else {
+        ElMessage.warning('未接收到任何数据')
+      }
+    }
+    
+  } catch (error) {
+    console.error('流式生成评语失败:', error)
+    
+    if (error.name === 'AbortError') {
+      ElMessage.error('请求超时，请重试')
+    } else {
+      ElMessage.error('流式生成评语失败: ' + error.message)
+    }
+  } finally {
+    // 清理资源
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+    if (controller) {
+      controller.abort()
+    }
+    isGenerating.value = false
+    console.log('流式生成结束')
+  }
+}
+
+// 同步生成评语
 const generateComment = async () => {
   if (!props.studentView?.student || !currentDiaryPeriod.value) {
     ElMessage.warning('请选择学生和周期')
@@ -322,6 +597,7 @@ const generateComment = async () => {
       weeks: currentDiaryPeriod.value.weeks
     })
     comment.value = res.data.data
+    ElMessage.success('评语生成成功')
   } catch {
     ElMessage.error('生成评语失败')
   }
@@ -706,15 +982,59 @@ const isShowViewCommentBtnSingle = (week) => {
   font-weight: 500;
   margin-bottom: 12px;
 }
-.comment-input {
+.rich-editor-container {
   width: 100%;
-  min-height: 220px;
   margin-bottom: 24px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.comment-rich-editor {
+  min-height: 280px;
+}
+
+.comment-rich-editor :deep(.ql-editor) {
+  min-height: 240px;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 12px 15px;
+}
+
+.comment-rich-editor :deep(.ql-toolbar) {
+  border-bottom: 1px solid #e4e7ed;
+  background-color: #fafafa;
+}
+
+.comment-rich-editor :deep(.ql-container) {
+  border: none;
+  font-family: inherit;
+}
+
+.comment-rich-editor :deep(.ql-editor.ql-blank::before) {
+  color: #c0c4cc;
+  font-style: normal;
+}
+
+/* 流式生成时的动画效果 */
+.comment-rich-editor :deep(.ql-editor) {
+  transition: all 0.3s ease;
+}
+
+.comment-rich-editor.generating :deep(.ql-editor) {
+  background-color: #f8f9fa;
+  border-left: 3px solid #409eff;
 }
 .comment-btns {
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 16px;
+}
+
+.generate-btns {
+  display: flex;
+  gap: 8px;
 }
 </style>
