@@ -51,7 +51,7 @@ public class DTeacherService {
         
         try {
             String comment = aiSelector.get().generateComment(user, weeks);
-            log.info("评语生成成功 - 学生ID: {}, 评语长度: {}", studentId, comment.length());
+            log.info("评语生成成功 - 评语长度: {}", comment.length());
             return comment;
         } catch (Exception e) {
             log.error("评语生成失败 - 学生ID: {}, 错误: {}", studentId, e.getMessage(), e);

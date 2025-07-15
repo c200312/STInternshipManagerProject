@@ -404,19 +404,89 @@ const generateCommentStream = async () => {
       console.log('请求超时，已中止连接')
     }, 60000) // 60秒超时
 
-    const response = await fetch('/api/dteacher/generate-comment-stream', {
+    // 使用 fetchEventSource 进行流式数据处理
+    const { fetchEventSource } = await import('@microsoft/fetch-event-source')
+    
+    await fetchEventSource('/api/dteacher/generate-comment-stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
+        'Cache-Control': 'no-cache'
       },
       body: JSON.stringify({
         studentId: props.studentView.student.student_number,
         weeks: currentDiaryPeriod.value.weeks
       }),
-      signal: controller.signal
+      signal: controller.signal,
+      openWhenHidden: true, // 在浏览器标签页隐藏时保持与服务器的EventSource连接
+      
+      onopen(response) {
+        console.log('SSE连接已打开:', response.status, response.statusText)
+        if (response.ok && response.headers.get('content-type')?.includes('text/event-stream')) {
+          return // 连接成功
+        } else {
+          throw new Error(`连接失败: ${response.status} ${response.statusText}`)
+        }
+      },
+      
+      onmessage(event) {
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] 收到SSE消息:`, event)
+        
+        if (event.data === '[DONE]') {
+          console.log(`[${timestamp}] 收到完成信号`)
+          isGenerating.value = false
+          ElMessage.success('评语生成完成')
+          return
+        }
+        
+        if (event.data.startsWith('[ERROR]')) {
+          const errorMsg = event.data.slice(8)
+          console.error(`[${timestamp}] 收到错误信号:`, errorMsg)
+          isGenerating.value = false
+          ElMessage.error('生成失败: ' + errorMsg)
+          return
+        }
+        
+        if (event.data && event.data.trim()) {
+          console.log(`[${timestamp}] 接收到数据块:`, JSON.stringify(event.data), '数据长度:', event.data.length)
+          
+          // 实时追加到编辑器
+          if (quillEditor.value) {
+            try {
+              const quill = quillEditor.value.getQuill()
+              const currentLength = quill.getLength()
+              quill.insertText(currentLength - 1, event.data, 'silent')
+
+              // 自动滚动到底部
+              const currentSelection = quill.getSelection()
+              if (!currentSelection || currentSelection.length === 0) {
+                if (quill.scrollingContainer) {
+                  quill.scrollingContainer.scrollTop = quill.scrollingContainer.scrollHeight
+                }
+              }
+            } catch (editorError) {
+              console.error('编辑器更新失败:', editorError)
+            }
+          }
+        }
+      },
+      
+      onclose() {
+        console.log('SSE连接已关闭')
+        if (isGenerating.value) {
+          isGenerating.value = false
+          ElMessage.info('连接已关闭')
+        }
+      },
+      
+      onerror(error) {
+        console.error('SSE连接错误:', error)
+        isGenerating.value = false
+        ElMessage.error('连接错误')
+        throw error // 重新抛出错误以停止重连
+      }
     })
 
     // 清除超时定时器
@@ -424,144 +494,8 @@ const generateCommentStream = async () => {
       clearTimeout(timeoutId)
       timeoutId = null
     }
-
-    console.log('响应状态:', response.status, response.statusText)
-    console.log('响应头:', Object.fromEntries(response.headers.entries()))
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`)
-    }
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type')
-    console.log('Content-Type:', contentType)
     
-    if (!contentType || !contentType.includes('text/event-stream')) {
-      console.warn('警告: 响应不是 text/event-stream 类型')
-    }
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder('utf-8')
-    let buffer = ''
-    let accumulatedText = '' // 累积的文本内容
-    let receivedDataCount = 0
-
-    console.log('开始读取流数据...')
-
-    while (true) {
-      const { done, value } = await reader.read()
-      
-      if (done) {
-        console.log('流读取完成，共接收数据块:', receivedDataCount)
-        break
-      }
-
-      receivedDataCount++
-      const chunk = decoder.decode(value, { stream: true })
-      console.log(`接收到数据块 ${receivedDataCount}:`, JSON.stringify(chunk))
-      
-      buffer += chunk
-      const lines = buffer.split('\n')
-      buffer = lines.pop() || '' // 保留不完整的行
-
-      for (const line of lines) {
-        console.log('处理行:', JSON.stringify(line))
-        
-        // 处理空行（SSE心跳）
-        if (line.trim() === '') {
-          console.log('收到心跳包')
-          continue
-        }
-        
-        // 处理SSE数据行
-        if (line.startsWith('data:')) {
-          let data = line.slice(5) // 移除 'data:' 前缀
-          
-          // 处理后端发送的重复data:前缀问题
-          if (data.startsWith('data: ')) {
-            data = data.slice(6) // 再次移除 'data: ' 前缀
-          }
-          
-          console.log('解析到数据:', JSON.stringify(data))
-          
-          if (data === '[DONE]') {
-            console.log('收到完成信号')
-            isGenerating.value = false
-            ElMessage.success('评语生成完成')
-            return
-          } else if (data.startsWith('[ERROR]')) {
-            const errorMsg = data.slice(8) // 移除 '[ERROR] ' 前缀
-            console.error('收到错误信号:', errorMsg)
-            throw new Error(errorMsg)
-          } else if (data.trim()) {
-            // 累积文本内容
-            accumulatedText += data
-            console.log('累积文本长度:', accumulatedText.length)
-            console.log('新增内容:', JSON.stringify(data))
-            
-            // 使用增量追加模式更新编辑器，避免全文本替换
-            if (quillEditor.value) {
-              try {
-                const quill = quillEditor.value.getQuill()
-                
-                // 获取当前编辑器长度
-                const currentLength = quill.getLength()
-                
-                // 在末尾插入新内容（增量追加）
-                quill.insertText(currentLength - 1, data, 'silent')
-                
-                // 不更新Vue绑定数据，避免触发v-model重新渲染导致光标重置
-                // comment.value = accumulatedText
-                
-                // 获取当前用户选择状态
-                const currentSelection = quill.getSelection()
-                
-                // 只有在用户没有选择文本时才自动滚动到底部
-                if (!currentSelection || currentSelection.length === 0) {
-                  // 滚动到底部
-                  if (quill.scrollingContainer) {
-                    quill.scrollingContainer.scrollTop = quill.scrollingContainer.scrollHeight
-                  }
-                }
-                // 不再强制设置光标位置，保持用户当前的选择状态
-                
-                console.log('增量追加完成，当前长度:', quill.getLength())
-              } catch (editorError) {
-                console.error('增量追加失败:', editorError)
-                // 备用方案：保持当前状态，避免触发v-model重新渲染
-                // comment.value = accumulatedText
-              }
-            } else {
-              // 如果编辑器未就绪，暂时不更新数据，等待编辑器就绪
-              console.log('编辑器未就绪，跳过此次更新')
-            }
-            
-            // 添加延迟以实现流式效果
-            await new Promise(resolve => setTimeout(resolve, 50))
-          }
-        } else if (line.startsWith('event: ') || line.startsWith('id: ') || line.startsWith('retry: ')) {
-          // 处理其他SSE字段
-          console.log('SSE元数据:', line)
-        } else if (line.trim()) {
-          // 处理其他非空行
-          console.log('未识别的行:', JSON.stringify(line))
-        }
-      }
-    }
-    
-    // 如果循环正常结束但没有收到[DONE]信号
-    if (isGenerating.value) {
-      console.log('流结束但未收到完成信号')
-      isGenerating.value = false
-      
-      // 流式生成完成后，同步最终数据到Vue绑定
-      if (accumulatedText) {
-        comment.value = accumulatedText
-        ElMessage.success('评语生成完成')
-      } else {
-        ElMessage.warning('未接收到任何数据')
-      }
-    }
+    console.log('fetchEventSource 流式处理完成')
     
   } catch (error) {
     console.error('流式生成评语失败:', error)
