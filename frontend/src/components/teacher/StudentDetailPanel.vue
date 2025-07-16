@@ -5,7 +5,7 @@
       <template #header>
         <h3>周记状态总览</h3>
       </template>
-      
+
       <!-- 周记状态列表 -->
       <div class="diary-list">
         <!-- 表头 -->
@@ -76,12 +76,12 @@
     </el-card>
 
     <!-- 周记管理对话框 -->
-    <el-dialog 
-      v-model="diaryManagementVisible" 
-      title="周记管理" 
-      width="1000px"
-      :destroy-on-close="true"
-      top="5vh"
+    <el-dialog
+        v-model="diaryManagementVisible"
+        title="周记管理"
+        width="1000px"
+        :destroy-on-close="true"
+        top="5vh"
     >
       <div v-if="currentDiaryPeriod" class="diary-manage-flex">
         <div class="diary-manage-left">
@@ -100,39 +100,39 @@
           <div class="comment-title">评语</div>
           <div class="rich-editor-container">
             <QuillEditor
-              ref="quillEditor"
-              v-model:content="comment"
-              content-type="text"
-              :options="quillOptions"
-              :class="['comment-rich-editor', { 'generating': isGenerating }]"
-              placeholder="生成的评语将显示在这里"
+                ref="quillEditor"
+                v-model:content="comment"
+                content-type="text"
+                :options="quillOptions"
+                :class="['comment-rich-editor', { 'generating': isGenerating }]"
+                placeholder="生成的评语将显示在这里"
             />
           </div>
           <div class="comment-btns">
             <div class="generate-btns">
-              <el-button 
-                type="primary" 
-                @click="generateCommentStream" 
-                :disabled="isGenerateCommentDisabled || isGenerating"
-                :loading="isGenerating"
-                icon="el-icon-magic-stick"
+              <el-button
+                  type="primary"
+                  @click="generateCommentStream"
+                  :disabled="isGenerateCommentDisabled || isGenerating"
+                  :loading="isGenerating"
+                  icon="el-icon-magic-stick"
               >
                 {{ isGenerating ? '生成中...' : '流式生成' }}
               </el-button>
-              <el-button 
-                type="info" 
-                @click="generateComment" 
-                :disabled="isGenerateCommentDisabled || isGenerating"
-                icon="el-icon-document"
+              <el-button
+                  type="info"
+                  @click="generateComment"
+                  :disabled="isGenerateCommentDisabled || isGenerating"
+                  icon="el-icon-document"
               >
                 同步生成
               </el-button>
             </div>
-            <el-button 
-              type="success" 
-              @click="saveComment" 
-              :disabled="!comment || isGenerating"
-              icon="el-icon-check"
+            <el-button
+                type="success"
+                @click="saveComment"
+                :disabled="!comment || isGenerating"
+                icon="el-icon-check"
             >
               保存评语
             </el-button>
@@ -180,6 +180,7 @@ import { ElMessage } from 'element-plus'
 import axios from '@/utils/request'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
 
 const props = defineProps({
   studentView: Object
@@ -251,8 +252,8 @@ const allDiaryItems = computed(() => {
   }
   // 成果总结和实践总结
   items.push(
-    { key: 'achievement', week: 'achievement', label: '成果总结' },
-    { key: 'practice', week: 'practice', label: '实践总结' }
+      { key: 'achievement', week: 'achievement', label: '成果总结' },
+      { key: 'practice', week: 'practice', label: '实践总结' }
   )
   return items
 })
@@ -270,21 +271,21 @@ const sortDiaries = (diaries) => {
 // 打开周记管理对话框
 const openDiaryManagement = (diary) => {
   const normalizeWeek = (week, isNumeric) => isNumeric ? Number(week) : week
-  
+
   const period = weekPeriodOptions.find(p => {
     const isNumeric = typeof p.weeks[0] === 'number'
     return p.weeks.includes(normalizeWeek(diary.week, isNumeric))
   })
-  
+
   if (!period) return
-  
+
   currentDiaryPeriod.value = period
   const isNumeric = typeof period.weeks[0] === 'number'
-  const filteredDiaries = props.studentView.duser.diary.filter(d => 
-    period.weeks.includes(normalizeWeek(d.week, isNumeric))
+  const filteredDiaries = props.studentView.duser.diary.filter(d =>
+      period.weeks.includes(normalizeWeek(d.week, isNumeric))
   )
   currentPeriodDiaries.value = sortDiaries(filteredDiaries)
-  
+
   // 加载评语
   const teacherName = JSON.parse(localStorage.getItem('userInfo') || '{}').username
   const allComments = props.studentView.duser.comment || []
@@ -293,7 +294,7 @@ const openDiaryManagement = (diary) => {
   const searchWeek = (originalWeek === 'achievement' || originalWeek === 'practice') ? 17 : originalWeek
   const match = allComments.find(c => c.week === searchWeek && c.teachername === teacherName)
   comment.value = match?.content || ''
-  
+
   diaryManagementVisible.value = true
 }
 
@@ -373,13 +374,13 @@ const generateCommentStream = async () => {
 
   isGenerating.value = true
   comment.value = '' // 清空现有内容
-  
+
   // 等待下一个tick确保编辑器已更新
   await nextTick()
-  
+
   // 等待Vue更新DOM
   await nextTick()
-  
+
   // 验证编辑器已清空
   if (quillEditor.value) {
     try {
@@ -393,113 +394,103 @@ const generateCommentStream = async () => {
   }
 
   let controller = new AbortController()
-  let timeoutId = null
+  let accumulatedText = '' // 累积的文本内容
 
   try {
     console.log('开始流式生成评语请求...')
-    
-    // 设置请求超时
-    timeoutId = setTimeout(() => {
-      controller.abort()
-      console.log('请求超时，已中止连接')
-    }, 60000) // 60秒超时
 
-    // 使用 fetchEventSource 进行流式数据处理
-    const { fetchEventSource } = await import('@microsoft/fetch-event-source')
-    
+    // 使用fetchEventSource处理SSE流
     await fetchEventSource('/api/dteacher/generate-comment-stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'text/event-stream',
-        'Cache-Control': 'no-cache'
+        'Authorization': `bearerToken`,
+        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache',
+
       },
       body: JSON.stringify({
         studentId: props.studentView.student.student_number,
         weeks: currentDiaryPeriod.value.weeks
       }),
       signal: controller.signal,
-      openWhenHidden: true, // 在浏览器标签页隐藏时保持与服务器的EventSource连接
       
+      // 连接打开时的回调
       onopen(response) {
-        console.log('SSE连接已打开:', response.status, response.statusText)
+        console.log('SSE连接已建立，状态:', response.status)
         if (response.ok && response.headers.get('content-type')?.includes('text/event-stream')) {
-          return // 连接成功
+          console.log('SSE流开始接收数据')
+          return // 继续处理
         } else {
           throw new Error(`连接失败: ${response.status} ${response.statusText}`)
         }
       },
       
+      // 接收消息时的回调
       onmessage(event) {
-        const timestamp = new Date().toISOString()
-        console.log(`[${timestamp}] 收到SSE消息:`, event)
+        console.log('接收到SSE消息:', event.data)
         
-        if (event.data === '[DONE]') {
-          console.log(`[${timestamp}] 收到完成信号`)
+        const data = event.data
+        
+        if (data === '[DONE]') {
+          console.log('收到完成信号')
           isGenerating.value = false
           ElMessage.success('评语生成完成')
           return
         }
         
-        if (event.data.startsWith('[ERROR]')) {
-          const errorMsg = event.data.slice(8)
-          console.error(`[${timestamp}] 收到错误信号:`, errorMsg)
-          isGenerating.value = false
-          ElMessage.error('生成失败: ' + errorMsg)
-          return
+        if (data.startsWith('[ERROR]')) {
+          const errorMsg = data.slice(8)
+          console.error('收到错误信号:', errorMsg)
+          throw new Error(errorMsg)
         }
         
-        if (event.data && event.data.trim()) {
-          console.log(`[${timestamp}] 接收到数据块:`, JSON.stringify(event.data), '数据长度:', event.data.length)
+        if (data.trim()) {
+          // 累积文本内容
+          accumulatedText += data
+          console.log('新增内容:', JSON.stringify(data))
+          console.log('累积文本长度:', accumulatedText.length)
           
           // 实时追加到编辑器
           if (quillEditor.value) {
             try {
               const quill = quillEditor.value.getQuill()
               const currentLength = quill.getLength()
-              quill.insertText(currentLength - 1, event.data, 'silent')
-
+              quill.insertText(currentLength - 1, data, 'silent')
+              
               // 自动滚动到底部
               const currentSelection = quill.getSelection()
               if (!currentSelection || currentSelection.length === 0) {
-                if (quill.scrollingContainer) {
-                  quill.scrollingContainer.scrollTop = quill.scrollingContainer.scrollHeight
-                }
+                setTimeout(() => {
+                  quill.scrollIntoView()
+                }, 10)
               }
-            } catch (editorError) {
-              console.error('编辑器更新失败:', editorError)
+            } catch (error) {
+              console.error('更新编辑器失败:', error)
             }
           }
         }
       },
       
+      // 连接关闭时的回调
       onclose() {
         console.log('SSE连接已关闭')
-        if (isGenerating.value) {
-          isGenerating.value = false
-          ElMessage.info('连接已关闭')
-        }
+        isGenerating.value = false
       },
       
+      // 错误处理回调
       onerror(error) {
         console.error('SSE连接错误:', error)
         isGenerating.value = false
-        ElMessage.error('连接错误')
-        throw error // 重新抛出错误以停止重连
+        throw error
       }
     })
 
-    // 清除超时定时器
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-      timeoutId = null
-    }
-    
-    console.log('fetchEventSource 流式处理完成')
-    
+
+
   } catch (error) {
     console.error('流式生成评语失败:', error)
-    
+
     if (error.name === 'AbortError') {
       ElMessage.error('请求超时，请重试')
     } else {
@@ -514,6 +505,12 @@ const generateCommentStream = async () => {
       controller.abort()
     }
     isGenerating.value = false
+    
+    // 流式生成完成后，同步最终数据到Vue绑定
+    if (accumulatedText && !isGenerating.value) {
+      comment.value = accumulatedText
+    }
+    
     console.log('流式生成结束')
   }
 }
@@ -540,9 +537,9 @@ const generateComment = async () => {
 // 保存评语
 const saveComment = async () => {
   if (
-    !comment.value ||
-    !props.studentView?.student?.student_number ||
-    !currentDiaryPeriod.value?.weeks?.[0]
+      !comment.value ||
+      !props.studentView?.student?.student_number ||
+      !currentDiaryPeriod.value?.weeks?.[0]
   ) {
     ElMessage.warning('信息不完整，无法保存')
     return
@@ -563,29 +560,29 @@ const saveComment = async () => {
         }
       ]
     })
-    
+
     if (props.studentView.duser) {
       if (!props.studentView.duser.comment) {
         props.studentView.duser.comment = []
       }
-      
+
       const existingIndex = props.studentView.duser.comment.findIndex(
-        c => c.week === week && c.teachername === teacherName
+          c => c.week === week && c.teachername === teacherName
       )
-      
+
       const newComment = {
         week,
         teachername: teacherName,
         content: comment.value
       }
-      
+
       if (existingIndex >= 0) {
         props.studentView.duser.comment[existingIndex] = newComment
       } else {
         props.studentView.duser.comment.push(newComment)
       }
     }
-    
+
     ElMessage.success('保存成功')
   } catch (err) {
     ElMessage.error('保存失败')
@@ -601,18 +598,18 @@ const submitReview = async () => {
   }
 
   const teacherName = JSON.parse(localStorage.getItem('userInfo') || '{}').username
-  
+
   try {
     await axios.post(`/duser/${props.studentView.student.student_number}/diary/${currentReviewDiary.value.week}/review`, {
       status: reviewForm.value.status,
       reviewComment: reviewForm.value.reviewComment,
       reviewer: teacherName
     })
-    
+
     // 更新本地数据
     if (props.studentView.duser && props.studentView.duser.diary) {
       const diaryIndex = props.studentView.duser.diary.findIndex(
-        d => d.week === currentReviewDiary.value.week
+          d => d.week === currentReviewDiary.value.week
       )
       if (diaryIndex >= 0) {
         props.studentView.duser.diary[diaryIndex].status = reviewForm.value.status
@@ -621,10 +618,10 @@ const submitReview = async () => {
         props.studentView.duser.diary[diaryIndex].reviewTime = new Date().toISOString()
       }
     }
-    
+
     // 更新显示的周记列表
     const displayIndex = currentPeriodDiaries.value.findIndex(
-      d => d.week === currentReviewDiary.value.week
+        d => d.week === currentReviewDiary.value.week
     )
     if (displayIndex >= 0) {
       currentPeriodDiaries.value[displayIndex].status = reviewForm.value.status
@@ -632,7 +629,7 @@ const submitReview = async () => {
       currentPeriodDiaries.value[displayIndex].reviewer = teacherName
       currentPeriodDiaries.value[displayIndex].reviewTime = new Date().toISOString()
     }
-    
+
     reviewDialogVisible.value = false
     ElMessage.success('审核完成')
   } catch (err) {
@@ -651,7 +648,7 @@ const getDiaryByWeek = (week) => {
 const getDiaryInfo = (week, field) => {
   const diary = getDiaryByWeek(week)
   if (!diary) return null
-  
+
   if (field === 'reviewTime') {
     return diary.reviewTime ? formatDate(diary.reviewTime) : null
   }

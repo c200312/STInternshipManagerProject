@@ -6,7 +6,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.time.Duration;
 import java.util.List;
 /*
 * 智谱模型调用
@@ -25,7 +24,7 @@ public class ZhipuAiCommentService implements AiCommentService {
     public String generateComment(DUser user, List<Integer> weeks) {
         String prompt = PromptBuilder.buildPrompt(user, weeks);
         System.out.println("生成评语提示词: " + prompt);
-        
+
         return chatClient.prompt()
                 .user(prompt)
                 .call()
@@ -36,15 +35,28 @@ public class ZhipuAiCommentService implements AiCommentService {
     public Flux<String> generateCommentStream(DUser user, List<Integer> weeks) {
         String promptText = PromptBuilder.buildPrompt(user, weeks);
         System.out.println("流式输出提示词: " + promptText);
-        
-        // 使用ChatClient的流式接口，返回流式数据
+
+        // 直接使用简单的流式调用，不添加任何格式化参数避免缓冲
         return chatClient.prompt()
                 .user(promptText)
                 .stream()
                 .content()
-                .filter(content -> content != null && !content.trim().isEmpty())
-                .doOnNext(content -> System.out.println("流式输出: " + content))
-                .doOnError(error -> System.err.println("流式输出错误: " + error.getMessage()));
+                .filter(chunk -> chunk != null && !chunk.trim().isEmpty())
+                .doOnNext(chunk -> {
+                    long timestamp = System.currentTimeMillis();
+                    System.out.println("[" + timestamp + "] 服务层输出数据块 (长度:" + chunk.length() + "): '" + 
+                        chunk.substring(0, Math.min(50, chunk.length())).replace("\n", "\\n").replace("\r", "\\r") + "'" + 
+                        (chunk.length() > 50 ? "..." : ""));
+                })
+                .doOnSubscribe(subscription -> {
+                    System.out.println("[" + System.currentTimeMillis() + "] 开始订阅流式数据");
+                })
+                .doOnComplete(() -> {
+                    System.out.println("[" + System.currentTimeMillis() + "] 流式数据完成");
+                })
+                .doOnError(error -> {
+                    System.err.println("[" + System.currentTimeMillis() + "] 流式数据错误: " + error.getMessage());
+                });
     }
 
 }
